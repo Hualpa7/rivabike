@@ -5,6 +5,7 @@ interface ImportMetaEnv {
   readonly VITE_SUPABASE_PUBLISHABLE_KEY: string;
   readonly VITE_GOOGLE_MAPS_BROWSER_KEY: string;
   readonly VITE_GOOGLE_PLACE_ID: string;
+  readonly VITE_USE_MOCKS: string;
 }
 
 interface ImportMeta {

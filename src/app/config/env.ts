@@ -14,4 +14,8 @@ export const env = {
   supabasePublishableKey: readEnvVar('VITE_SUPABASE_PUBLISHABLE_KEY'),
   googleMapsBrowserKey: readEnvVar('VITE_GOOGLE_MAPS_BROWSER_KEY'),
   googlePlaceId: readEnvVar('VITE_GOOGLE_PLACE_ID'),
+  // Convencion mock-first, ver docs/data-contract.md. Cada
+  // src/features/<feature>/api/index.ts puede leer esto o chequear
+  // import.meta.env.VITE_USE_MOCKS directamente; ambas formas son validas.
+  useMocks: import.meta.env.VITE_USE_MOCKS === 'true',
 } as const;

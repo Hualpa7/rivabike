@@ -1,4 +1,4 @@
-# Prompt 1 / 2 — Puesta en marcha del scaffold y landing base (Fase 1)
+# Prompt 1 de 4 — Puesta en marcha del scaffold y landing base (Fase 1)
 
 > Pegar este prompt completo a OpenCode dentro del repo clonado (o pasarle
 > el repo + este archivo). Es la Fase 1 de `docs/AGENT.md` sección 69.
@@ -142,6 +142,20 @@ accesibilidad, manejo de errores, loading states, performance (sin
 imágenes gigantes sin optimizar), e integridad de los mocks (shape
 compatible con lo que va a devolver Supabase en la Fase 2).
 
-No avances a Fase 2 (esquema de base de datos / RLS / módulos del
-dashboard) sin confirmar esto — esa fase está en el **Prompt 2**
-(`docs/opencode-prompt-2-full-application.md`).
+No avances a las fases siguientes sin confirmar esto. A partir de acá el
+trabajo se divide en **tres prompts que pueden correr en sesiones de
+OpenCode separadas** (incluso en paralelo, delegando cada uno por su
+lado), construidos ambos contra el mismo contrato de datos:
+
+* `docs/data-contract.md` — el contrato compartido (tipos + firmas de
+  hooks/RPCs) que usan los dos prompts siguientes.
+* `docs/opencode-prompt-2-backend.md` — Supabase: esquema, RLS, Storage,
+  RPCs transaccionales. No toca `src/`.
+* `docs/opencode-prompt-3-frontend.md` — toda la UI (landing terminada +
+  dashboard completo), construida contra mocks que cumplen el mismo
+  contrato, sin esperar a que el backend exista. Incluye la opción de usar
+  **OpenDesign** para iterar el Hero/landing visualmente antes de portearlo
+  a componentes.
+* `docs/opencode-prompt-4-integration.md` — une las dos partes, reemplaza
+  los mocks por Supabase real, y cierra con el hardening final (seguridad,
+  performance, accesibilidad, SEO, testing).
