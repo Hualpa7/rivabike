@@ -36,26 +36,31 @@ firmas exactas.
   `tailwind.config.ts`).
 * Animaciones con `motion`, sutiles, respetando `prefers-reduced-motion`.
 
-## Opcional: OpenDesign para el Hero / landing
+## Si esta sesión parte de un diseño hecho en OpenDesign
 
-Si vas a iterar el diseño visual de la landing con **OpenDesign** antes de
-codearla:
+Si el HTML de esta landing (y/o del dashboard) ya se diseñó con
+**OpenDesign** a partir de `docs/opendesign-brief-landing.md` /
+`docs/opendesign-brief-dashboard.md`, y esa sesión ya fue revisada,
+entonces tu tarea acá es de **descomposición dirigida**, no de diseño desde
+cero:
 
-1. Apuntalo al repo `rivabike` — puede leer `tailwind.config.ts` /
-   `src/index.css` y extraer los tokens `ink`/`paper`/`pink` en vez de que
-   se los repitas.
-2. Dale como referencias de intención los dos Figma de
-   `docs/design-references.md` (secciones 3–4) y el resumen de patrones ya
-   escrito ahí — no le pidas que copie textos ni activos de esos Figma.
-3. El resultado de OpenDesign es HTML de exploración, no componentes React.
-   Usalo para cerrar la dirección visual del Hero y del resto de secciones,
-   y **después** portealo vos (o esta misma sesión de OpenCode) a
-   `src/pages/LandingPage.tsx` + `src/components/landing/*`, conservando el
-   sistema de tokens de Tailwind ya scaffoldeado — no seas literal con
-   markup/CSS que no encaje con esa arquitectura.
+1. Tomá el HTML como fuente de verdad visual (estructura, jerarquía,
+   copy) — no te apartes de él sin razón.
+2. Traducí cada bloque a componentes dentro de la arquitectura ya
+   scaffoldeada (`src/pages/LandingPage.tsx` + `src/components/landing/*`,
+   o el dashboard equivalente), **nunca** como HTML/CSS pegado tal cual.
+3. Cualquier color/tipografía/spacing del HTML se traduce a los tokens ya
+   definidos en `tailwind.config.ts` (`ink`/`paper`/`pink`/`pink.deep`) —
+   no se agregan valores sueltos.
+4. Ningún dato del HTML queda hardcodeado si `docs/data-contract.md` ya
+   define un hook para eso: usalo (con su mock). Si el diseño necesita un
+   dato que el contrato no contempla, no lo inventes por tu cuenta —
+   señalalo como pendiente en vez de improvisar la forma.
+5. Seguí de todas formas la convención mock-first, Zustand para el wizard,
+   y el resto de las reglas de esta sesión que están más abajo.
 
-Si preferís no usar OpenDesign, seguí `docs/design-references.md`
-directamente como ya indicaba el Prompt 1.
+Si no partís de un diseño de OpenDesign, seguí `docs/design-references.md`
+directamente como indicaba el Prompt 1.
 
 ## Qué construir
 
