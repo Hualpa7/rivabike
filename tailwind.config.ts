@@ -8,20 +8,27 @@ export default {
   theme: {
     extend: {
       colors: {
-        ink: '#0A0A0A', // negro casi puro (texto, fondos oscuros)
-        paper: '#FFFFFF', // blanco (fondos claros)
+        ink: 'var(--ink)', // texto / fondos (conmuta en dark)
+        paper: 'var(--paper)', // fondo base (conmuta en dark)
         pink: {
-          DEFAULT: '#EF7D97',
-          deep: '#E8546F',
+          DEFAULT: 'var(--pink)',
+          deep: 'var(--pink-deep)',
         },
+        surface: 'var(--surface-2)', // fondo alterno sutil
+        muted: 'var(--muted)', // texto secundario
+        line: 'var(--border)', // bordes y divisores
+        gold: 'var(--gold)',
       },
       fontFamily: {
-        display: ['"Neue Haas Grotesk Display"', '"Inter"', 'system-ui', 'sans-serif'],
+        display: ['"Archivo"', '"Inter"', 'system-ui', 'sans-serif'],
         body: ['"Inter"', 'system-ui', 'sans-serif'],
       },
       borderRadius: {
         card: '14px',
         pill: '999px',
+      },
+      boxShadow: {
+        soft: '0 4px 24px rgba(10, 10, 10, 0.08)',
       },
     },
   },

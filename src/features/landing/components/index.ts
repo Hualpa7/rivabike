@@ -1,0 +1,10 @@
+export { LandingNav } from './Nav';
+export { Hero } from './Hero';
+export { About } from './About';
+export { HowWeWork } from './HowWeWork';
+export { Reviews } from './Reviews';
+export { Services } from './Services';
+export { ServiceModal } from './ServiceModal';
+export { Trabajos } from './Trabajos';
+export { Contact } from './Contact';
+export { Footer } from './Footer';

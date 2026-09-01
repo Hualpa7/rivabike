@@ -1,0 +1,1755 @@
+<!doctype html>
+<html lang="es-AR"><head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Riva Bike · Panel del taller</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet">
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem('riva-theme');
+        var theme = saved || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <style>
+    /* ─── tokens (misma identidad que Riva Bike landing) ─────────────── */
+    :root {
+      --ink:      #0A0A0A;
+      --paper:    #FFFFFF;
+      --pink:     #EF7D97;
+      --pink-deep:#E8546F;
+
+      --bg:        var(--paper);
+      --surface:   #FFFFFF;
+      --surface-2: color-mix(in oklch, var(--ink) 4%, var(--paper));
+      --fg:        var(--ink);
+      --muted:     color-mix(in oklch, var(--ink) 62%, var(--paper));
+      --border:    color-mix(in oklch, var(--ink) 14%, var(--paper));
+      --accent:    var(--pink);
+      --accent-strong: var(--pink-deep);
+      --on-accent: var(--paper);
+      --accent-soft: color-mix(in oklch, var(--accent) 16%, transparent);
+      --fg-soft:     color-mix(in oklch, var(--fg) 6%, transparent);
+      --ink-soft:    color-mix(in oklch, var(--ink) 94%, var(--paper));
+      --shadow:      color-mix(in oklch, var(--ink) 24%, transparent);
+
+      --ok-bg:  color-mix(in oklch, #2E9E5B 14%, transparent);
+      --ok-fg:  #1F7A45;
+      --warn-bg: color-mix(in oklch, #D98A1F 18%, transparent);
+      --warn-fg: #A86710;
+      --danger-bg: color-mix(in oklch, #D13C3C 14%, transparent);
+      --danger-fg: #B43030;
+
+      --font-display: 'Archivo', 'Inter', system-ui, sans-serif;
+      --font-body:    'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+      --font-mono:    ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, monospace;
+
+      --fs-h1: clamp(28px, 4vw, 40px);
+      --fs-h2: clamp(20px, 3vw, 28px);
+      --fs-h3: 18px;
+      --fs-body: 16px;
+      --fs-meta: 13px;
+
+      --radius: 10px;
+      --radius-lg: 14px;
+
+      --sidebar-w: 264px;
+      --bottombar-h: 64px;
+      color-scheme: light;
+    }
+
+    html[data-theme="dark"] {
+      color-scheme: dark;
+      --bg:        #0B0B0E;
+      --surface:   #141419;
+      --surface-2: #1B1B22;
+      --fg:        #F5F5F7;
+      --muted:     color-mix(in oklch, var(--paper) 66%, transparent);
+      --border:    color-mix(in oklch, var(--paper) 16%, transparent);
+      --accent:    #F48BA5;
+      --accent-strong: #FFA3B8;
+      --on-accent: #1A0B0F;
+      --accent-soft: color-mix(in oklch, var(--accent) 24%, transparent);
+      --fg-soft:     color-mix(in oklch, var(--fg) 7%, transparent);
+      --ink-soft:    color-mix(in oklch, var(--paper) 10%, transparent);
+      --shadow:      color-mix(in oklch, #000000 60%, transparent);
+
+      --ok-bg:  color-mix(in oklch, #3ECB78 16%, transparent);
+      --ok-fg:  #5FDE95;
+      --warn-bg: color-mix(in oklch, #F0A93C 20%, transparent);
+      --warn-fg: #F4BE6B;
+      --danger-bg: color-mix(in oklch, #FF6B6B 18%, transparent);
+      --danger-fg: #FF8A8A;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--font-body);
+      font-size: var(--fs-body);
+      line-height: 1.5;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+    }
+    img, svg { display: block; max-width: 100%; }
+    a { color: inherit; text-decoration: none; }
+    button { font: inherit; cursor: pointer; }
+    h1, h2, h3, h4 { text-wrap: balance; }
+    ::selection { background: var(--accent-strong); color: var(--on-accent); }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+
+    /* ─── app layout ─────────────────────────────────────────────────── */
+    .app { display: grid; grid-template-columns: var(--sidebar-w) 1fr; min-height: 100vh; }
+
+    /* ─── topbar (logo + cerrar sesión, siempre) ─────────────────────── */
+    .topbar {
+      position: sticky; top: 0; z-index: 25;
+      background: color-mix(in oklch, var(--bg) 88%, transparent);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+    }
+    .topbar-inner { display: flex; align-items: center; justify-content: space-between; height: 60px; padding: 0 clamp(16px, 4vw, 40px); }
+    .topbar .tbrand {
+      display: inline-flex; align-items: center;
+      font-family: var(--font-display);
+      font-size: 21px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--fg);
+      text-decoration: none;
+      border-radius: 8px;
+    }
+    .topbar .tbrand em { font-style: normal; color: var(--accent); }
+    .topbar .tbrand:hover { color: var(--accent-strong); }
+    .logout-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      min-height: 40px; padding: 0 16px; border-radius: 999px;
+      border: 1px solid var(--border); background: transparent; color: var(--muted);
+      font-size: 14px; font-weight: 600;
+    }
+    .logout-btn:hover { color: var(--fg); border-color: var(--fg); }
+    .logout-btn svg { width: 17px; height: 17px; }
+
+    /* ─── sidebar (desktop) ──────────────────────────────────────────── */
+    .sidebar {
+      border-right: 1px solid var(--border);
+      background: var(--surface);
+      padding: 20px 14px;
+      display: flex; flex-direction: column;
+      position: sticky; top: 60px; height: calc(100vh - 60px);
+    }
+    .sidebar .brand { display: flex; align-items: center; gap: 10px; padding: 6px 10px 18px; }
+    .brand-mark {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: var(--accent); color: var(--on-accent);
+      display: grid; place-items: center;
+      font-family: var(--font-display); font-weight: 700; font-size: 15px;
+    }
+    .brand-name { font-family: var(--font-display); font-weight: 600; font-size: 16px; letter-spacing: -0.01em; }
+    .brand-role { font-size: 11px; color: var(--muted); }
+
+    .snav { display: flex; flex-direction: column; gap: 2px; margin-top: 8px; }
+    .snav a {
+      display: flex; align-items: center; gap: 12px;
+      padding: 11px 12px; border-radius: var(--radius);
+      font-size: 14.5px; color: var(--muted); font-weight: 500;
+    }
+    .snav a svg { width: 19px; height: 19px; flex: none; }
+    .snav a:hover { background: var(--fg-soft); color: var(--fg); }
+    .snav a[aria-current="page"] { background: var(--accent-soft); color: var(--accent-strong); font-weight: 600; }
+
+    .sidebar-foot { margin-top: auto; padding: 14px 10px 4px; border-top: 1px solid var(--border); }
+    .side-user { display: flex; align-items: center; gap: 10px; }
+    .side-user .av {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: var(--ink-soft); color: var(--fg);
+      display: grid; place-items: center; font-size: 13px; font-weight: 600;
+    }
+    .side-user .nm { font-size: 13.5px; font-weight: 600; }
+    .side-user .rl { font-size: 11.5px; color: var(--muted); }
+
+    .theme-btn {
+      width: 34px; height: 34px; border-radius: 50%;
+      border: 1px solid var(--border); background: transparent; color: var(--fg);
+      display: grid; place-items: center; margin-left: auto;
+    }
+    .theme-btn:hover { border-color: var(--accent); color: var(--accent-strong); }
+    .theme-btn svg { width: 17px; height: 17px; }
+
+    /* ─── main ───────────────────────────────────────────────────────── */
+    .main { padding: 26px clamp(16px, 4vw, 40px) 40px; min-width: 0; }
+    .mbar {
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+      margin-bottom: 24px;
+    }
+    .mbar h1 { font-family: var(--font-display); font-size: var(--fs-h1); margin: 0; letter-spacing: -0.02em; }
+    .mbar .sub { color: var(--muted); font-size: 14px; margin-top: 4px; }
+    .mbar-actions { display: flex; align-items: center; gap: 10px; }
+
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      min-height: 44px; padding: 0 20px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      font-size: 15px; font-weight: 600; letter-spacing: -0.005em;
+      transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+      white-space: nowrap;
+    }
+    .btn:active { transform: translateY(1px); }
+    .btn-primary { background: var(--accent); color: var(--on-accent); }
+    .btn-primary:hover { background: color-mix(in oklch, var(--accent) 82%, black); }
+    .btn-dark { background: var(--fg); color: var(--bg); }
+    .btn-dark:hover { background: var(--accent); color: var(--on-accent); }
+    .btn-secondary { background: transparent; color: var(--fg); border-color: var(--border); }
+    .btn-secondary:hover { border-color: var(--fg); }
+    .btn-ghost { background: transparent; color: var(--fg); padding-inline: 10px; }
+    .btn-ghost:hover { color: var(--accent-strong); }
+    .btn svg { width: 18px; height: 18px; }
+    .btn:focus-visible, .chip:focus-visible, .bb-item:focus-visible, .qty-btn:focus-visible,
+    .pick-item:focus-visible, .step-chip:focus-visible, .row-action:focus-visible,
+    .theme-btn:focus-visible, .logout-btn:focus-visible, .snav a:focus-visible,
+    .snav button:focus-visible, .topbar a:focus-visible, a:focus-visible, button:focus-visible {
+      outline: 2px solid var(--accent-strong); outline-offset: 2px;
+    }
+    .search input:focus-visible { outline: 2px solid var(--accent-strong); outline-offset: 2px; }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+    }
+
+    /* ─── indicadores (Inicio) ───────────────────────────────────────── */
+    .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
+    .kpi { padding: 18px 20px; }
+    .kpi .k-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
+    .kpi .k-num { font-family: var(--font-display); font-size: clamp(30px, 3.5vw, 40px); font-weight: 700; letter-spacing: -0.03em; margin-top: 8px; line-height: 1; }
+    .kpi .k-num.accent { color: var(--accent-strong); }
+    .kpi .k-note { font-size: 13px; color: var(--muted); margin-top: 8px; }
+
+    .home-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 20px; }
+    .total-bar {
+      background: var(--fg); color: var(--bg);
+      border-radius: var(--radius-lg);
+      padding: 22px 24px;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    }
+    .total-bar .t-label { font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.72; }
+    .total-bar .t-amt { font-family: var(--font-display); font-size: clamp(30px, 4vw, 44px); font-weight: 700; color: var(--accent); letter-spacing: -0.03em; line-height: 1; }
+
+    .home-h { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+    .home-h h2 { font-size: var(--fs-h3); font-weight: 600; margin: 0; }
+    .home-h .meta { font-size: 12.5px; color: var(--muted); }
+
+    .price-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 13px 0; border-top: 1px solid var(--border); }
+    .price-row:first-child { border-top: 0; }
+    .price-row .pr-name { font-size: 15px; font-weight: 500; }
+    .price-row .pr-sub { font-size: 12.5px; color: var(--muted); }
+    .price-row .pr-price { font-family: var(--font-mono); font-variant-numeric: tabular-nums; color: var(--accent-strong); font-weight: 600; font-size: 15px; white-space: nowrap; }
+    .price-row .pr-action { color: var(--muted); }
+    .price-row .pr-action:hover { color: var(--accent-strong); }
+
+    .stock-alert { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: var(--radius); border: 1px solid var(--border); margin-top: 10px; background: var(--surface-2); }
+    .stock-alert .sa-ic { width: 14px; height: 14px; border-radius: 50%; flex: none; }
+    .stock-alert .sa-ic.warn { background: var(--warn-fg); }
+    .stock-alert .sa-ic.danger { background: var(--danger-fg); }
+    .stock-alert .sa-txt { font-size: 13.5px; }
+    .stock-alert .sa-qty { margin-left: auto; font-family: var(--font-mono); font-weight: 600; color: var(--muted); }
+
+    /* ─── tabla inventario ───────────────────────────────────────────── */
+    .inv-tools { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+    .search {
+      display: flex; align-items: center; gap: 8px;
+      border: 1px solid var(--border); border-radius: 999px;
+      padding: 0 14px; min-height: 44px; min-width: 240px; background: var(--surface);
+    }
+    .search svg { width: 16px; height: 16px; color: var(--muted); flex: none; }
+    .search input { border: 0; background: transparent; outline: none; font: inherit; font-size: 14px; color: var(--fg); width: 100%; }
+    .chip-filters { display: flex; gap: 8px; flex-wrap: wrap; }
+    .chip {
+      border: 1px solid var(--border); border-radius: 999px;
+      background: transparent; color: var(--muted);
+      font-size: 13px; font-weight: 500; padding: 0 16px; min-height: 44px;
+    }
+    .chip:hover { border-color: var(--fg); color: var(--fg); }
+    .chip[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+
+    .ds-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .ds-table th, .ds-table td { padding: 14px 14px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    .ds-table th { color: var(--muted); font-weight: 600; font-family: var(--font-mono); font-size: 11.5px; letter-spacing: 0.05em; text-transform: uppercase; white-space: nowrap; }
+    .ds-table tbody tr:last-child td { border-bottom: 0; }
+    .ds-table tbody tr:hover { background: var(--fg-soft); }
+    .ds-table .num-col { font-family: var(--font-mono); font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+    .ds-table .pname { font-weight: 600; }
+    .ds-table .psub { font-size: 12.5px; color: var(--muted); }
+
+    .stock-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap;
+    }
+    .stock-badge .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+    .stock-badge.ok { background: var(--ok-bg); color: var(--ok-fg); }
+    .stock-badge.warn { background: var(--warn-bg); color: var(--warn-fg); }
+    .stock-badge.danger { background: var(--danger-bg); color: var(--danger-fg); }
+
+    .row-action { color: var(--muted); }
+    .row-action:hover { color: var(--accent-strong); }
+    .row-action svg { width: 18px; height: 18px; }
+
+    .inv-empty { text-align: center; padding: 34px 20px; color: var(--muted); }
+    .inv-empty .ie-ic { width: 40px; height: 40px; margin: 0 auto 12px; color: var(--muted); opacity: 0.7; }
+    .inv-empty h3 { font-family: var(--font-display); font-size: 17px; font-weight: 600; color: var(--fg); margin: 0 0 4px; }
+    .inv-empty p { font-size: 13.5px; margin: 0; }
+    .inv-empty .btn { margin-top: 16px; }
+
+    /* ─── wizard nueva orden ─────────────────────────────────────────── */
+    .steps { display: flex; align-items: center; gap: 6px; margin-bottom: 24px; }
+    .step-chip { display: flex; align-items: center; gap: 8px; }
+    .step-num {
+      width: 30px; height: 30px; border-radius: 50%;
+      border: 1px solid var(--border); background: var(--surface);
+      display: grid; place-items: center;
+      font-family: var(--font-mono); font-size: 12.5px; font-weight: 600; color: var(--muted);
+      flex: none;
+    }
+    .step-chip[aria-current="step"] .step-num { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+    .step-chip.done .step-num { background: var(--accent-soft); color: var(--accent-strong); border-color: var(--accent); }
+    .step-chip.done .step-num::after { content: '✓'; font-size: 11px; }
+    .step-connector { width: 22px; height: 1px; background: var(--border); flex: none; }
+    .step-chip.done + .step-connector { background: var(--accent); }
+    .step-label { font-size: 12.5px; color: var(--muted); display: none; }
+    .step-chip[aria-current="step"] .step-label,
+    .step-chip.done .step-label { color: var(--fg); }
+
+    .wiz-step { display: none; }
+    .wiz-step.active { display: block; }
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .field label { font-size: 13.5px; color: var(--muted); font-weight: 500; }
+    .field label .req { color: var(--accent-strong); }
+    .input, .textarea {
+      width: 100%; padding: 12px 14px; min-height: 46px;
+      border: 1px solid var(--border); border-radius: var(--radius);
+      background: var(--surface); color: var(--fg); font: inherit; font-size: 15px;
+    }
+    .input:focus, .textarea:focus { outline: 2px solid var(--accent-soft); border-color: var(--accent); }
+    .textarea { min-height: 92px; resize: vertical; line-height: 1.5; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .wiz-btns { display: flex; justify-content: space-between; gap: 12px; margin-top: 28px; }
+    .wiz-btns .g { display: flex; gap: 10px; }
+
+    .pick-list { display: flex; flex-direction: column; gap: 10px; }
+    .pick-item {
+      display: flex; align-items: center; gap: 14px;
+      border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface);
+      padding: 14px 16px; cursor: pointer; transition: border-color 0.15s ease, background 0.15s ease;
+    }
+    .pick-item:hover { border-color: var(--fg); }
+    .pick-item.selected { border-color: var(--accent); background: var(--accent-soft); }
+    .pick-item .pk-check {
+      width: 22px; height: 22px; border-radius: 50%;
+      border: 1.5px solid var(--border); flex: none;
+      display: grid; place-items: center; color: transparent;
+    }
+    .pick-item.selected .pk-check { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+    .pick-item .pk-check svg { width: 13px; height: 13px; }
+    .pick-item .pk-name { font-weight: 600; font-size: 15px; }
+    .pick-item .pk-sub { font-size: 12.5px; color: var(--muted); }
+    .pick-item .pk-price { margin-left: auto; font-family: var(--font-mono); font-variant-numeric: tabular-nums; color: var(--accent-strong); font-weight: 600; font-size: 15px; white-space: nowrap; }
+    .pick-item .pk-qty { display: flex; align-items: center; gap: 10px; }
+    .qty-btn { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--border); background: var(--surface); color: var(--fg); display: grid; place-items: center; font-size: 18px; line-height: 1; }
+    .qty-btn:hover { border-color: var(--accent); color: var(--accent-strong); }
+    .qty-val { font-family: var(--font-mono); font-variant-numeric: tabular-nums; min-width: 22px; text-align: center; font-weight: 600; }
+
+    .summary-bar { background: var(--fg); color: var(--bg); border-radius: var(--radius-lg); padding: 20px 24px; margin-top: 24px; }
+    .summary-bar .sum-row { display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-top: 1px solid color-mix(in oklch, var(--bg) 18%, transparent); font-size: 15px; }
+    .summary-bar .sum-row:first-child { border-top: 0; }
+    .summary-bar .sum-amt { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+    .summary-bar .total { border-top: 1.5px solid var(--accent); margin-top: 6px; padding-top: 14px; }
+    .summary-bar .total .sum-amt { font-size: 26px; font-weight: 700; color: var(--accent); letter-spacing: -0.02em; }
+
+    .notice { display: flex; gap: 12px; align-items: center; padding: 16px 18px; border-radius: var(--radius-lg); border: 1px solid var(--border); background: var(--surface); margin-top: 24px; }
+    .notice svg { width: 22px; height: 22px; color: var(--accent-strong); flex: none; }
+    .notice h3 { margin: 0 0 2px; font-size: 16px; }
+    .notice p { margin: 0; color: var(--muted); font-size: 13.5px; }
+
+    /* ─── pantallas navegables ───────────────────────────────────────── */
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    /* ─── bottom bar (mobile): una sola fila deslizable tipo drawer ──── */
+    .bottombar {
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
+      background: color-mix(in oklch, var(--bg) 88%, transparent);
+      backdrop-filter: blur(14px);
+      border-top: 1px solid var(--border);
+      display: none;
+    }
+    .bb-scroll {
+      display: flex; align-items: center; gap: 2px;
+      padding: 6px 10px calc(6px + env(safe-area-inset-bottom));
+      overflow-x: auto; overscroll-behavior-x: contain;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .bb-scroll::-webkit-scrollbar { display: none; }
+    .bb-item {
+      flex: none;
+      display: flex; flex-direction: column; align-items: center; gap: 3px;
+      min-width: 84px; min-height: 52px; padding: 8px 6px;
+      background: transparent; border: 0; border-radius: 12px;
+      color: var(--muted); font-size: 10.5px; font-weight: 600;
+    }
+    .bb-item svg { width: 22px; height: 22px; }
+    .bb-item:hover { color: var(--fg); }
+    .bb-item[aria-current="page"] { color: var(--accent-strong); }
+    .bb-item[aria-current="page"] svg { filter: drop-shadow(0 0 6px var(--accent-soft)); }
+    .bb-item.bb-new {
+      margin-right: 6px;
+      width: 52px; min-width: 52px;
+      height: 52px; border-radius: 16px;
+      justify-content: center;
+      background: var(--accent); color: var(--on-accent);
+    }
+    .bb-item.bb-new span { display: none; }
+    .bb-item.bb-new:hover { color: var(--on-accent); }
+    .bb-item.bb-new svg { width: 24px; height: 24px; }
+
+    /* ─── inventario como cards (mobile < 640) ───────────────────────── */
+    .inv-cards { display: none; }
+
+    /* ─── responsive ─────────────────────────────────────────────────── */
+    @media (max-width: 1040px) {
+      .kpis { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 920px) {
+      .app { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+      .bottombar { display: block; }
+      .main { padding-bottom: calc(var(--bottombar-h) + 28px); }
+      .nowrap-main { display: none; }
+    }
+    @media (max-width: 640px) {
+      .home-grid { grid-template-columns: 1fr; }
+      .form-grid { grid-template-columns: 1fr; }
+      .kpis { grid-template-columns: 1fr 1fr; }
+      .step-label { display: none; }
+      .ds-table { display: none; }
+      .inv-cards { display: block; }
+    }
+    @media (max-width: 400px) {
+      .kpis { grid-template-columns: 1fr; }
+      .mbar { flex-direction: column; align-items: stretch; gap: 14px; }
+      .mbar-actions { justify-content: flex-end; }
+    }
+
+    /* ─── inventario como cards (mobile < 640) ───────────────────────── */
+    .incard { border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface); padding: 16px; }
+    .incard + .incard { margin-top: 12px; }
+    .incard .ic-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+    .incard .pname { font-weight: 600; font-size: 15px; }
+    .incard .psub { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+    .incard .ic-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 12px; font-size: 13.5px; }
+    .incard .ic-label { color: var(--muted); }
+    .incard .ic-val { font-weight: 600; }
+    .incard .ic-val.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; color: var(--accent-strong); }
+
+    /* ─── trabajos / servicios ───────────────────────────────────────── */
+    .svc-tools { display: flex; justify-content: space-between; align-items: center; gap: 14px; margin-bottom: 18px; flex-wrap: wrap; }
+    .svc-tools h2 { font-size: var(--fs-h3); margin: 0; }
+    .svc-list { display: flex; flex-direction: column; }
+    .svc-row {
+      display: flex; align-items: center; gap: 14px;
+      padding: 16px 0; border-top: 1px solid var(--border);
+    }
+    .svc-row:first-child { border-top: 0; }
+    .svc-row .sv-lbl { flex: 1; min-width: 0; }
+    .svc-row .sv-name { font-size: 15px; font-weight: 600; }
+    .svc-row .sv-sub { font-size: 12.5px; color: var(--muted); }
+    .svc-row .sv-price { font-family: var(--font-mono); font-variant-numeric: tabular-nums; color: var(--accent-strong); font-weight: 600; font-size: 15px; white-space: nowrap; }
+    .svc-row .sv-edit { color: var(--muted); }
+    .svc-row .sv-edit:hover { color: var(--accent-strong); }
+    .svc-row .sv-edit svg { width: 18px; height: 18px; }
+    .status { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+    .status .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+    .status.open { background: var(--accent-soft); color: var(--accent-strong); }
+    .status.done { background: var(--ok-bg); color: var(--ok-fg); }
+    .status.wip { background: var(--warn-bg); color: var(--warn-fg); }
+
+    /* ─── órdenes ────────────────────────────────────────────────────── */
+    .ord-list { display: flex; flex-direction: column; }
+    .ord-row {
+      display: flex; align-items: center; gap: 14px;
+      padding: 16px 14px; border-top: 1px solid var(--border);
+      cursor: pointer; border-radius: 8px;
+      transition: background 0.15s ease;
+    }
+    .ord-row:first-child { border-top: 0; }
+    .ord-row:hover { background: var(--fg-soft); }
+    .ord-row .or-main { flex: 1; min-width: 0; }
+    .ord-row .or-id { font-family: var(--font-mono); font-size: 12px; color: var(--muted); letter-spacing: 0.03em; }
+    .ord-row .or-name { font-weight: 600; font-size: 15px; margin-top: 2px; }
+    .ord-row .or-sub { font-size: 12.5px; color: var(--muted); }
+
+    /* ─── galería ────────────────────────────────────────────────────── */
+    .gal-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .gal-item { position: relative; border-radius: var(--radius-lg); overflow: hidden; }
+    .gal-item .ph-img { aspect-ratio: 4 / 3; border-radius: var(--radius-lg); }
+    .gal-num {
+      position: absolute; top: 10px; left: 10px;
+      min-width: 30px; height: 30px; padding: 0 8px;
+      border-radius: 999px;
+      display: grid; place-items: center;
+      background: color-mix(in oklch, var(--bg) 82%, transparent);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--border);
+      font-family: var(--font-mono); font-size: 12px; font-weight: 600; color: var(--fg);
+    }
+    .gal-cap {
+      position: absolute; left: 10px; right: 10px; bottom: 10px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      background: color-mix(in oklch, var(--bg) 82%, transparent);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--border);
+      font-size: 12.5px; font-weight: 600;
+    }
+    @media (max-width:640px){ .gal-grid { grid-template-columns: 1fr; } }
+
+    /* ─── modales (sistema reutilizable) ─────────────────────────────── */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 60;
+      background: color-mix(in oklch, var(--ink) 55%, transparent);
+      backdrop-filter: blur(6px);
+      display: grid; align-items: center; justify-items: center;
+      padding: 20px;
+      opacity: 0; visibility: hidden;
+      transition: opacity 0.2s ease, visibility 0.2s ease;
+    }
+    .modal-overlay.open { opacity: 1; visibility: visible; }
+    .modal-sheet {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      width: 100%; max-width: 460px;
+      max-height: calc(100vh - 40px);
+      overflow: hidden;
+      display: flex; flex-direction: column;
+      box-shadow: 0 24px 60px var(--shadow);
+      transform: translateY(12px) scale(0.98);
+      transition: transform 0.2s ease;
+    }
+    .modal-overlay.open .modal-sheet { transform: translateY(0) scale(1); }
+    .modal-sheet[hidden] { display: none; }
+    .modal-head {
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+      padding: 20px 22px 0;
+    }
+    .modal-head h3 { font-family: var(--font-display); font-size: 19px; font-weight: 600; letter-spacing: -0.01em; margin: 0; text-wrap: balance; }
+    .modal-head .m-sub { font-size: 13px; color: var(--muted); margin-top: 3px; }
+    .modal-close {
+      flex: none; width: 40px; height: 40px; border-radius: 50%;
+      border: 1px solid var(--border); background: transparent; color: var(--muted);
+      display: grid; place-items: center; margin-top: -4px;
+    }
+    .modal-close:hover { color: var(--fg); border-color: var(--fg); }
+    .modal-close svg { width: 18px; height: 18px; }
+    .modal-body { padding: 16px 22px 20px; overflow-y: auto; }
+    .modal-body .field + .field, .modal-body .field + .space { margin-top: 14px; }
+    .modal-field { margin-bottom: 14px; }
+    .modal-field:last-child { margin-bottom: 0; }
+    .modal-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 1px solid var(--border); font-size: 14px; }
+    .modal-row:first-child { border-top: 0; }
+    .modal-row .mr-label { color: var(--muted); }
+    .modal-row .mr-val { font-weight: 600; }
+    .modal-row .mr-val.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; color: var(--accent-strong); }
+    .modal-foot {
+      display: flex; justify-content: flex-end; gap: 10px;
+      padding: 14px 22px 20px; border-top: 1px solid var(--border);
+    }
+    .modal-foot .g { display: flex; gap: 10px; }
+    .switch-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 12px 0; border-top: 1px solid var(--border); }
+    .switch-row:first-of-type { border-top: 0; }
+    .switch-lbl { font-size: 14px; }
+    .switch-lbl .sl-sub { display:block; font-size: 12.5px; color: var(--muted); margin-top: 1px; }
+    .switch {
+      position: relative; flex: none; width: 46px; height: 28px; border-radius: 999px;
+      border: 1px solid var(--border); background: var(--surface-2); cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+    .switch::after {
+      content: ''; position: absolute; top: 2px; left: 2px;
+      width: 22px; height: 22px; border-radius: 50%;
+      background: var(--fg); transition: transform 0.15s ease, background 0.15s ease;
+    }
+    .switch[aria-checked="true"] { background: var(--accent); border-color: var(--accent); }
+    .switch[aria-checked="true"]::after { transform: translateX(18px); background: var(--on-accent); }
+    .qty-stepper { display: flex; align-items: center; gap: 4px; }
+    .qty-stepper .qty-val { min-width: 28px; text-align: center; font-weight: 600; color: var(--fg); }
+    @media (max-width:640px) {
+      .modal-overlay { align-items: end; padding: 0; }
+      .modal-sheet {
+        max-width: 100%; max-height: 88vh;
+        border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+        border-bottom: 0;
+        transform: translateY(100%);
+      }
+      .modal-overlay.open .modal-sheet { transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar" data-od-id="topbar">
+    <div class="topbar-inner">
+      <a class="tbrand" href="#inicio" data-screen="inicio" aria-label="Riva Bike, volver al inicio">Riva<em>.</em>Bike</a>
+      <button class="logout-btn" id="logoutBtn" data-od-id="logout">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"></path><path d="M16 17l5-5-5-5"></path><path d="M21 12H9"></path></svg>
+        Cerrar sesión
+      </button>
+    </div>
+  </header>
+  <div class="app">
+
+    <!-- ─── Sidebar (desktop) ─────────────────────────────────────────── -->
+    <aside class="sidebar" data-od-id="sidebar">
+      
+      <nav class="snav" data-od-id="nav-desktop">
+        <a href="#inicio" data-screen="inicio" aria-current="page">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 11l9-8 9 8"></path><path d="M5 10v10h14V10"></path></svg>
+          Inicio
+        </a>
+        <a href="#trabajos" data-screen="trabajos">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 7h18v12H3z"></path><path d="M8 3h8v4H8z"></path></svg>
+          Trabajos / Servicios
+        </a>
+        <a href="#inventario" data-screen="inventario">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 7l8-4 8 4-8 4-8-4z"></path><path d="M4 7v10l8 4 8-4V7"></path><path d="M12 11v10"></path></svg>
+          Inventario
+        </a>
+        <a href="#presupuestos" data-screen="presupuestos">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 3h12l2 4-8 14L4 7l2-4z"></path><path d="M4 7h16"></path><path d="M9 7l3 14 3-14"></path></svg>
+          Presupuestos / Órdenes
+        </a>
+        <a href="#galeria" data-screen="galeria">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="18" height="18" rx="3"></rect><circle cx="9" cy="9" r="2"></circle><path d="M21 15l-5-5-9 9"></path></svg>
+          Galería
+        </a>
+        <a href="#contenido" data-screen="contenido">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 6h16M4 12h16M4 18h10"></path></svg>
+          Contenido del sitio
+        </a>
+        <a href="#config" data-screen="config">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="3"></circle><path d="M19 12a7 7 0 00-.1-1l2-1.5-2-3.4-2.3 1a7 7 0 00-1.7-1L14.5 3h-5l-.4 2.1a7 7 0 00-1.7 1l-2.3-1-2 3.4 2 1.5a7 7 0 000 2l-2 1.5 2 3.4 2.3-1a7 7 0 001.7 1l.4 2.1h5l.4-2.1a7 7 0 001.7-1l2.3 1 2-3.4-2-1.5c.1-.3.1-.7.1-1z"></path></svg>
+          Configuración
+        </a>
+      </nav>
+      <div class="sidebar-foot">
+        <div class="side-user">
+          <span class="av">MO</span>
+          <div style="min-width:0;">
+            <div class="nm">Dueño del taller</div>
+            <div class="rl">Cuenta principal</div>
+          </div>
+          <button class="theme-btn" id="themeToggle" aria-pressed="false" aria-label="Alternar tema claro/oscuro" data-od-id="theme-toggle">
+            <svg class="icon-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 12.8A9 9 0 1111.2 3 7 7 0 0021 12.8z"></path></svg>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ─── Contenido principal ───────────────────────────────────────── -->
+    <main class="main" data-od-id="main">
+
+      <!-- ══ Pantalla: Inicio ══ -->
+      <section class="screen active" id="screen-inicio" data-od-id="screen-inicio">
+        <div class="mbar">
+          <div>
+            <h1>Hola, dueño</h1>
+            <div class="sub" style="margin:0;">Resumen del taller · jueves 27 de agosto</div>
+          </div>
+          <div class="mbar-actions">
+            <button class="btn btn-dark" data-goto="nueva" data-od-id="cta-inicio-nueva">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"></path></svg>
+              Nueva orden
+            </button>
+          </div>
+        </div>
+
+        <div class="kpis" data-od-id="home-kpis">
+          <div class="kpi card">
+            <div class="k-label">Órdenes pendientes</div>
+            <div class="k-num accent num">6</div>
+            <div class="k-note">2 requieren tu atención hoy</div>
+          </div>
+          <div class="kpi card">
+            <div class="k-label">En trabajo hoy</div>
+            <div class="k-num num">3</div>
+            <div class="k-note">Diagnóstico, cambio de cadena, frenos</div>
+          </div>
+          <div class="kpi card">
+            <div class="k-label">Alertas de stock</div>
+            <div class="k-num accent num">4</div>
+            <div class="k-note">3 sin stock, 1 baja</div>
+          </div>
+          <div class="kpi card">
+            <div class="k-label">Facturado este mes</div>
+            <div class="k-num num">$482k</div>
+            <div class="k-note">+12% vs. el mes pasado</div>
+          </div>
+        </div>
+
+        <div class="home-grid" data-od-id="home-main">
+          <div class="card" data-od-id="home-ordenes">
+            <div class="home-h">
+              <h2>Órdenes recientes</h2>
+              <span class="meta">Ver todas →</span>
+            </div>
+            <div class="price-row">
+              <div><div class="pr-name">Cliente · Torretto</div><div class="pr-sub">Cambio de cubiertas + pastillas</div></div>
+              <span class="pr-price num">$58.400</span>
+            </div>
+            <div class="price-row">
+              <div><div class="pr-name">Cliente · Belén M.</div><div class="pr-sub">Ajuste general + cadena</div></div>
+              <span class="pr-price num">$31.200</span>
+            </div>
+            <div class="price-row">
+              <div><div class="pr-name">Cliente · Rulo</div><div class="pr-sub">Diagnóstico de frenos</div></div>
+              <span class="pr-price num">$12.000</span>
+            </div>
+            <div class="price-row">
+              <div><div class="pr-name">Cliente · Carla S.</div><div class="pr-sub">Armado rueda trasera</div></div>
+              <span class="pr-price num">$24.800</span>
+            </div>
+          </div>
+
+          <div class="stack" style="gap:20px;">
+            <div class="card" data-od-id="home-stock">
+              <div class="home-h"><h2>Stock bajo</h2><a class="meta pr-action" data-goto="inventario" style="cursor:pointer;">Ver inventario</a></div>
+              <div class="stock-alert"><span class="sa-ic danger"></span><span class="sa-txt">Cámaras 26×1.95 — sin stock</span><span class="sa-qty num">0</span></div>
+              <div class="stock-alert"><span class="sa-ic danger"></span><span class="sa-txt">Pastillas de freno — sin stock</span><span class="sa-qty num">0</span></div>
+              <div class="stock-alert"><span class="sa-ic warn"></span><span class="sa-txt">Cubiertas 27.5×2.20 — baja</span><span class="sa-qty num">2</span></div>
+            </div>
+            <div class="card" data-od-id="home-quick">
+              <div class="home-h"><h2>Acciones rápidas</h2></div>
+              <button class="btn btn-secondary" style="width:100%;" data-goto="inventario">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 7l8-4 8 4-8 4-8-4z"></path><path d="M4 7v10l8 4 8-4V7"></path></svg>
+                Ajustar stock
+              </button>
+              <button class="btn btn-ghost" style="width:100%; margin-top:10px; border:1px solid var(--border);" data-goto="presupuestos">
+                Ver órdenes
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══ Pantalla: Inventario ══ -->
+      <section class="screen" id="screen-inventario" data-od-id="screen-inventario">
+        <div class="mbar">
+          <div>
+            <h1>Inventario</h1>
+            <div class="sub" style="margin:0;">Repuestos y consumibles del taller</div>
+          </div>
+          <div class="mbar-actions nowrap-main">
+            <button class="btn btn-dark" data-goto="nueva">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"></path></svg>
+              Nueva orden
+            </button>
+          </div>
+        </div>
+
+        <div class="inv-tools" data-od-id="inv-tools">
+          <label class="search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4-4"></path></svg>
+            <input type="search" id="invSearch" placeholder="Buscar en inventario…" aria-label="Buscar en inventario">
+          </label>
+          <div class="chip-filters" role="group" aria-label="Filtrar por stock">
+            <button class="chip" data-filter="all" aria-pressed="true">Todos</button>
+            <button class="chip" data-filter="ok" aria-pressed="false">Con stock</button>
+            <button class="chip" data-filter="warn" aria-pressed="false">Stock bajo</button>
+            <button class="chip" data-filter="danger" aria-pressed="false">Sin stock</button>
+          </div>
+        </div>
+
+        <div class="card" data-od-id="inv-table-card" style="padding:0; overflow:hidden;">
+          <table class="ds-table" data-od-id="inv-table">
+            <thead>
+              <tr>
+                <th>Producto</th><th>Stock</th><th class="num-col">Precio</th><th>Estado</th><th>Último movimiento</th><th></th>
+              </tr>
+            </thead>
+            <tbody id="invBody">
+            </tbody>
+          </table>
+        </div>
+
+        <div class="inv-cards" data-od-id="inv-cards">
+          <div id="invCards"></div>
+        </div>
+      </section>
+
+      <!-- ══ Pantalla: Nueva orden (wizard) ══ -->
+      <section class="screen" id="screen-nueva" data-od-id="screen-nueva">
+        <div class="mbar">
+          <div>
+            <h1>Nueva orden</h1>
+            <div class="sub" style="margin:0;">Presupuesto / orden de trabajo</div>
+          </div>
+        </div>
+
+        <div class="steps" data-od-id="wizard-steps">
+          <div class="step-chip" data-step="1" aria-current="step"><span class="step-num">1</span><span class="step-label">Cliente</span></div>
+          <div class="step-connector"></div>
+          <div class="step-chip" data-step="2"><span class="step-num">2</span><span class="step-label">Bici</span></div>
+          <div class="step-connector"></div>
+          <div class="step-chip" data-step="3"><span class="step-num">3</span><span class="step-label">Servicios</span></div>
+          <div class="step-connector"></div>
+          <div class="step-chip" data-step="4"><span class="step-num">4</span><span class="step-label">Repuestos</span></div>
+          <div class="step-connector"></div>
+          <div class="step-chip" data-step="5"><span class="step-num">5</span><span class="step-label">Obs.</span></div>
+          <div class="step-connector"></div>
+          <div class="step-chip" data-step="6"><span class="step-num">6</span><span class="step-label">Resumen</span></div>
+        </div>
+
+        <div class="card" data-od-id="wizard-body" style="padding:24px;">
+          <!-- Paso 1: Cliente -->
+          <div class="wiz-step active" data-wstep="1">
+            <div class="form-grid">
+              <div class="field"><label for="cNombre">Nombre y apellido <span class="req">*</span></label><input class="input" id="cNombre" placeholder="Ej. Valeria Gómez"></div>
+              <div class="field"><label for="cTel">Teléfono</label><input class="input" id="cTel" type="tel" placeholder="11 5555 1234"></div>
+            </div>
+            <div class="field" style="margin-top:16px;"><label for="cEmail">Email</label><input class="input" id="cEmail" type="email" placeholder="cliente@correo.com"></div>
+          </div>
+
+          <!-- Paso 2: Bici -->
+          <div class="wiz-step" data-wstep="2">
+            <div class="form-grid">
+              <div class="field"><label for="bMarca">Marca</label><input class="input" id="bMarca" placeholder="Ej. Venzo, Trek, Raleigh"></div>
+              <div class="field"><label for="bModelo">Modelo</label><input class="input" id="bModelo" placeholder="Ej. R29"></div>
+            </div>
+            <div class="form-grid" style="margin-top:16px;">
+              <div class="field"><label for="bRueda">Rodado</label><input class="input" id="bRueda" placeholder="Ej. 29, 27.5, 26"></div>
+              <div class="field"><label for="bColor">Color</label><input class="input" id="bColor" placeholder="Ej. Negro mate"></div>
+            </div>
+            <div class="field" style="margin-top:16px;"><label for="bDetalle">Nro. de chasis (opcional)</label><input class="input" id="bDetalle" placeholder="Detalle extra de la bici"></div>
+          </div>
+
+          <!-- Paso 3: Servicios -->
+          <div class="wiz-step" data-wstep="3">
+            <div class="pick-list" id="svcList"></div>
+          </div>
+
+          <!-- Paso 4: Repuestos -->
+          <div class="wiz-step" data-wstep="4">
+            <div class="pick-list" id="partsList"></div>
+          </div>
+
+          <!-- Paso 5: Observaciones -->
+          <div class="wiz-step" data-wstep="5">
+            <div class="field"><label for="obs">Observaciones que vio el mecánico</label>
+              <textarea class="textarea" id="obs" placeholder="Ej. La corona trasera está muy desgastada, recomendamos cambiarla en los próximos meses…"></textarea>
+            </div>
+            <div class="field" style="margin-top:16px;"><label for="entrega">Fecha estimada de entrega</label>
+              <input class="input" id="entrega" type="date">
+            </div>
+          </div>
+
+          <!-- Paso 6: Resumen -->
+          <div class="wiz-step" data-wstep="6">
+            <div id="summaryList"></div>
+            <div class="summary-bar" data-od-id="wizard-total">
+              <div class="sum-row"><span>Subtotal servicios</span><span class="sum-amt" id="sSubSvc">$0</span></div>
+              <div class="sum-row"><span>Repuestos</span><span class="sum-amt" id="sSubParts">$0</span></div>
+              <div class="sum-row total"><span>Total</span><span class="sum-amt" id="sTotal">$0</span></div>
+            </div>
+            <div class="notice" data-od-id="confirm-notice">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21a9 9 0 100-18 9 9 0 000 18z"></path><path d="M9 12l2 2 4-4"></path></svg>
+              <div>
+                <h3>¿Guardar la orden?</h3>
+                <p>Al confirmar se crea la orden de trabajo y, al ejecutarla, se descuentan los repuestos del inventario.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="wiz-btns">
+            <button class="btn btn-ghost" id="wizPrev" disabled="" style="border:1px solid var(--border);">
+              ← Volver
+            </button>
+            <div class="g">
+              <button class="btn btn-secondary" id="wizCancel">Cancelar</button>
+              <button class="btn btn-dark" id="wizNext">Siguiente →</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══ Pantalla: Trabajos / Servicios ══ -->
+      <section class="screen" id="screen-trabajos" data-od-id="screen-trabajos">
+        <div class="mbar">
+          <div>
+            <h1>Trabajos / Servicios</h1>
+            <div class="sub" style="margin:0;">Catálogo de servicios que ofrece el taller</div>
+          </div>
+          <div class="mbar-actions">
+            <button class="btn btn-dark" id="svcNewBtn" data-od-id="cta-svc-nuevo">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"></path></svg>
+              Nuevo servicio
+            </button>
+          </div>
+        </div>
+        <div class="card" data-od-id="svc-catalog">
+          <div class="svc-tools">
+            <h2>Servicios activos</h2>
+            <span class="meta">6 servicios</span>
+          </div>
+          <div class="svc-list">
+            <div class="svc-row">
+              <div class="sv-lbl"><div class="sv-name">Ajuste general</div><div class="sv-sub">Revisión y ajuste completo de la bici</div></div>
+              <span class="sv-price num">$12.000</span>
+              <button class="sv-edit" aria-label="Editar Ajuste general"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 3l4 4L8 20l-5 1 1-5L17 3z"></path></svg></button>
+            </div>
+            <div class="svc-row">
+              <div class="sv-lbl"><div class="sv-name">Cambio de cadena</div><div class="sv-sub">Incluye medición de desgaste e instalación</div></div>
+              <span class="sv-price num">$14.500</span>
+              <button class="sv-edit" aria-label="Editar Cambio de cadena"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 3l4 4L8 20l-5 1 1-5L17 3z"></path></svg></button>
+            </div>
+            <div class="svc-row">
+              <div class="sv-lbl"><div class="sv-name">Cambio de cubiertas</div><div class="sv-sub">Por rueda, incluye cámara si hace falta</div></div>
+              <span class="sv-price num">$9.800</span>
+              <button class="sv-edit" aria-label="Editar Cambio de cubiertas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 3l4 4L8 20l-5 1 1-5L17 3z"></path></svg></button>
+            </div>
+            <div class="svc-row">
+              <div class="sv-lbl"><div class="sv-name">Ajuste de frenos</div><div class="sv-sub">Pastillas, centrado y tensión de cables</div></div>
+              <span class="sv-price num">$8.600</span>
+              <button class="sv-edit" aria-label="Editar Ajuste de frenos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 3l4 4L8 20l-5 1 1-5L17 3z"></path></svg></button>
+            </div>
+            <div class="svc-row">
+              <div class="sv-lbl"><div class="sv-name">Diagnóstico</div><div class="sv-sub">Revisión detallada, sin reparación</div></div>
+              <span class="sv-price num">$12.000</span>
+              <button class="sv-edit" aria-label="Editar Diagnóstico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 3l4 4L8 20l-5 1 1-5L17 3z"></path></svg></button>
+            </div>
+            <div class="svc-row">
+              <div class="sv-lbl"><div class="sv-name">Armado de rueda</div><div class="sv-sub">Rayos, centrado y alineación</div></div>
+              <span class="sv-price num">$24.800</span>
+              <button class="sv-edit" aria-label="Editar Armado de rueda"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 3l4 4L8 20l-5 1 1-5L17 3z"></path></svg></button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══ Pantalla: Presupuestos / Órdenes ══ -->
+      <section class="screen" id="screen-presupuestos" data-od-id="screen-presupuestos">
+        <div class="mbar">
+          <div>
+            <h1>Presupuestos / Órdenes</h1>
+            <div class="sub" style="margin:0;">Historial de órdenes y presupuestos</div>
+          </div>
+          <div class="mbar-actions nowrap-main">
+            <button class="btn btn-dark" data-goto="nueva" data-od-id="cta-orden-nueva">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"></path></svg>
+              Nueva orden
+            </button>
+          </div>
+        </div>
+        <div class="kpis" data-od-id="ord-kpis" style="grid-template-columns:repeat(3,1fr);">
+          <div class="kpi card"><div class="k-label">En curso</div><div class="k-num num">3</div></div>
+          <div class="kpi card"><div class="k-label">Pendientes</div><div class="k-num accent num">6</div></div>
+          <div class="kpi card"><div class="k-label">Listas este mes</div><div class="k-num num">42</div></div>
+        </div>
+        <div class="card" data-od-id="ord-list" style="padding:6px 14px; margin-top:20px;">
+          <div class="ord-list">
+            <div class="ord-row" data-ord="OT-0142">
+              <div class="or-main"><div class="or-id">OT-0142</div><div class="or-name">Valeria Gómez</div><div class="or-sub">Ajuste general + cadena</div></div>
+              <span class="status wip"><span class="dot"></span>En curso</span>
+              <span class="sv-price num" style="margin-left:4px;">$28.500</span>
+            </div>
+            <div class="ord-row" data-ord="OT-0141">
+              <div class="or-main"><div class="or-id">OT-0141</div><div class="or-name">Torretto</div><div class="or-sub">Cambio de cubiertas + pastillas</div></div>
+              <span class="status wip"><span class="dot"></span>En curso</span>
+              <span class="sv-price num" style="margin-left:4px;">$58.400</span>
+            </div>
+            <div class="ord-row" data-ord="OT-0140">
+              <div class="or-main"><div class="or-id">OT-0140</div><div class="or-name">Belén M.</div><div class="or-sub">Ajuste general</div></div>
+              <span class="status open"><span class="dot"></span>Pendiente</span>
+              <span class="sv-price num" style="margin-left:4px;">$12.000</span>
+            </div>
+            <div class="ord-row" data-ord="OT-0139">
+              <div class="or-main"><div class="or-id">OT-0139</div><div class="or-name">Rulo</div><div class="or-sub">Diagnóstico de frenos</div></div>
+              <span class="status done"><span class="dot"></span>Lista</span>
+              <span class="sv-price num" style="margin-left:4px;">$12.000</span>
+            </div>
+            <div class="ord-row" data-ord="OT-0138">
+              <div class="or-main"><div class="or-id">OT-0138</div><div class="or-name">Carla S.</div><div class="or-sub">Armado de rueda trasera</div></div>
+              <span class="status done"><span class="dot"></span>Lista</span>
+              <span class="sv-price num" style="margin-left:4px;">$24.800</span>
+            </div>
+            <div class="ord-row" data-ord="OT-0137">
+              <div class="or-main"><div class="or-id">OT-0137</div><div class="or-name">Marcos Díaz</div><div class="or-sub">Cambio de cadena</div></div>
+              <span class="status done"><span class="dot"></span>Lista</span>
+              <span class="sv-price num" style="margin-left:4px;">$14.500</span>
+            </div>
+          </div>
+        </div>
+        <div class="total-bar" style="margin-top:20px;">
+          <span class="t-label">Facturado este mes</span>
+          <span class="t-amt num">$482.300</span>
+        </div>
+      </section>
+
+      <!-- ══ Pantalla: Galería ══ -->
+      <section class="screen" id="screen-galeria" data-od-id="screen-galeria">
+        <div class="mbar">
+          <div>
+            <h1>Galería</h1>
+            <div class="sub" style="margin:0;">Trabajos terminados para el sitio público</div>
+          </div>
+          <div class="mbar-actions">
+            <button class="btn btn-dark">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"></path></svg>
+              Subir foto
+            </button>
+          </div>
+        </div>
+        <div class="gal-grid" data-od-id="gal-grid">
+          <div class="gal-item">
+            <div class="ph-img" aria-label="Cubierta 29 nueva instalada"><span style="position:absolute;">Cubierta 29</span></div>
+            <span class="gal-num">01</span>
+            <div class="gal-cap">Cambio de cubierta 29</div>
+          </div>
+          <div class="gal-item">
+            <div class="ph-img" aria-label="Cadena nueva instalada"><span style="position:absolute;">Cadena nueva</span></div>
+            <span class="gal-num">02</span>
+            <div class="gal-cap">Transmisión completa</div>
+          </div>
+          <div class="gal-item">
+            <div class="ph-img" aria-label="Rueda armada con rayos"><span style="position:absolute;">Rueda armada</span></div>
+            <span class="gal-num">03</span>
+            <div class="gal-cap">Armado de rueda</div>
+          </div>
+          <div class="gal-item">
+            <div class="ph-img" aria-label="Frenos ajustados"><span style="position:absolute;">Frenos</span></div>
+            <span class="gal-num">04</span>
+            <div class="gal-cap">Ajuste de frenos</div>
+          </div>
+          <div class="gal-item">
+            <div class="ph-img" aria-label="Cámara nueva"><span style="position:absolute;">Cámara nueva</span></div>
+            <span class="gal-num">05</span>
+            <div class="gal-cap">Reparación de cámara</div>
+          </div>
+          <div class="gal-item">
+            <div class="ph-img" aria-label="Bici completa revisada"><span style="position:absolute;">Bici lista</span></div>
+            <span class="gal-num">06</span>
+            <div class="gal-cap">Entrega terminada</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══ Pantallas placeholder (resto del nav) ══ -->
+      <section class="screen" id="screen-contenido" data-od-id="screen-contenido">
+        <div class="mbar"><div><h1>Contenido del sitio</h1><div class="sub" style="margin:0;">Textos y datos que alimentan la web pública</div></div></div>
+        <div class="card" data-od-id="content-blocks">
+          <div class="svc-list">
+            <div class="svc-row" data-block="hero-title">
+              <div class="sv-lbl"><div class="sv-name">Hero · título</div><div class="sv-sub">El titular principal de la portada</div></div>
+              <button class="sv-edit" data-content="hero-title" aria-label="Editar Hero · título"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 3l4 4L8 20l-5 1 1-5L17 3z"></path></svg></button>
+            </div>
+            <div class="svc-row" data-block="hero-sub">
+              <div class="sv-lbl"><div class="sv-name">Hero · subtítulo</div><div class="sv-sub">Apoyo del titular</div></div>
+              <button class="sv-edit" data-content="hero-sub" aria-label="Editar Hero · subtítulo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 3l4 4L8 20l-5 1 1-5L17 3z"></path></svg></button>
+            </div>
+            <div class="svc-row" data-block="svc-intro">
+              <div class="sv-lbl"><div class="sv-name">Servicios · presentación</div><div class="sv-sub">Texto introductorio de la sección servicios</div></div>
+              <button class="sv-edit" data-content="svc-intro" aria-label="Editar Servicios · presentación"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 3l4 4L8 20l-5 1 1-5L17 3z"></path></svg></button>
+            </div>
+            <div class="svc-row" data-block="about">
+              <div class="sv-lbl"><div class="sv-name">Nosotros · descripción</div><div class="sv-sub">Quiénes somos y cómo trabajamos</div></div>
+              <button class="sv-edit" data-content="about" aria-label="Editar Nosotros · descripción"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 3l4 4L8 20l-5 1 1-5L17 3z"></path></svg></button>
+            </div>
+            <div class="svc-row" data-block="contact">
+              <div class="sv-lbl"><div class="sv-name">Contacto · dirección</div><div class="sv-sub">Dónde encontrarnos y horarios</div></div>
+              <button class="sv-edit" data-content="contact" aria-label="Editar Contacto · dirección"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 3l4 4L8 20l-5 1 1-5L17 3z"></path></svg></button>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="screen" id="screen-config" data-od-id="screen-config">
+        <div class="mbar"><div><h1>Configuración</h1><div class="sub" style="margin:0;">Ajustes del taller</div></div></div>
+        <div class="notice" data-od-id="placeholder-config">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"></circle><path d="M12 8h.01M12 12v4"></path></svg>
+          <div><h3>Sección pendiente</h3><p>Datos del negocio, medios de pago y preferencias del panel.</p></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- ─── Bottom bar (mobile): fila deslizable (drawer) ──────────────── -->
+  <nav class="bottombar" data-od-id="bottom-bar" aria-label="Navegación principal">
+    <div class="bb-scroll">
+      <button class="bb-item" data-screen="inicio" aria-current="page">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11l9-8 9 8"></path><path d="M5 10v10h14V10"></path></svg>
+        <span>Inicio</span>
+      </button>
+      <button class="bb-item" data-screen="trabajos">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7h18v12H3z"></path><path d="M8 3h8v4H8z"></path></svg>
+        <span>Trabajos</span>
+      </button>
+      <button class="bb-item" data-screen="inventario">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7l8-4 8 4-8 4-8-4z"></path><path d="M4 7v10l8 4 8-4V7"></path><path d="M12 11v10"></path></svg>
+        <span>Inventario</span>
+      </button>
+      <button class="bb-item" data-screen="presupuestos">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 3h12l2 4-8 14L4 7l2-4z"></path><path d="M4 7h16"></path></svg>
+        <span>Órdenes</span>
+      </button>
+      <button class="bb-item" data-screen="galeria">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="3"></rect><circle cx="9" cy="9" r="2"></circle><path d="M21 15l-5-5-9 9"></path></svg>
+        <span>Galería</span>
+      </button>
+      <button class="bb-item" data-screen="contenido">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16M4 12h16M4 18h10"></path></svg>
+        <span>Contenido</span>
+      </button>
+      <button class="bb-item" data-screen="config">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"></circle><path d="M19 12a7 7 0 00-.1-1l2-1.5-2-3.4-2.3 1a7 7 0 00-1.7-1L14.5 3h-5l-.4 2.1a7 7 0 00-1.7 1l-2.3-1-2 3.4 2 1.5a7 7 0 000 2l-2 1.5 2 3.4 2.3-1a7 7 0 001.7 1l.4 2.1h5l.4-2.1a7 7 0 001.7-1l2.3 1 2-3.4-2-1.5c.1-.3.1-.7.1-1z"></path></svg>
+        <span>Config</span>
+      </button>
+      <button class="bb-item bb-new" data-goto="nueva" data-od-id="bb-nueva">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M12 5v14M5 12h14"></path></svg>
+        <span>Nueva</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ─── Sistema de modales ─────────────────────────────────────────── -->
+  <div class="modal-overlay" id="modalOverlay" data-od-id="modal-overlay" role="presentation">
+
+    <!-- Modal: nuevo / editar servicio -->
+    <div class="modal-sheet" id="modalSvc" role="dialog" aria-modal="true" aria-labelledby="mSvcTitle" data-od-id="modal-svc" hidden="">
+      <div class="modal-head">
+        <div><h3 id="mSvcTitle">Editar servicio</h3><div class="m-sub" id="mSvcSub">Catálogo de servicios del taller</div></div>
+        <button class="modal-close" data-close="" aria-label="Cerrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-field field"><label for="svcName">Nombre <span class="req">*</span></label><input class="input" id="svcName" placeholder="Ej. Cambio de cadena"></div>
+        <div class="modal-field field"><label for="svcDesc">Descripción</label><textarea class="textarea" id="svcDesc" placeholder="Qué incluye el servicio"></textarea></div>
+        <div class="modal-field field"><label for="svcPrice">Precio (AR$)</label><input class="input" id="svcPrice" type="number" inputmode="numeric" placeholder="Ej. 12000"></div>
+        <div class="switch-row">
+          <div class="switch-lbl">Servicio activo<div class="sl-sub">Se muestra en la lista y en el wizard</div></div>
+          <button class="switch" id="svcActive" role="switch" aria-checked="true" aria-label="Servicio activo"></button>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <div class="g">
+          <button class="btn btn-secondary" data-close="">Cancelar</button>
+          <button class="btn btn-primary" id="svcSave">Guardar servicio</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: ajustar stock -->
+    <div class="modal-sheet" id="modalInv" role="dialog" aria-modal="true" aria-labelledby="mInvTitle" data-od-id="modal-inv" hidden="">
+      <div class="modal-head">
+        <div><h3 id="mInvTitle">Ajustar stock</h3><div class="m-sub" id="mInvSub">Cámara 26×1.95</div></div>
+        <button class="modal-close" data-close="" aria-label="Cerrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-row"><span class="mr-label">Categoría</span><span class="mr-val" id="mInvCat">—</span></div>
+        <div class="modal-row"><span class="mr-label">Precio unitario</span><span class="mr-val num" id="mInvPrice">—</span></div>
+        <div class="modal-row"><span class="mr-label">Stock mínimo</span><span class="mr-val num" id="mInvMin">—</span></div>
+        <div class="modal-row">
+          <span class="mr-label">Stock actual</span>
+          <span class="qty-stepper">
+            <button class="qty-btn" id="mInvDec" aria-label="Restar stock">−</button>
+            <span class="qty-val num" id="mInvQty">0</span>
+            <button class="qty-btn" id="mInvInc" aria-label="Sumar stock">+</button>
+          </span>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <div class="g">
+          <button class="btn btn-secondary" data-close="">Cancelar</button>
+          <button class="btn btn-primary" id="invSave">Guardar stock</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: detalle de orden -->
+    <div class="modal-sheet" id="modalOrd" role="dialog" aria-modal="true" aria-labelledby="mOrdTitle" data-od-id="modal-ord" hidden="">
+      <div class="modal-head">
+        <div><h3 id="mOrdTitle">Orden de trabajo</h3><div class="m-sub" id="mOrdSub">OT-0142</div></div>
+        <button class="modal-close" data-close="" aria-label="Cerrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-row"><span class="mr-label">Cliente</span><span class="mr-val" id="mOrdClient">—</span></div>
+        <div class="modal-row"><span class="mr-label">Estado</span><span class="mr-val" id="mOrdStatus">—</span></div>
+        <div class="m-od-list" id="mOrdItems" style="margin:14px 0 4px;"></div>
+        <div class="total-bar" style="padding:16px 20px; margin-top:10px;">
+          <span class="t-label">Total</span>
+          <span class="t-amt num" id="mOrdTotal" style="font-size:24px;">$0</span>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <div class="g">
+          <button class="btn btn-secondary" data-close="">Cerrar</button>
+          <button class="btn btn-primary" id="ordAction" data-od-id="ord-action">Marcar como lista</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: editar bloque de contenido -->
+    <div class="modal-sheet" id="modalContent" role="dialog" aria-modal="true" aria-labelledby="mContentTitle" data-od-id="modal-content" hidden="">
+      <div class="modal-head">
+        <div><h3 id="mContentTitle">Editar bloque</h3><div class="m-sub" id="mContentSub">Sección de la web pública</div></div>
+        <button class="modal-close" data-close="" aria-label="Cerrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-field field"><label for="contentKey">Bloque</label><input class="input" id="contentKey" disabled=""></div>
+        <div class="modal-field field"><label for="contentText">Texto</label><textarea class="textarea" id="contentText" style="min-height:140px;" placeholder="Contenido actualizado del bloque"></textarea></div>
+      </div>
+      <div class="modal-foot">
+        <div class="g">
+          <button class="btn btn-secondary" data-close="">Cancelar</button>
+          <button class="btn btn-primary" id="contentSave">Guardar</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+<script>
+(function () {
+  var NAV_ORDER = ['inicio','trabajos','inventario','presupuestos','galeria','contenido','config'];
+
+  function navTo(screen, push) {
+    var panels = document.querySelectorAll('.screen');
+    for (var i = 0; i < panels.length; i++) panels[i].classList.remove('active');
+    var target = document.getElementById('screen-' + screen);
+    if (target) target.classList.add('active');
+
+    var links = document.querySelectorAll('[data-screen]');
+    for (var j = 0; j < links.length; j++) {
+      if (links[j].getAttribute('data-screen') === screen) {
+        links[j].setAttribute('aria-current', 'page');
+      } else {
+        links[j].removeAttribute('aria-current');
+      }
+    }
+    if (push !== false && window.location.hash !== '#' + screen) {
+      try { history.replaceState(null, '', '#' + screen); } catch (e) {}
+    }
+  }
+
+  var navEls = document.querySelectorAll('[data-screen]');
+  for (var k = 0; k < navEls.length; k++) {
+    navEls[k].addEventListener('click', function (e) {
+      e.preventDefault();
+      navTo(this.getAttribute('data-screen'));
+    });
+  }
+  var goEls = document.querySelectorAll('[data-goto]');
+  for (var m = 0; m < goEls.length; m++) {
+    goEls[m].addEventListener('click', function () {
+      navTo(this.getAttribute('data-goto'));
+    });
+  }
+
+  function readHash() {
+    var h = window.location.hash.replace('#', '');
+    if (NAV_ORDER.indexOf(h) !== -1) navTo(h, false);
+  }
+  window.addEventListener('hashchange', readHash);
+
+  /* ─── Inventario: datos & render ─────────────────────────────────── */
+  var INVENTORY = [
+    { name: 'Cámara 26×1.95', cat: 'Cámaras', stock: 0, min: 6, price: 4200, last: '3 días atrás' },
+    { name: 'Cubierta 27.5×2.20', cat: 'Cubiertas', stock: 2, min: 4, price: 18400, last: 'hoy' },
+    { name: 'Cubierta 29×2.10', cat: 'Cubiertas', stock: 5, min: 4, price: 20900, last: 'ayer' },
+    { name: 'Cable de freno', cat: 'Cables', stock: 14, min: 8, price: 2600, last: 'hace 2 días' },
+    { name: 'Pastillas de freno', cat: 'Frenos', stock: 0, min: 5, price: 7800, last: 'hace 5 días' },
+    { name: 'Cadena 8v', cat: 'Transmisión', stock: 9, min: 4, price: 11600, last: 'hoy' },
+    { name: 'Cámara 29×1.95', cat: 'Cámaras', stock: 11, min: 6, price: 5200, last: 'ayer' },
+    { name: 'Cinta de manubrio', cat: 'Accesorios', stock: 6, min: 3, price: 3400, last: 'hace 6 días' },
+    { name: 'Bielas 170mm', cat: 'Transmisión', stock: 3, min: 2, price: 36500, last: 'hace 2 días' },
+    { name: 'Faro LED', cat: 'Iluminación', stock: 7, min: 4, price: 12400, last: 'hoy' }
+  ];
+
+  function stockState(item) {
+    if (item.stock === 0) return { key: 'danger', label: 'Sin stock' };
+    if (item.stock <= item.min) return { key: 'warn', label: 'Stock bajo' };
+    return { key: 'ok', label: 'En stock' };
+  }
+  function fmt(n) { return '$' + n.toLocaleString('es-AR'); }
+
+  var filter = 'all';
+  var query = '';
+
+  function renderInv() {
+    var rows = INVENTORY.filter(function (it) {
+      var state = stockState(it);
+      var okF = filter === 'all' || state.key === filter;
+      var q = query.toLowerCase();
+      var okQ = !q || (it.name + ' ' + it.cat).toLowerCase().indexOf(q) !== -1;
+      return okF && okQ;
+    });
+
+    var tbody = document.getElementById('invBody');
+    var html = '';
+    if (rows.length === 0) {
+      html += '<tr><td colspan="6"><div class="inv-empty">'
+        + '<svg class="ie-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/><path d="M8.5 11h5"/></svg>'
+        + '<h3>Sin resultados</h3>'
+        + '<p>No hay productos que coincidan con la búsqueda o el filtro.</p>'
+        + '<button class="btn btn-secondary" id="invReset">Limpiar filtros</button>'
+        + '</div></td></tr>';
+    } else {
+      for (var i = 0; i < rows.length; i++) {
+        var st = stockState(rows[i]);
+        html += '<tr>'
+          + '<td><div class="pname">' + rows[i].name + '</div><div class="psub">' + rows[i].cat + '</div></td>'
+          + '<td class="num-col">' + rows[i].stock + ' u.</td>'
+          + '<td class="num-col">' + fmt(rows[i].price) + '</td>'
+          + '<td><span class="stock-badge ' + st.key + '"><span class="dot"></span>' + st.label + '</span></td>'
+          + '<td class="psub">' + rows[i].last + '</td>'
+          + '<td><button class="row-action" data-inv="' + INVENTORY.indexOf(rows[i]) + '" aria-label="Ajustar stock de ' + rows[i].name + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg></button></td>'
+          + '</tr>';
+      }
+    }
+    tbody.innerHTML = html;
+
+    var cards = document.getElementById('invCards');
+    var ch = '';
+    if (rows.length === 0) {
+      ch += '<div class="inv-empty">'
+        + '<svg class="ie-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/><path d="M8.5 11h5"/></svg>'
+        + '<h3>Sin resultados</h3>'
+        + '<p>No hay productos que coincidan con la búsqueda o el filtro.</p>'
+        + '<button class="btn btn-secondary" id="invReset">Limpiar filtros</button>'
+        + '</div>';
+    } else {
+      for (var j = 0; j < rows.length; j++) {
+        var s2 = stockState(rows[j]);
+        ch += '<div class="incard">'
+          + '<div class="ic-top"><div><div class="pname">' + rows[j].name + '</div><div class="psub">' + rows[j].cat + '</div></div>'
+          + '<span class="stock-badge ' + s2.key + '"><span class="dot"></span>' + s2.label + '</span></div>'
+          + '<div class="ic-row"><span class="ic-label">Stock</span><span class="ic-val num">' + rows[j].stock + ' u.</span></div>'
+          + '<div class="ic-row"><span class="ic-label">Precio</span><span class="ic-val num">' + fmt(rows[j].price) + '</span></div>'
+          + '<div class="ic-row"><span class="ic-label">Último movimiento</span><span class="ic-val">' + rows[j].last + '</span></div>'
+          + '<div class="ic-row"><button class="btn btn-secondary" data-inv="' + INVENTORY.indexOf(rows[j]) + '" style="min-height:40px;padding:0 16px;font-size:13.5px;margin-top:4px;">Ajustar stock</button></div>'
+          + '</div>';
+      }
+    }
+    cards.innerHTML = ch;
+  }
+
+  var search = document.getElementById('invSearch');
+  search.addEventListener('input', function () { query = search.value; renderInv(); });
+  var chips = document.querySelectorAll('.chip');
+  for (var c = 0; c < chips.length; c++) {
+    chips[c].addEventListener('click', function () {
+      filter = this.getAttribute('data-filter');
+      for (var d = 0; d < chips.length; d++) chips[d].setAttribute('aria-pressed', 'false');
+      this.setAttribute('aria-pressed', 'true');
+      renderInv();
+    });
+  }
+
+  document.addEventListener('click', function (e) {
+    if (e.target && e.target.id === 'invReset') {
+      query = '';
+      filter = 'all';
+      var inp = document.getElementById('invSearch');
+      if (inp) inp.value = '';
+      for (var cl = 0; cl < chips.length; cl++) chips[cl].setAttribute('aria-pressed', 'false');
+      if (chips.length) chips[0].setAttribute('aria-pressed', 'true');
+      renderInv();
+    }
+  });
+
+  /* ─── Wizard: servicios & repuestos ───────────────────────────────── */
+  var SERVICES = [
+    { name: 'Ajuste general', sub: 'Revisión y ajuste completo', price: 12000 },
+    { name: 'Cambio de cadena', sub: 'Incluye medición de desgaste', price: 14500 },
+    { name: 'Cambio de cubiertas', sub: 'Por rueda', price: 9800 },
+    { name: 'Ajuste de frenos', sub: 'Pastillas y centrado', price: 8600 },
+    { name: 'Diagnóstico', sub: 'Revisión detallada, sin reparación', price: 12000 },
+    { name: 'Armado de rueda', sub: 'Rayos y centrado', price: 24800 }
+  ];
+
+  var selectedSvc = {};
+  var selectedParts = {};
+
+  function renderSvc() {
+    var list = document.getElementById('svcList');
+    var html = '';
+    for (var i = 0; i < SERVICES.length; i++) {
+      var s = SERVICES[i];
+      var on = !!selectedSvc[s.name];
+      html += '<div class="pick-item' + (on ? ' selected' : '') + '" data-svc="' + i + '" role="button" tabindex="0">'
+        + '<span class="pk-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 13l4 4 9-9"/></svg></span>'
+        + '<div style="flex:1;"><div class="pk-name">' + s.name + '</div><div class="pk-sub">' + s.sub + '</div></div>'
+        + '<span class="pk-price num">' + fmt(s.price) + '</span></div>';
+    }
+    list.innerHTML = html;
+    bindPick(list, '[data-svc]', 'data-svc', function (idx) {
+      var name = SERVICES[idx].name;
+      if (selectedSvc[name]) delete selectedSvc[name];
+      else selectedSvc[name] = 1;
+      renderSvc(); updateTotal();
+    });
+  }
+
+  function renderParts() {
+    var list = document.getElementById('partsList');
+    var html = '';
+    for (var i = 0; i < INVENTORY.length; i++) {
+      var it = INVENTORY[i];
+      var on = !!selectedParts[it.name];
+      var qty = selectedParts[it.name] || 0;
+      var disabled = it.stock === 0 || it.stock - qty <= 0;
+      html += '<div class="pick-item' + (on ? ' selected' : '') + '" data-part="' + i + '" role="button" tabindex="0">'
+        + '<span class="pk-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 13l4 4 9-9"/></svg></span>'
+        + '<div style="flex:1;"><div class="pk-name">' + it.name + '</div>'
+        + '<div class="pk-sub">Stock: ' + it.stock + ' u. · ' + it.cat + '</div></div>'
+        + '<span class="pk-qty">'
+        + '<button class="qty-btn" data-act="dec" aria-label="Quitar ' + it.name + '">−</button>'
+        + '<span class="qty-val num">' + qty + '</span>'
+        + '<button class="qty-btn" data-act="inc" aria-label="Agregar ' + it.name + '">+</button>'
+        + '</span>'
+        + '<span class="pk-price num">' + fmt(it.price) + '</span></div>';
+    }
+    list.innerHTML = html;
+
+    var items = list.querySelectorAll('[data-part]');
+    for (var k = 0; k < items.length; k++) {
+      items[k].addEventListener('click', function (ev) {
+        var btn = ev.target.closest('.qty-btn');
+        var idx = parseInt(this.getAttribute('data-part'), 10);
+        var it = INVENTORY[idx];
+        if (btn) { ev.stopPropagation(); return changePart(it, btn.getAttribute('data-act')); }
+        changePart(it, 'toggle');
+      });
+    }
+  }
+
+  function changePart(item, act) {
+    var cur = selectedParts[item.name] || 0;
+    if (act === 'inc') {
+      if (cur < item.stock) selectedParts[item.name] = cur + 1;
+    } else if (act === 'dec') {
+      if (cur > 0) { selectedParts[item.name] = cur - 1; if (!selectedParts[item.name]) delete selectedParts[item.name]; }
+    } else {
+      if (cur) { delete selectedParts[item.name]; } else { selectedParts[item.name] = 1; }
+    }
+    renderParts(); updateTotal();
+  }
+
+  function bindPick(list, sel, attr, fn) {
+    var items = list.querySelectorAll(sel);
+    for (var i = 0; i < items.length; i++) {
+      items[i].addEventListener('click', function () { fn(parseInt(this.getAttribute(attr), 10)); });
+      items[i].addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); this.click(); }
+      });
+    }
+  }
+
+  function svcTotal() {
+    var t = 0;
+    for (var k in selectedSvc) if (selectedSvc.hasOwnProperty(k)) t += SERVICES.filter(function (s) { return s.name === k; })[0].price * selectedSvc[k];
+    return t;
+  }
+  function partsTotal() {
+    var t = 0;
+    for (var k in selectedParts) if (selectedParts.hasOwnProperty(k)) t += INVENTORY.filter(function (i) { return i.name === k; })[0].price * selectedParts[k];
+    return t;
+  }
+
+  function updateTotal() {
+    var sub = svcTotal(), parts = partsTotal();
+    document.getElementById('sSubSvc').textContent = fmt(sub);
+    document.getElementById('sSubParts').textContent = fmt(parts);
+    document.getElementById('sTotal').textContent = fmt(sub + parts);
+    renderSummary();
+  }
+
+  function renderSummary() {
+    var el = document.getElementById('summaryList');
+    var html = '';
+    var svcNames = Object.keys(selectedSvc);
+    for (var i = 0; i < svcNames.length; i++) {
+      var s = SERVICES.filter(function (x) { return x.name === svcNames[i]; })[0];
+      html += '<div class="price-row"><div><div class="pr-name">' + s.name + '</div></div><span class="pr-price num">' + fmt(s.price) + '</span></div>';
+    }
+    var partNames = Object.keys(selectedParts);
+    for (var j = 0; j < partNames.length; j++) {
+      var p = INVENTORY.filter(function (x) { return x.name === partNames[j]; })[0];
+      var q = selectedParts[partNames[j]];
+      html += '<div class="price-row"><div><div class="pr-name">' + p.name + '</div><div class="pr-sub">' + q + ' u.</div></div><span class="pr-price num">' + fmt(p.price * q) + '</span></div>';
+    }
+    if (!svcNames.length && !partNames.length) {
+      html = '<p style="color:var(--muted);margin:8px 0;">No hay ítems todavía. Volvé a los pasos anteriores para agregar servicios o repuestos.</p>';
+    }
+    el.innerHTML = html;
+  }
+
+  /* ─── Wizard: navegación de pasos ─────────────────────────────────── */
+  var step = 1;
+  var MAX = 6;
+  function goStep(n) {
+    step = Math.min(MAX, Math.max(1, n));
+    var steps = document.querySelectorAll('.wiz-step');
+    for (var i = 0; i < steps.length; i++) steps[i].classList.remove('active');
+    var cur = document.querySelector('.wiz-step[data-wstep="' + step + '"]');
+    if (cur) cur.classList.add('active');
+
+    var chips = document.querySelectorAll('.step-chip');
+    for (var c = 0; c < chips.length; c++) {
+      var s = parseInt(chips[c].getAttribute('data-step'), 10);
+      chips[c].removeAttribute('aria-current');
+      chips[c].classList.toggle('done', s < step);
+    }
+    var curChip = document.querySelector('.step-chip[data-step="' + step + '"]');
+    if (curChip) curChip.setAttribute('aria-current', 'step');
+
+    document.getElementById('wizPrev').disabled = step === 1;
+    var next = document.getElementById('wizNext');
+    if (step === MAX) { next.textContent = 'Guardar orden'; next.classList.replace('btn-dark', 'btn-primary'); }
+    else { next.textContent = 'Siguiente →'; next.classList.replace('btn-primary', 'btn-dark'); }
+  }
+
+  document.getElementById('wizPrev').addEventListener('click', function () { goStep(step - 1); });
+  document.getElementById('wizNext').addEventListener('click', function () {
+    if (step === 1) {
+      var nombre = document.getElementById('cNombre').value.trim();
+      if (!nombre) { document.getElementById('cNombre').focus(); return; }
+    }
+    if (step === MAX) {
+      if (confirm('¿Guardar la orden de trabajo?')) {
+        goStep(1);
+        document.getElementById('cNombre').value = '';
+        document.getElementById('cTel').value = '';
+        document.getElementById('cEmail').value = '';
+        document.getElementById('bMarca').value = '';
+        document.getElementById('bModelo').value = '';
+        document.getElementById('bRueda').value = '';
+        document.getElementById('bColor').value = '';
+        document.getElementById('bDetalle').value = '';
+        document.getElementById('obs').value = '';
+        document.getElementById('entrega').value = '';
+        selectedSvc = {}; selectedParts = {};
+        renderSvc(); renderParts(); updateTotal();
+        navTo('presupuestos');
+      }
+      return;
+    }
+    goStep(step + 1);
+  });
+  document.getElementById('wizCancel').addEventListener('click', function () { navTo('inicio'); });
+
+  /* ─── Cerrar sesión ───────────────────────────────────────────────── */
+  var logoutBtn = document.getElementById('logoutBtn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', function () {
+      if (confirm('¿Cerrar sesión de Riva Bike?')) { navTo('inicio'); }
+    });
+  }
+
+  /* ─── Tema claro / oscuro ─────────────────────────────────────────── */
+  var themeToggle = document.getElementById('themeToggle');
+  function setTheme(t) {
+    document.documentElement.setAttribute('data-theme', t);
+    try { localStorage.setItem('riva-theme', t); } catch (e) {}
+    if (themeToggle) themeToggle.setAttribute('aria-pressed', t === 'dark' ? 'true' : 'false');
+  }
+  themeToggle.addEventListener('click', function () {
+    var cur = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    setTheme(cur);
+  });
+  setTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light');
+
+  readHash();
+  renderInv();
+  renderSvc();
+  renderParts();
+  updateTotal();
+
+  /* ─── Sistema de modales ──────────────────────────────────────────── */
+  var overlay = document.getElementById('modalOverlay');
+  var sheets = document.querySelectorAll('.modal-sheet');
+  var lastFocus = null;
+
+  function openModal(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    lastFocus = document.activeElement;
+    for (var i = 0; i < sheets.length; i++) {
+      sheets[i].setAttribute('hidden', '');
+      if (sheets[i] === el) sheets[i].removeAttribute('hidden');
+    }
+    overlay.classList.add('open');
+    overlay.removeAttribute('aria-hidden');
+    var f = el.querySelector('input, textarea, button');
+    if (f) f.focus();
+  }
+  function closeModal() {
+    overlay.classList.remove('open');
+    overlay.setAttribute('aria-hidden', 'true');
+    for (var i = 0; i < sheets.length; i++) sheets[i].setAttribute('hidden', '');
+    if (lastFocus) lastFocus.focus();
+  }
+  var closeEls = overlay.querySelectorAll('[data-close]');
+  for (var ce = 0; ce < closeEls.length; ce++) {
+    closeEls[ce].addEventListener('click', closeModal);
+  }
+  overlay.addEventListener('click', function (e) {
+    if (e.target === overlay) closeModal();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && overlay.classList.contains('open')) closeModal();
+  });
+
+  /* Modal servicio (nuevo / editar) */
+  var svcIndex = null;
+  var svcNewBtn = document.getElementById('svcNewBtn');
+  if (svcNewBtn) svcNewBtn.addEventListener('click', function () {
+    svcIndex = null;
+    document.getElementById('mSvcTitle').textContent = 'Nuevo servicio';
+    document.getElementById('svcName').value = '';
+    document.getElementById('svcDesc').value = '';
+    document.getElementById('svcPrice').value = '';
+    document.getElementById('svcActive').setAttribute('aria-checked', 'true');
+    openModal('modalSvc');
+  });
+  document.querySelectorAll('.sv-edit:not([data-content])').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var row = btn.closest('.svc-row');
+      var name = row.querySelector('.sv-name').textContent;
+      var sub = row.querySelector('.sv-sub').textContent;
+      svcIndex = name;
+      document.getElementById('mSvcTitle').textContent = name;
+      document.getElementById('mSvcSub').textContent = sub;
+      document.getElementById('svcName').value = name;
+      document.getElementById('svcDesc').value = sub;
+      document.getElementById('svcPrice').value = '';
+      openModal('modalSvc');
+    });
+  });
+  document.getElementById('svcActive').addEventListener('click', function () {
+    var on = this.getAttribute('aria-checked') === 'true';
+    this.setAttribute('aria-checked', on ? 'false' : 'true');
+  });
+  document.getElementById('svcSave').addEventListener('click', function () {
+    closeModal();
+  });
+
+  /* Modal ajustar stock */
+  var invIdx = null;
+  var curQty = 0;
+  function openStock(i) {
+    var item = INVENTORY[i];
+    if (!item) return;
+    invIdx = i; curQty = item.stock;
+    document.getElementById('mInvTitle').textContent = item.name;
+    document.getElementById('mInvSub').textContent = item.name;
+    document.getElementById('mInvCat').textContent = item.cat;
+    document.getElementById('mInvPrice').textContent = fmt(item.price);
+    document.getElementById('mInvMin').textContent = item.min + ' u.';
+    document.getElementById('mInvQty').textContent = curQty;
+    openModal('modalInv');
+  }
+  document.getElementById('mInvDec').addEventListener('click', function () {
+    curQty = Math.max(0, curQty - 1);
+    document.getElementById('mInvQty').textContent = curQty;
+  });
+  document.getElementById('mInvInc').addEventListener('click', function () {
+    curQty += 1;
+    document.getElementById('mInvQty').textContent = curQty;
+  });
+  document.getElementById('invSave').addEventListener('click', function () {
+    if (invIdx !== null) INVENTORY[invIdx].stock = curQty;
+    renderInv();
+    closeModal();
+  });
+  document.addEventListener('click', function (e) {
+    var t = e.target.closest('[data-inv]');
+    if (t) openStock(parseInt(t.getAttribute('data-inv'), 10));
+  });
+
+  /* Modal detalle de orden */
+  var ORDERS = {
+    'OT-0142': { client: 'Valeria Gómez', status: 'wip', statusTxt: 'En curso', total: '$28.500', items: [['Ajuste general', '$12.000'], ['Cambio de cadena', '$14.500'], ['Cinta de manubrio', '$2.000']] },
+    'OT-0141': { client: 'Torretto', status: 'wip', statusTxt: 'En curso', total: '$58.400', items: [['Cambio de cubiertas ×2', '$36.800'], ['Pastillas de freno', '$7.800'], ['Ajuste de frenos', '$8.600'], ['Diagnóstico', '$5.200']] },
+    'OT-0140': { client: 'Belén M.', status: 'open', statusTxt: 'Pendiente', total: '$12.000', items: [['Ajuste general', '$12.000']] },
+    'OT-0139': { client: 'Rulo', status: 'done', statusTxt: 'Lista', total: '$12.000', items: [['Diagnóstico', '$12.000']] },
+    'OT-0138': { client: 'Carla S.', status: 'done', statusTxt: 'Lista', total: '$24.800', items: [['Armado de rueda trasera', '$24.800']] },
+    'OT-0137': { client: 'Marcos Díaz', status: 'done', statusTxt: 'Lista', total: '$14.500', items: [['Cambio de cadena', '$14.500']] }
+  };
+  document.querySelectorAll('.ord-row').forEach(function (row) {
+    row.addEventListener('click', function () {
+      var o = ORDERS[row.getAttribute('data-ord')];
+      if (!o) return;
+      document.getElementById('mOrdSub').textContent = row.getAttribute('data-ord');
+      document.getElementById('mOrdClient').textContent = o.client;
+      document.getElementById('mOrdStatus').textContent = o.statusTxt;
+      document.getElementById('mOrdStatus').style.color = o.status === 'done' ? 'var(--ok-fg)' : (o.status === 'open' ? 'var(--accent-strong)' : 'var(--warn-fg)');
+      document.getElementById('mOrdTotal').textContent = o.total;
+      var list = document.getElementById('mOrdItems');
+      var h = '';
+      for (var x = 0; x < o.items.length; x++) {
+        h += '<div class="price-row"><div class="pr-name">' + o.items[x][0] + '</div><span class="pr-price num">' + o.items[x][1] + '</span></div>';
+      }
+      list.innerHTML = h;
+      openModal('modalOrd');
+    });
+  });
+  document.getElementById('ordAction').addEventListener('click', function () {
+    closeModal();
+  });
+
+  /* Modal editar bloque de contenido */
+  var CONTENT = {
+    'hero-title': { label: 'Hero · título', text: 'Taller de bicicletas en CABA' },
+    'hero-sub': { label: 'Hero · subtítulo', text: 'Reparación, armado y mantenimiento con garantía.' },
+    'svc-intro': { label: 'Servicios · presentación', text: 'Servicios pensados para que tu bici vuelva a andar perfecta.' },
+    'about': { label: 'Nosotros · descripción', text: 'Un taller de barrio con mecánicos que aman los rodados.' },
+    'contact': { label: 'Contacto · dirección', text: 'Av. Corrientes 3200, CABA · Lun a Sáb 9–19' }
+  };
+  document.querySelectorAll('[data-content]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var key = btn.getAttribute('data-content');
+      var c = CONTENT[key];
+      if (!c) return;
+      document.getElementById('mContentTitle').textContent = 'Editar bloque';
+      document.getElementById('mContentSub').textContent = c.label;
+      document.getElementById('contentKey').value = c.label;
+      document.getElementById('contentText').value = c.text;
+      btn.setAttribute('data-open-key', key);
+      openModal('modalContent');
+    });
+  });
+  document.getElementById('contentSave').addEventListener('click', function () {
+    closeModal();
+  });
+})();
+</script>
+
+
+</body></html>

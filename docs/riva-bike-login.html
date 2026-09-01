@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="es-AR"><head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Iniciar sesión · Riva Bike</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet">
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem('riva-theme');
+        var theme = saved || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <style>
+    /* ─── tokens (misma identidad que Riva Bike landing/dashboard) ─────── */
+    :root {
+      --ink:      #0A0A0A;
+      --paper:    #FFFFFF;
+      --pink:     #EF7D97;
+      --pink-deep:#E8546F;
+
+      --bg:        var(--paper);
+      --surface:   #FFFFFF;
+      --surface-2: color-mix(in oklch, var(--ink) 4%, var(--paper));
+      --fg:        var(--ink);
+      --muted:     color-mix(in oklch, var(--ink) 62%, var(--paper));
+      --border:    color-mix(in oklch, var(--ink) 14%, var(--paper));
+      --accent:    var(--pink);
+      --accent-strong: var(--pink-deep);
+      --on-accent: var(--paper);
+      --accent-soft: color-mix(in oklch, var(--accent) 16%, transparent);
+      --fg-soft:     color-mix(in oklch, var(--fg) 6%, transparent);
+      --ink-soft:    color-mix(in oklch, var(--ink) 94%, var(--paper));
+      --shadow:      color-mix(in oklch, var(--ink) 24%, transparent);
+
+      --ok-bg:  color-mix(in oklch, #2E9E5B 14%, transparent);
+      --ok-fg:  #1F7A45;
+      --danger-bg: color-mix(in oklch, #D13C3C 14%, transparent);
+      --danger-fg: #B43030;
+
+      --font-display: 'Archivo', 'Inter', system-ui, sans-serif;
+      --font-body:    'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+      --font-mono:    ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, monospace;
+
+      --fs-h1: clamp(28px, 4vw, 36px);
+      --fs-body: 15px;
+      --fs-meta: 13px;
+
+      --radius: 10px;
+      --radius-lg: 14px;
+      --gutter: 24px;
+      color-scheme: light;
+    }
+
+    html[data-theme="dark"] {
+      color-scheme: dark;
+      --bg:        #0B0B0E;
+      --surface:   #141419;
+      --surface-2: #1B1B22;
+      --fg:        #F5F5F7;
+      --muted:     color-mix(in oklch, var(--paper) 66%, transparent);
+      --border:    color-mix(in oklch, var(--paper) 16%, transparent);
+      --accent:    #F48BA5;
+      --accent-strong: #FFA3B8;
+      --on-accent: #1A0B0F;
+      --accent-soft: color-mix(in oklch, var(--accent) 24%, transparent);
+      --fg-soft:     color-mix(in oklch, var(--fg) 7%, transparent);
+      --ink-soft:    color-mix(in oklch, var(--paper) 10%, transparent);
+      --shadow:      color-mix(in oklch, #000000 60%, transparent);
+
+      --ok-bg:  color-mix(in oklch, #3ECB78 16%, transparent);
+      --ok-fg:  #5FDE95;
+      --danger-bg: color-mix(in oklch, #FF6B6B 18%, transparent);
+      --danger-fg: #FF8A8A;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--font-body);
+      font-size: var(--fs-body);
+      line-height: 1.55;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; text-decoration: none; }
+    button { font: inherit; cursor: pointer; }
+    ::selection { background: var(--accent-strong); color: var(--on-accent); }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        transition-duration: 0.001ms !important;
+      }
+    }
+
+    /* ─── layout ───────────────────────────────────────────────────────── */
+    .shell {
+      min-height: 100svh;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 480px;
+    }
+    .brand-panel {
+      position: relative;
+      background: var(--ink);
+      color: var(--paper);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: clamp(32px, 6vw, 72px);
+    }
+    .brand-panel::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(60% 50% at 20% 15%, color-mix(in oklch, var(--accent) 22%, transparent), transparent 70%),
+        radial-gradient(50% 40% at 85% 80%, color-mix(in oklch, var(--accent) 14%, transparent), transparent 70%);
+    }
+    .brand-panel .brand {
+      position: absolute; top: clamp(28px, 5vw, 48px); left: clamp(28px, 5vw, 72px);
+      z-index: 1;
+    }
+    .brand-panel .brand .logo {
+      font-family: var(--font-display);
+      font-size: 24px; font-weight: 700; letter-spacing: -0.02em;
+    }
+    .brand-panel .brand .logo em { font-style: normal; color: var(--accent); }
+    .brand-panel .pitch { position: relative; z-index: 1; max-width: 34ch; }
+    .brand-panel .pitch h1 {
+      font-family: var(--font-display);
+      font-size: clamp(30px, 4.4vw, 48px);
+      line-height: 1.02; font-weight: 700; letter-spacing: -0.02em;
+      margin: 0 0 20px;
+    }
+    .brand-panel .pitch p { color: color-mix(in oklch, var(--paper) 66%, transparent); margin: 0; font-size: 16px; line-height: 1.6; }
+    .brand-panel .racing-wheel {
+      position: absolute;
+      top: 12%; right: 6%;
+      width: 220px; height: 220px; border-radius: 50%;
+      border: 2px solid color-mix(in oklch, var(--accent) 34%, transparent);
+      opacity: 0.5;
+      animation: wheelSpin 22s linear infinite;
+    }
+    .brand-panel .racing-wheel::before {
+      content: '';
+      position: absolute; top: 50%; left: 50%;
+      width: 62%; height: 62%; border-radius: 50%;
+      border: 1px solid color-mix(in oklch, var(--accent) 26%, transparent);
+      transform: translate(-50%, -50%);
+    }
+    @keyframes wheelSpin { to { transform: rotate(360deg); } }
+
+    .form-panel {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: var(--gutter);
+      background: var(--bg);
+    }
+    .form-panel .mini-nav {
+      position: absolute; top: 0; right: 0;
+      width: 480px;
+      padding: 20px var(--gutter) 0;
+      display: flex; justify-content: flex-end;
+    }
+    .theme-toggle {
+      width: 44px; height: 44px;
+      display: inline-flex; align-items: center; justify-content: center;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: transparent; color: var(--fg);
+      transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    }
+    .theme-toggle:hover { background: var(--accent-soft); border-color: var(--accent); }
+    .theme-toggle svg { width: 18px; height: 18px; }
+    .theme-toggle .icon-sun { display: none; }
+    html[data-theme="dark"] .theme-toggle .icon-sun { display: block; }
+    html[data-theme="dark"] .theme-toggle .icon-moon { display: none; }
+
+    .login {
+      width: 100%;
+      max-width: 360px;
+    }
+    .login .logo-row {
+      display: none;
+      margin-bottom: 28px;
+    }
+    .login .logo-row .logo { font-family: var(--font-display); font-size: 22px; font-weight: 700; letter-spacing: -0.02em; }
+    .login .logo-row .logo em { font-style: normal; color: var(--accent); }
+    .login .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 12px; font-weight: 500;
+      letter-spacing: 0.16em; text-transform: uppercase;
+      color: var(--accent);
+      margin: 0 0 14px;
+    }
+    .login h2 {
+      font-family: var(--font-display);
+      font-size: var(--fs-h1); font-weight: 700; letter-spacing: -0.02em;
+      line-height: 1.05; margin: 0 0 10px;
+    }
+    .login .sub { color: var(--muted); margin: 0 0 28px; font-size: 15px; }
+
+    .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 18px; }
+    .field label { font-size: 13px; color: var(--muted); font-weight: 500; }
+    .input {
+      width: 100%;
+      padding: 12px 0;
+      border: 0; border-bottom: 1px solid var(--border); border-radius: 0;
+      background: transparent; color: var(--fg);
+      font: inherit; font-size: 16px;
+      transition: border-color 0.2s ease;
+    }
+    .input::placeholder { color: color-mix(in oklch, var(--ink) 40%, transparent); }
+    .input:focus { outline: none; border-bottom-color: var(--accent); }
+    .pwd-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
+    .pwd-row .field { margin-bottom: 0; flex: 1; }
+    .show-pwd {
+      width: 44px; height: 44px; flex-shrink: 0;
+      display: inline-flex; align-items: center; justify-content: center;
+      background: none; border: 0; border-radius: 10px; color: var(--muted);
+    }
+    .show-pwd:hover { color: var(--fg); background: var(--fg-soft); }
+    .show-pwd svg { width: 19px; height: 19px; }
+
+    .options-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 24px; }
+    .remember { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; }
+    .remember input { width: 16px; height: 16px; accent-color: var(--accent-strong); }
+    .forgot a { font-size: 14px; font-weight: 500; color: var(--accent-strong); }
+    .forgot a:hover { text-decoration: underline; }
+
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      width: 100%; padding: 14px 26px;
+      border-radius: 999px; border: 1px solid transparent;
+      font-size: 15px; font-weight: 600;
+      transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease, transform 0.05s ease;
+    }
+    .btn:active { transform: translateY(1px); }
+    .btn-primary { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+    .btn-primary:hover { background: var(--accent-strong); border-color: var(--accent-strong); color: var(--on-accent); }
+    .btn-primary:disabled { opacity: 0.55; cursor: not-allowed; background: var(--fg); color: var(--bg); }
+
+    .form-msg { margin-top: 14px; font-size: 14px; text-align: center; }
+    .form-msg.error { color: var(--danger-fg); }
+    .form-msg.ok { color: var(--ok-fg); }
+
+    .foot-note { margin-top: 28px; text-align: center; font-size: 14px; color: var(--muted); }
+    .foot-note a { font-weight: 600; color: var(--fg); }
+    .foot-note a:hover { color: var(--accent-strong); }
+    .foot-note .dot { margin: 0 4px; opacity: 0.4; }
+
+    .legal { margin-top: 40px; text-align: center; font-size: 12px; color: color-mix(in oklch, var(--ink) 48%, transparent); }
+
+    /* ─── responsive ──────────────────────────────────────────────────── */
+    @media (max-width: 920px) {
+      .shell { grid-template-columns: 1fr; }
+      .brand-panel { display: none; }
+      .login .logo-row { display: block; }
+      .mini-nav { position: absolute; top: 0; right: 0; width: 100% !important; }
+    }
+    @media (max-width: 480px) {
+      .form-panel { padding: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <!-- panel de marca (desktop) -->
+    <aside class="brand-panel" data-od-id="brand-panel">
+      <div class="racing-wheel" aria-hidden="true"></div>
+      <div class="brand">
+        <span class="logo">Riva<em>.</em>Bike</span>
+      </div>
+      <div class="pitch">
+        <h1>El taller, en tus manos.</h1>
+        <p>Entrá al panel para armar presupuestos, gestionar tu inventario y seguir cada trabajo de tu bicicletería.</p>
+      </div>
+    </aside>
+
+    <!-- panel de formulario -->
+    <main class="form-panel" data-od-id="login-panel">
+      <div class="mini-nav">
+        <button class="theme-toggle" id="theme-toggle" data-od-id="theme-toggle" aria-label="Cambiar a modo oscuro" title="Cambiar tema">
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+        </button>
+      </div>
+
+      <div class="login">
+        <div class="logo-row">
+          <span class="logo">Riva<em>.</em>Bike</span>
+        </div>
+        <p class="eyebrow" style="font-size: 14px; font-weight: 800;">Panel · Acceso</p>
+        <h2>Iniciar sesión</h2>
+        <p class="sub">Ingresá con tu cuenta del taller para continuar.</p>
+
+        <form id="login-form" data-od-id="login-form" novalidate="">
+          <div class="field">
+            <label for="f-email">Correo electrónico</label>
+            <input class="input" id="f-email" name="email" type="email" placeholder="taller@rivabike.com.ar" autocomplete="email" required="">
+          </div>
+          <div class="pwd-row">
+            <div class="field">
+              <label for="f-password">Contraseña</label>
+              <input class="input" id="f-password" name="password" type="password" placeholder="••••••••" autocomplete="current-password" required="">
+            </div>
+            <button type="button" class="show-pwd" id="show-pwd" aria-label="Mostrar contraseña" aria-pressed="false">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            </button>
+          </div>
+          <div class="options-row">
+            <label class="remember"><input type="checkbox" id="f-remember" name="remember"> Recordarme</label>
+            <span class="forgot"><a href="riva-bike-forgot.html">¿Olvidaste tu contraseña?</a></span>
+          </div>
+          <button type="submit" class="btn btn-primary" id="login-submit">Ingresar</button>
+          <p class="form-msg" id="form-msg" role="status" aria-live="polite"></p>
+          
+        </form>
+      </div>
+      <p class="legal">© 2026 Riva Bike · Hipólito Yrigoyen, Salta</p>
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      var themeToggle = document.getElementById('theme-toggle');
+      function applyTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        try { localStorage.setItem('riva-theme', theme); } catch (e) {}
+        var dark = theme === 'dark';
+        themeToggle.setAttribute('aria-label', dark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro');
+        themeToggle.setAttribute('aria-pressed', String(dark));
+      }
+      themeToggle.addEventListener('click', function () {
+        var current = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+        applyTheme(current === 'dark' ? 'light' : 'dark');
+      });
+      applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light');
+
+      var showPwd = document.getElementById('show-pwd');
+      var pwd = document.getElementById('f-password');
+      showPwd.addEventListener('click', function () {
+        var showing = pwd.type === 'text';
+        pwd.type = showing ? 'password' : 'text';
+        showPwd.setAttribute('aria-pressed', String(!showing));
+        showPwd.setAttribute('aria-label', showing ? 'Mostrar contraseña' : 'Ocultar contraseña');
+      });
+
+      var form = document.getElementById('login-form');
+      var msgEl = document.getElementById('form-msg');
+      var submit = document.getElementById('login-submit');
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var email = document.getElementById('f-email').value.trim();
+        var pass = document.getElementById('f-password').value;
+        if (!email || !pass) {
+          msgEl.textContent = 'Completá tu correo y tu contraseña para continuar.';
+          msgEl.className = 'form-msg error';
+          return;
+        }
+        if (email.indexOf('@') === -1) {
+          msgEl.textContent = 'Ingresá un correo electrónico válido.';
+          msgEl.className = 'form-msg error';
+          return;
+        }
+        msgEl.textContent = '';
+        msgEl.className = 'form-msg';
+        submit.disabled = true;
+        submit.textContent = 'Ingresando…';
+        setTimeout(function () {
+          msgEl.textContent = 'Sesión iniciada. Redirigiendo al panel…';
+          msgEl.className = 'form-msg ok';
+          setTimeout(function () {
+            window.location.href = 'riva-bike-dashboard.html';
+          }, 900);
+        }, 700);
+      });
+    })();
+  </script>
+
+</body></html>

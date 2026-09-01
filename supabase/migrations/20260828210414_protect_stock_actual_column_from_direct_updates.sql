@@ -1,0 +1,15 @@
+-- Hallazgo de auditoría: la política RLS "admin_full_access_inventory_items"
+-- (ALL) le permitía al admin autenticado hacer UPDATE directo sobre
+-- inventory_items.stock_actual vía PostgREST (ej. supabase.from('inventory_items').update(...)),
+-- saltando por completo register_stock_movement(): sin validación de stock
+-- negativo, sin fila en stock_movements, sin bloqueo de fila. Viola
+-- AGENT.MD sección 26 ("No permitir UPDATE stock = stock - 1 desde el
+-- frontend... Crear un sistema de movimientos").
+--
+-- Se restringe a nivel de columna (Postgres nativo, independiente de RLS):
+-- INSERT en stock_actual se conserva (necesario para el stock inicial al
+-- crear un repuesto nuevo). UPDATE de esa columna se revoca para authenticated;
+-- las funciones SECURITY DEFINER (register_stock_movement, etc.) siguen
+-- pudiendo escribirla porque corren con los privilegios del owner de la
+-- función, no con los del rol authenticated.
+revoke update (stock_actual) on public.inventory_items from authenticated;

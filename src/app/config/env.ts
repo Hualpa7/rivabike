@@ -3,7 +3,6 @@
 function readEnvVar(key: keyof ImportMetaEnv): string {
   const value = import.meta.env[key];
   if (!value) {
-    // eslint-disable-next-line no-console
     console.warn(`[env] Falta la variable de entorno ${key}. Revisa tu archivo .env`);
   }
   return value ?? '';

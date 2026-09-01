@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="es-AR"><head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Página no encontrada · Riva Bike</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet">
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem('riva-theme');
+        var theme = saved || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <style>
+    :root {
+      --ink:      #0A0A0A;
+      --paper:    #FFFFFF;
+      --pink:     #EF7D97;
+      --pink-deep:#E8546F;
+
+      --bg:        var(--paper);
+      --surface:   #FFFFFF;
+      --surface-2: color-mix(in oklch, var(--ink) 4%, var(--paper));
+      --fg:        var(--ink);
+      --muted:     color-mix(in oklch, var(--ink) 62%, var(--paper));
+      --border:    color-mix(in oklch, var(--ink) 14%, var(--paper));
+      --accent:    var(--pink);
+      --accent-strong: var(--pink-deep);
+      --on-accent: var(--paper);
+      --accent-soft: color-mix(in oklch, var(--accent) 16%, transparent);
+      --fg-soft:     color-mix(in oklch, var(--fg) 6%, transparent);
+      --ink-soft:    color-mix(in oklch, var(--ink) 94%, var(--paper));
+      --shadow:      color-mix(in oklch, var(--ink) 24%, transparent);
+
+      --font-display: 'Archivo', 'Inter', system-ui, sans-serif;
+      --font-body:    'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+      --font-mono:    ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, monospace;
+
+      --fs-body: 16px;
+      --gutter: 24px;
+      color-scheme: light;
+    }
+
+    html[data-theme="dark"] {
+      color-scheme: dark;
+      --bg:        #0B0B0E;
+      --surface:   #141419;
+      --surface-2: #1B1B22;
+      --fg:        #F5F5F7;
+      --muted:     color-mix(in oklch, var(--paper) 66%, transparent);
+      --border:    color-mix(in oklch, var(--paper) 16%, transparent);
+      --accent:    #F48BA5;
+      --accent-strong: #FFA3B8;
+      --on-accent: #1A0B0F;
+      --accent-soft: color-mix(in oklch, var(--accent) 24%, transparent);
+      --fg-soft:     color-mix(in oklch, var(--fg) 7%, transparent);
+      --ink-soft:    color-mix(in oklch, var(--paper) 10%, transparent);
+      --shadow:      color-mix(in oklch, #000000 60%, transparent);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      margin: 0;
+      min-height: 100svh;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--font-body);
+      font-size: var(--fs-body);
+      line-height: 1.55;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; text-decoration: none; }
+    button { font: inherit; cursor: pointer; }
+    ::selection { background: var(--accent-strong); color: var(--on-accent); }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        transition-duration: 0.001ms !important;
+      }
+    }
+
+    .page {
+      position: relative;
+      min-height: 100svh;
+      display: flex; flex-direction: column;
+      padding: var(--gutter);
+      overflow: hidden;
+    }
+
+    /* nav fijo arriba */
+    .top {
+      display: flex; align-items: center; justify-content: space-between;
+      max-width: 1120px; margin: 0 auto; width: 100%;
+    }
+    .top .logo { font-family: var(--font-display); font-size: 21px; font-weight: 700; letter-spacing: -0.02em; }
+    .top .logo em { font-style: normal; color: var(--accent); }
+    .top nav { display: flex; gap: 24px; align-items: center; }
+    .top nav a { font-size: 14px; font-weight: 500; color: var(--muted); }
+    .top nav a:hover { color: var(--fg); }
+    .theme-toggle {
+      width: 44px; height: 44px;
+      display: inline-flex; align-items: center; justify-content: center;
+      border-radius: 999px; border: 1px solid var(--border);
+      background: transparent; color: var(--fg);
+      transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+      margin-left: 8px;
+    }
+    .theme-toggle:hover { background: var(--accent-soft); border-color: var(--accent); }
+    .theme-toggle svg { width: 18px; height: 18px; }
+    .theme-toggle .icon-sun { display: none; }
+    html[data-theme="dark"] .theme-toggle .icon-sun { display: block; }
+    html[data-theme="dark"] .theme-toggle .icon-moon { display: none; }
+
+    /* bloque central */
+    .center {
+      flex: 1;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center;
+      max-width: 720px; margin: 0 auto; width: 100%;
+      padding: 40px 0;
+    }
+    .code {
+      font-family: var(--font-display);
+      font-size: clamp(96px, 22vw, 200px);
+      font-weight: 700; letter-spacing: -0.04em;
+      line-height: 0.9; margin: 0;
+      color: var(--fg);
+      position: relative;
+      display: inline-block;
+    }
+    .code .zero { color: var(--accent); }
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 12px; font-weight: 500;
+      letter-spacing: 0.16em; text-transform: uppercase;
+      color: var(--accent); margin: 0 0 18px;
+    }
+    .center h1 {
+      font-family: var(--font-display);
+      font-size: clamp(26px, 4vw, 38px);
+      font-weight: 700; letter-spacing: -0.02em; line-height: 1.1;
+      margin: 0 0 14px;
+    }
+    .center .desc { color: var(--muted); margin: 0 0 30px; font-size: 16px; }
+
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 14px 26px;
+      border-radius: 999px; border: 1px solid transparent;
+      font-size: 15px; font-weight: 600;
+      transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease, transform 0.05s ease;
+    }
+    .btn:active { transform: translateY(1px); }
+    .btn-primary { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+    .btn-primary:hover { background: var(--accent-strong); border-color: var(--accent-strong); color: var(--on-accent); }
+    .actions { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+    .btn-secondary { background: transparent; color: var(--fg); border-color: currentColor; }
+    .btn-secondary:hover { background: var(--accent-strong); border-color: var(--accent-strong); color: var(--on-accent); }
+
+    /* rueda decorativa de fondo */
+    .bg-wheel {
+      position: absolute;
+      width: clamp(220px, 30vw, 420px); height: clamp(220px, 30vw, 420px);
+      border-radius: 50%;
+      border: 3px solid color-mix(in oklch, var(--accent) 22%, transparent);
+      opacity: 0.6; pointer-events: none;
+      animation: wheelSpin 40s linear infinite;
+    }
+    .bg-wheel.w1 { top: 8%; left: 6%; }
+    .bg-wheel.w2 { bottom: 6%; right: 4%; animation-direction: reverse; opacity: 0.4; }
+    .bg-wheel::after {
+      content: ''; position: absolute; top: 50%; left: 50%;
+      width: 34%; height: 34%; border-radius: 50%;
+      border: 1px solid color-mix(in oklch, var(--accent) 20%, transparent);
+      transform: translate(-50%, -50%);
+    }
+    @keyframes wheelSpin { to { transform: rotate(360deg); } }
+
+    .foot { max-width: 1120px; margin: 0 auto; width: 100%; padding-bottom: 8px; }
+    .foot .fine { font-size: 12px; color: color-mix(in oklch, var(--ink) 48%, transparent); text-align: center; }
+
+    @media (max-width: 600px) {
+      .top nav { display: none; }
+      .top { justify-content: space-between; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="bg-wheel w1" aria-hidden="true"></div>
+    <div class="bg-wheel w2" aria-hidden="true"></div>
+
+    <header class="top" data-od-id="topnav">
+      <span class="logo">Riva<em>.</em>Bike</span>
+      <div style="display:flex; align-items:center;">
+        <nav data-od-id="topnav-links">
+          <a href="riva-bike-landing.html">Inicio</a>
+          <a href="riva-bike-landing.html#servicios">Servicios</a>
+          <a href="riva-bike-landing.html#trabajos">Trabajos</a>
+          <a href="riva-bike-landing.html#contacto">Contacto</a>
+        </nav>
+        <button class="theme-toggle" id="theme-toggle" data-od-id="theme-toggle" aria-label="Cambiar a modo oscuro" title="Cambiar tema">
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+        </button>
+      </div>
+    </header>
+
+    <main class="center" data-od-id="notfound">
+      <p class="eyebrow" style="font-size: 16px; font-weight: 800;">Error · Ruta no encontrada</p>
+      <div class="code" aria-hidden="true">4<span class="zero">0</span>4</div>
+      <h1>Se nos escapó esta página.</h1>
+      <p class="desc">La dirección que buscás no existe o fue movida. Volvé al inicio para seguir con tu bici.</p>
+      <div class="actions">
+        <a class="btn btn-primary" href="riva-bike-landing.html">Volver al inicio</a>
+        <a class="btn btn-secondary" href="riva-bike-login.html">Iniciar sesión</a>
+      </div>
+    </main>
+
+    <footer class="foot">
+      <p class="fine">© 2026 Riva Bike · Hipólito Yrigoyen, Salta</p>
+    </footer>
+  </div>
+
+  <script>
+    (function () {
+      var themeToggle = document.getElementById('theme-toggle');
+      function applyTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        try { localStorage.setItem('riva-theme', theme); } catch (e) {}
+        var dark = theme === 'dark';
+        themeToggle.setAttribute('aria-label', dark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro');
+        themeToggle.setAttribute('aria-pressed', String(dark));
+      }
+      themeToggle.addEventListener('click', function () {
+        var current = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+        applyTheme(current === 'dark' ? 'light' : 'dark');
+      });
+      applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light');
+    })();
+  </script>
+
+</body></html>

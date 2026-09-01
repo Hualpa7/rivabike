@@ -1,0 +1,1141 @@
+<!doctype html>
+<html lang="es-AR"><head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Riva Bike · Taller de bicicletas en Hipólito Yrigoyen</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet">
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem('riva-theme');
+        var theme = saved || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <style>
+    /* ─── tokens ─────────────────────────────────────────────────────── */
+    :root {
+      --ink:      #0A0A0A;
+      --paper:    #FFFFFF;
+      --pink:     #EF7D97;
+      --pink-deep:#E8546F;
+      --gold:     #F5C044;
+
+      /* theme: light (default) */
+      --bg:        var(--paper);
+      --surface:   #FFFFFF;
+      --surface-2: color-mix(in oklch, var(--ink) 4%, var(--paper));
+      --fg:        var(--ink);
+      --muted:     color-mix(in oklch, var(--ink) 62%, var(--paper));
+      --border:    color-mix(in oklch, var(--ink) 14%, var(--paper));
+      --accent:    var(--pink);
+      --accent-strong: var(--pink-deep);
+      --on-accent: var(--paper);
+      --accent-soft: color-mix(in oklch, var(--accent) 16%, transparent);
+      --fg-soft:     color-mix(in oklch, var(--fg) 6%, transparent);
+      --ink-soft:    color-mix(in oklch, var(--ink) 94%, var(--paper));
+      --shadow:      color-mix(in oklch, var(--ink) 45%, transparent);
+
+      /* nav / hero over image (light) */
+      --nav-tint: color-mix(in oklch, var(--ink) 55%, transparent);
+      --nav-tint-solid: color-mix(in oklch, var(--ink) 82%, transparent);
+      --on-dark:  var(--paper);
+
+      --font-display: 'Archivo', 'Inter', system-ui, sans-serif;
+      --font-body:    'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+      --font-mono:    ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, monospace;
+
+      --fs-h1: clamp(40px, 7.2vw, 92px);
+      --fs-h2: clamp(30px, 4vw, 52px);
+      --fs-h3: 21px;
+      --fs-lead: 18px;
+      --fs-body: 16px;
+      --fs-meta: 13px;
+
+      --gap-xs: 8px;
+      --gap-sm: 12px;
+      --gap-md: 20px;
+      --gap-lg: 32px;
+      --gap-xl: 56px;
+      --gap-2xl: 112px;
+      --container: 1120px;
+      --gutter: 24px;
+
+      --radius: 10px;
+      --radius-lg: 14px;
+      color-scheme: light;
+    }
+
+    html[data-theme="dark"] {
+      color-scheme: dark;
+
+      /* theme: dark — invierte roles sin romper el rosa */
+      --bg:        #0B0B0E;
+      --surface:   #141419;
+      --surface-2: #1B1B22;
+      --fg:        #F5F5F7;
+      --muted:     color-mix(in oklch, var(--paper) 66%, transparent);
+      --border:    color-mix(in oklch, var(--paper) 16%, transparent);
+      --accent:    #F48BA5;
+      --accent-strong: #FFA3B8;
+      --on-accent: #1A0B0F;
+      --accent-soft: color-mix(in oklch, var(--accent) 24%, transparent);
+      --fg-soft:     color-mix(in oklch, var(--fg) 7%, transparent);
+      --ink-soft:    color-mix(in oklch, var(--paper) 10%, transparent);
+      --shadow:      color-mix(in oklch, #000000 70%, transparent);
+
+      --nav-tint:      color-mix(in oklch, #000000 62%, transparent);
+      --nav-tint-solid: #0B0B0E;
+      --on-dark:  var(--paper);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--font-body);
+      font-size: var(--fs-body);
+      line-height: 1.55;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+    }
+    img, svg { display: block; max-width: 100%; }
+    a { color: inherit; text-decoration: none; }
+    button { font: inherit; cursor: pointer; }
+    p { text-wrap: pretty; }
+    h1, h2, h3, h4 { text-wrap: balance; }
+
+    ::selection { background: var(--accent-strong); color: var(--on-accent); }
+
+    /* ─── layout primitives ─────────────────────────────────────────── */
+    .container { max-width: var(--container); margin-inline: auto; padding-inline: var(--gutter); }
+    .section { padding-block: clamp(56px, 9vw, 120px); }
+    .stack { display: flex; flex-direction: column; }
+    .stack > * + * { margin-top: var(--gap-md); }
+    .row { display: flex; align-items: center; gap: var(--gap-md); }
+    .row-between { display: flex; align-items: center; justify-content: space-between; gap: var(--gap-md); }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--gap-lg); }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--gap-lg); }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--gap-md); }
+    .grid-2-1 { display: grid; grid-template-columns: 1.05fr 1fr; gap: var(--gap-2xl); align-items: center; }
+    .grid-1-2 { display: grid; grid-template-columns: 1fr 1.05fr; gap: var(--gap-2xl); align-items: center; }
+    @media (max-width: 920px) {
+      .grid-2, .grid-3, .grid-4, .grid-2-1, .grid-1-2 { grid-template-columns: 1fr; }
+      .grid-2-1 .ph-img, .grid-1-2 .ph-img { order: -1; }
+    }
+
+    /* ─── type ──────────────────────────────────────────────────────── */
+    .h1, h1 { font-family: var(--font-display); font-size: var(--fs-h1); line-height: 0.98; letter-spacing: -0.03em; margin: 0; font-weight: 700; }
+    .h2, h2 { font-family: var(--font-display); font-size: var(--fs-h2); line-height: 1.05; letter-spacing: -0.02em; margin: 0; font-weight: 700; }
+    .h3, h3 { font-family: var(--font-display); font-size: var(--fs-h3); font-weight: 600; line-height: 1.25; letter-spacing: -0.01em; margin: 0; }
+    .lead { font-size: var(--fs-lead); line-height: 1.55; color: var(--muted); max-width: 60ch; margin: 0; }
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin: 0 0 var(--gap-md);
+    }
+    .eyebrow.ink { color: var(--ink); }
+    .meta { font-family: var(--font-mono); font-size: var(--fs-meta); color: var(--muted); }
+    .num  { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+    /* ─── nav ───────────────────────────────────────────────────────── */
+    .topnav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+      background: var(--nav-tint);
+      -webkit-backdrop-filter: blur(14px) saturate(140%);
+      backdrop-filter: blur(14px) saturate(140%);
+      box-shadow: inset 0 -1px 0 0 color-mix(in oklch, var(--on-dark) 16%, transparent);
+      transition: background 0.3s ease, box-shadow 0.3s ease;
+    }
+    .topnav.scrolled {
+      background: color-mix(in oklch, var(--bg) 88%, transparent);
+      -webkit-backdrop-filter: blur(12px) saturate(140%);
+      backdrop-filter: blur(12px) saturate(140%);
+      box-shadow: 0 1px 0 var(--border);
+    }
+    .topnav-inner { display: flex; align-items: center; justify-content: space-between; padding-block: 16px; }
+    .topnav .logo {
+      font-family: var(--font-display);
+      font-size: 21px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--on-dark);
+      transition: color 0.25s ease;
+      z-index: 60;
+    }
+    .topnav.scrolled .logo { color: var(--fg); }
+    .topnav .logo em { font-style: normal; color: var(--accent); }
+    .topnav nav { display: flex; gap: var(--gap-lg); align-items: center; }
+    .topnav nav a { font-size: 14px; font-weight: 500; color: var(--on-dark); opacity: 0.9; transition: opacity 0.2s ease, color 0.25s ease; }
+    .topnav.scrolled nav a { color: var(--fg); opacity: 0.72; }
+    .topnav nav a:hover { opacity: 1; }
+    .nav-cta {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 18px;
+      border-radius: 999px;
+      border: 1px solid var(--on-dark);
+      color: var(--on-dark);
+      font-size: 14px; font-weight: 600;
+      transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    }
+    .topnav.scrolled .nav-cta { border-color: var(--fg); color: var(--fg); }
+    .nav-cta:hover { background: var(--accent-strong); border-color: var(--accent-strong); color: var(--on-accent); }
+    .nav-burger {
+      display: none;
+      width: 44px; height: 44px;
+      background: none; border: 0;
+      flex-direction: column; gap: 5px; align-items: center; justify-content: center;
+      z-index: 60;
+    }
+    .nav-burger span { width: 22px; height: 2px; background: var(--on-dark); transition: background 0.25s ease, transform 0.25s ease; }
+    .topnav.scrolled .nav-burger span { background: var(--fg); }
+    .nav-burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .nav-burger.open span:nth-child(2) { opacity: 0; }
+    .nav-burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+    .theme-toggle {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 44px; height: 44px;
+      border-radius: 999px;
+      border: 1px solid color-mix(in oklch, var(--on-dark) 40%, transparent);
+      background: transparent;
+      color: var(--on-dark);
+      transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+      z-index: 60;
+    }
+    .topnav.scrolled .theme-toggle { border-color: var(--border); color: var(--fg); }
+    .theme-toggle:hover { background: var(--accent-soft); border-color: var(--accent); }
+    .theme-toggle svg { width: 18px; height: 18px; }
+    .theme-toggle .icon-sun { display: none; }
+    html[data-theme="dark"] .theme-toggle .icon-sun { display: block; }
+    html[data-theme="dark"] .theme-toggle .icon-moon { display: none; }
+    @media (max-width: 920px) {
+      .theme-toggle { margin-left: auto; }
+    }
+
+    .mobile-menu {
+      position: fixed; inset: 0; z-index: 55;
+      background: var(--ink);
+      display: flex; flex-direction: column;
+      padding: 96px var(--gutter) 40px;
+      gap: var(--gap-md);
+      transform: translateY(-100%);
+      transition: transform 0.3s ease;
+      overflow: auto;
+    }
+    .mobile-menu.open { transform: translateY(0); }
+    .mobile-menu a {
+      font-family: var(--font-display);
+      font-size: 28px; font-weight: 600;
+      color: var(--paper);
+      padding-block: 8px;
+      border-bottom: 1px solid color-mix(in oklch, var(--paper) 12%, transparent);
+    }
+    .mobile-menu a:hover { color: var(--accent); }
+    .mobile-menu .m-cta {
+      margin-top: 16px;
+      display: inline-flex; justify-content: center;
+      padding: 16px 24px;
+      border-radius: 999px;
+      background: var(--accent-strong);
+      color: var(--on-accent);
+      font-weight: 600;
+      border: 0;
+    }
+    @media (max-width: 920px) {
+      .topnav nav { display: none; }
+      .nav-burger { display: flex; }
+    }
+
+    /* ─── hero (full-bleed) ─────────────────────────────────────────── */
+    .hero {
+      position: relative;
+      min-height: 100svh;
+      display: flex; align-items: flex-end;
+      padding: 0;
+      background: var(--fg-soft);
+      overflow: hidden;
+    }
+    .hero-media { position: absolute; inset: 0; }
+    .hero-media img { width: 100%; height: 100%; object-fit: cover; object-position: center right; }
+    .hero-media::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, color-mix(in oklch, var(--ink) 82%, transparent) 0%, color-mix(in oklch, var(--ink) 34%, transparent) 55%, transparent 90%),
+                  linear-gradient(to right, color-mix(in oklch, var(--ink) 55%, transparent) 0%, transparent 60%);
+    }
+    .hero-bike {
+      position: absolute;
+      right: -10%;
+      bottom: -5%;
+      width: 55%;
+      max-width: 720px;
+      z-index: 2;
+      transform: translateX(100px);
+      opacity: 0;
+      animation: heroBikeEnter 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards;
+    }
+    @keyframes heroBikeEnter {
+      to { transform: translateX(0); opacity: 1; }
+    }
+    /* halo de ambiente detrás de la bici para integrarla */
+    .hero-bike::before {
+      content: '';
+      position: absolute;
+      inset: -16% -20%;
+      background:
+        radial-gradient(closest-side at 42% 40%, color-mix(in oklch, var(--accent) 22%, transparent), transparent 72%),
+        radial-gradient(closest-side at 62% 62%, color-mix(in oklch, var(--accent) 12%, transparent), transparent 70%);
+      filter: blur(10px);
+      z-index: -1;
+      pointer-events: none;
+    }
+    /* sombra de suelo (elipse difusa) para anclarla */
+    .hero-bike::after {
+      content: '';
+      position: absolute;
+      left: 6%; right: 2%;
+      bottom: -4%;
+      height: 30px;
+      border-radius: 50%;
+      background: radial-gradient(50% 100% at 50% 50%, color-mix(in oklch, var(--ink) 60%, transparent), transparent 72%);
+      filter: blur(9px);
+      transform: translateY(70%);
+      z-index: -1;
+      pointer-events: none;
+    }
+    .hero-bike img {
+      width: 100%;
+      height: auto;
+      filter:
+        drop-shadow(0 36px 70px color-mix(in oklch, var(--ink) 65%, transparent))
+        drop-shadow(0 12px 26px color-mix(in oklch, var(--ink) 42%, transparent));
+    }
+    .hero-inner {
+      position: relative;
+      width: 100%;
+      padding: clamp(140px, 20vh, 220px) var(--gutter) clamp(48px, 10vh, 112px);
+      max-width: var(--container);
+      margin-inline: auto;
+      color: var(--paper);
+      z-index: 3;
+    }
+    .hero .eyebrow { color: var(--accent); }
+    .hero h1 { color: var(--paper); max-width: 13ch; }
+    .hero .rating {
+      display: inline-flex; align-items: center; gap: 10px;
+      margin-top: var(--gap-lg);
+      padding: 8px 14px;
+      border: 1px solid color-mix(in oklch, var(--paper) 28%, transparent);
+      border-radius: 999px;
+      backdrop-filter: blur(6px);
+      background: color-mix(in oklch, var(--ink) 22%, transparent);
+    }
+    .hero .rating .stars { color: var(--gold); letter-spacing: 2px; font-size: 14px; }
+    .hero .rating .val { font-family: var(--font-mono); font-size: 13px; }
+    .hero .rating .sep { opacity: 0.5; }
+    .hero-cta { display: inline-flex; gap: var(--gap-sm); flex-wrap: wrap; margin-top: var(--gap-lg); }
+    .hero-scroll {
+      position: absolute; right: var(--gutter); bottom: clamp(48px, 10vh, 112px);
+      color: var(--paper); opacity: 0.6; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+      writing-mode: vertical-rl;
+      display: flex; align-items: center; gap: 8px;
+    }
+    @media (max-width: 920px) {
+      .hero-scroll { display: none; }
+      .hero-media img { object-position: center 60%; }
+      .hero-bike { right: -14%; width: 74%; bottom: -4%; }
+    }
+    @media (max-width: 600px) {
+      .hero { align-items: flex-end; }
+      .hero-media img { object-position: center 30%; }
+      .hero-media::after {
+        background:
+          linear-gradient(to top, color-mix(in oklch, var(--ink) 92%, transparent) 0%, color-mix(in oklch, var(--ink) 62%, transparent) 34%, color-mix(in oklch, var(--ink) 20%, transparent) 58%, transparent 82%);
+      }
+      .hero-inner {
+        padding: clamp(168px, 34vh, 236px) var(--gutter) clamp(32px, 6vh, 52px);
+      }
+      /* bici arriba, anclada, ocupando la franja superior */
+      .hero-bike {
+        right: 50%;
+        bottom: auto;
+        top: 6%;
+        width: 90%;
+        max-width: none;
+        transform: translateX(50%) translateY(3%);
+        animation: heroBikeFade 1s ease 0.2s both;
+      }
+      .hero-bike::before { inset: -10% -6%; }
+      .hero-bike::after { bottom: -3%; height: 18px; transform: translateY(70%); }
+      @keyframes heroBikeFade {
+        from { opacity: 0; transform: translateX(50%) translateY(5%); }
+        to   { opacity: 1; transform: translateX(50%) translateY(0); }
+      }
+    }
+
+    /* ─── racing decorative elements ──────────────────────────────────── */
+    .racing-accents { position: absolute; inset: 0; pointer-events: none; z-index: 1; overflow: hidden; }
+    .racing-wheel {
+      position: absolute;
+      border: 2px solid color-mix(in oklch, var(--accent) 40%, transparent);
+      border-radius: 50%;
+      opacity: 0.15;
+      animation: wheelSpin 20s linear infinite;
+    }
+    .racing-wheel::before {
+      content: '';
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 60%; height: 60%;
+      border: 1px solid color-mix(in oklch, var(--accent) 30%, transparent);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+    }
+    .racing-wheel::after {
+      content: '';
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 4px; height: 4px;
+      background: var(--accent);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      box-shadow: 
+        0 -35px 0 color-mix(in oklch, var(--accent) 40%, transparent),
+        0 35px 0 color-mix(in oklch, var(--accent) 40%, transparent),
+        -35px 0 0 color-mix(in oklch, var(--accent) 40%, transparent),
+        35px 0 0 color-mix(in oklch, var(--accent) 40%, transparent),
+        -25px -25px 0 color-mix(in oklch, var(--accent) 40%, transparent),
+        25px 25px 0 color-mix(in oklch, var(--accent) 40%, transparent),
+        -25px 25px 0 color-mix(in oklch, var(--accent) 40%, transparent),
+        25px -25px 0 color-mix(in oklch, var(--accent) 40%, transparent);
+      animation: wheelSpokes 20s linear infinite reverse;
+    }
+    @keyframes wheelSpin { to { transform: rotate(360deg); } }
+    @keyframes wheelSpokes { to { transform: translate(-50%, -50%) rotate(-360deg); } }
+    .racing-tape {
+      position: absolute;
+      width: 200%;
+      height: 3px;
+      background: repeating-linear-gradient(
+        -45deg,
+        var(--accent),
+        var(--accent) 12px,
+        transparent 12px,
+        transparent 24px
+      );
+      opacity: 0.08;
+      animation: tapeFlow 8s linear infinite;
+    }
+    @keyframes tapeFlow {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    .racing-tape.vertical {
+      width: 3px;
+      height: 200%;
+      animation: tapeFlowV 8s linear infinite;
+    }
+    @keyframes tapeFlowV {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-50%); }
+    }
+
+    /* ─── scroll reveal animations ────────────────────────────────────── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.4s; }
+    .reveal-delay-5 { transition-delay: 0.5s; }
+    .reveal-delay-6 { transition-delay: 0.6s; }
+
+    /* ─── staggered card animations ───────────────────────────────────── */
+    .stagger-children > * {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+      transition-delay: calc(var(--stagger-index, 0) * 0.08s);
+    }
+    .stagger-children.visible > * {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ─── floating ambient animations ─────────────────────────────────── */
+    @keyframes float {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-12px) rotate(1deg); }
+    }
+    @keyframes floatReverse {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(12px) rotate(-1deg); }
+    }
+    @keyframes pulseSoft {
+      0%, 100% { opacity: 0.15; transform: scale(1); }
+      50% { opacity: 0.25; transform: scale(1.05); }
+    }
+    .float-gentle { animation: float 6s ease-in-out infinite; }
+    .float-reverse { animation: floatReverse 7s ease-in-out infinite; }
+    .pulse-soft { animation: pulseSoft 4s ease-in-out infinite; }
+
+    /* ─── buttons ───────────────────────────────────────────────────── */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 14px 26px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: -0.005em;
+      transition: transform 0.05s ease, background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+    }
+    .btn:active { transform: translateY(1px); }
+    .btn-primary { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+    .btn-primary:hover { background: var(--accent-strong); border-color: var(--accent-strong); color: var(--on-accent); }
+    .btn-secondary { background: transparent; color: var(--fg); border-color: currentColor; }
+    .btn-secondary:hover { background: var(--accent-strong); border-color: var(--accent-strong); color: var(--on-accent); }
+    .btn-light { background: var(--on-dark); color: var(--ink); border-color: var(--on-dark); }
+    .btn-light:hover { background: var(--accent-strong); border-color: var(--accent-strong); color: var(--on-accent); }
+    .btn-ghost { background: transparent; color: var(--fg); border-color: transparent; padding-inline: 8px; }
+    .btn-ghost:hover { color: var(--accent); }
+    .btn-arrow::after { content: '→'; transition: transform 0.15s ease; }
+    .btn-arrow:hover::after { transform: translateX(3px); }
+    a.btn { color: inherit; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+    /* ─── card / surface ────────────────────────────────────────────── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .card-hover:hover { transform: translateY(-5px); border-color: var(--accent); box-shadow: 0 18px 40px -20px color-mix(in oklch, var(--ink) 45%, transparent); }
+    .card-featured { border-color: var(--accent); }
+
+    /* ─── image placeholder ─────────────────────────────────────────── */
+    .ph-img {
+      position: relative;
+      background:
+        linear-gradient(135deg, var(--accent-soft), var(--fg-soft)),
+        var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      aspect-ratio: 4 / 3;
+      overflow: hidden;
+      display: grid; place-items: center;
+    }
+    .ph-img .ph-label {
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-align: center;
+      padding: 16px;
+    }
+    .ph-img.square { aspect-ratio: 1 / 1; }
+    .ph-img.wide { aspect-ratio: 16 / 9; }
+    .ph-img.monotone { background: var(--fg-soft); border-color: var(--border); }
+
+    /* ─── pill / badge ──────────────────────────────────────────────── */
+    .pill {
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      min-width: 40px; height: 40px;
+      padding: 0 14px;
+      background: var(--ink);
+      color: var(--paper);
+      border-radius: 999px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+    .pill.accent { background: var(--accent); color: var(--paper); }
+
+    /* ─── steps (cómo trabajamos) ───────────────────────────────────── */
+    .step { padding-top: 28px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 14px; }
+    .step h3 { font-size: 20px; }
+    .step p { margin: 0; color: var(--muted); font-size: 15px; }
+
+    /* ─── service card ──────────────────────────────────────────────── */
+    .svc { display: flex; flex-direction: column; }
+    .svc .svc-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+    .svc .svc-name { font-size: 17px; font-weight: 600; line-height: 1.3; }
+    .svc .svc-note { color: var(--muted); font-size: 13px; margin-top: 2px; }
+    .svc .svc-price { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 20px; font-weight: 600; color: var(--accent); white-space: nowrap; }
+    .svc .svc-meta { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+    .svc .svc-tag { font-size: 12px; color: var(--muted); }
+
+    /* ─── testimonial ───────────────────────────────────────────────── */
+    .tst { display: flex; flex-direction: column; gap: 16px; }
+    .tst .stars { color: var(--gold); letter-spacing: 2px; font-size: 15px; }
+    .tst blockquote { margin: 0; font-size: 17px; line-height: 1.5; }
+    .tst .tst-author { display: flex; align-items: center; gap: 12px; }
+    .tst .avatar {
+      width: 44px; height: 44px; border-radius: 999px;
+      background: var(--ink);
+      color: var(--paper);
+      display: grid; place-items: center;
+      font-family: var(--font-display); font-weight: 700; font-size: 16px;
+      flex-shrink: 0;
+    }
+    .tst .tst-name { font-weight: 600; font-size: 14px; }
+    .tst .tst-when { font-size: 12px; color: var(--muted); }
+
+    /* ─── gallery ───────────────────────────────────────────────────── */
+    .gallery { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--gap-sm); }
+    .gallery .g-item { position: relative; }
+    .gallery .g-item .ph-img { border-radius: var(--radius); }
+    .gallery .g-item { transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
+    .gallery .g-item:hover { transform: translateY(-4px); }
+    .gallery .g-item .ph-img { transition: box-shadow 0.25s ease; }
+    .gallery .g-item:hover .ph-img { box-shadow: 0 16px 34px -20px color-mix(in oklch, var(--ink) 45%, transparent); }
+    .gallery .g-item:hover .g-tag { background: var(--accent); color: var(--paper); }
+    .gallery .g-tag {
+      position: absolute; left: 10px; bottom: 10px;
+      padding: 4px 10px;
+      background: color-mix(in oklch, var(--ink) 72%, transparent);
+      color: var(--paper);
+      font-size: 11px; font-family: var(--font-mono); letter-spacing: 0.05em; text-transform: uppercase;
+      border-radius: 999px;
+      backdrop-filter: blur(4px);
+    }
+    @media (max-width: 920px) { .gallery { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 520px) { .gallery { grid-template-columns: 1fr; } }
+
+    /* ─── contact ───────────────────────────────────────────────────── */
+    .contact-info { display: flex; flex-direction: column; gap: var(--gap-lg); }
+    .contact-row { display: flex; gap: 14px; align-items: flex-start; }
+    .contact-row .c-ico {
+      width: 40px; height: 40px; flex-shrink: 0;
+      display: grid; place-items: center;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--accent);
+    }
+    .contact-row .c-ico svg { width: 19px; height: 19px; }
+    .contact-row .c-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; font-family: var(--font-mono); }
+    .contact-row .c-val { font-weight: 600; font-size: 16px; margin-top: 2px; }
+    .contact-row a.c-val:hover { color: var(--accent-strong); }
+    .map-ph { border-radius: var(--radius-lg); aspect-ratio: 16 / 10; }
+
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .field label { font-size: 13px; color: var(--muted); font-weight: 500; }
+    .input, .textarea {
+      width: 100%;
+      padding: 12px 0;
+      border: 0;
+      border-bottom: 1px solid var(--border);
+      border-radius: 0;
+      background: transparent;
+      color: var(--fg);
+      font: inherit;
+      font-size: 16px;
+      transition: border-color 0.2s ease;
+    }
+    .input::placeholder, .textarea::placeholder { color: color-mix(in oklch, var(--ink) 40%, transparent); }
+    .input:focus, .textarea:focus { outline: none; border-bottom-color: var(--accent); }
+    .textarea { min-height: 88px; resize: vertical; line-height: 1.55; }
+
+    /* ─── footer (dark) ─────────────────────────────────────────────── */
+    .pagefoot {
+      background: var(--ink);
+      color: var(--paper);
+      padding-block: var(--gap-2xl) 40px;
+    }
+    .pagefoot .foot-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: var(--gap-xl); }
+    .pagefoot .foot-brand { font-family: var(--font-display); font-size: 28px; font-weight: 700; letter-spacing: -0.02em; }
+    .pagefoot .foot-brand em { font-style: normal; color: var(--accent); }
+    .pagefoot .foot-tag { margin-top: 12px; color: color-mix(in oklch, var(--paper) 60%, transparent); max-width: 30ch; font-size: 14px; }
+    .pagefoot h4 { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: color-mix(in oklch, var(--paper) 55%, transparent); margin: 0 0 16px; font-weight: 500; }
+    .pagefoot ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+    .pagefoot ul a { font-size: 14px; color: color-mix(in oklch, var(--paper) 82%, transparent); }
+    .pagefoot ul a:hover { color: var(--accent); }
+    .foot-bottom { margin-top: var(--gap-2xl); padding-top: 24px; border-top: 1px solid color-mix(in oklch, var(--paper) 14%, transparent); display: flex; justify-content: space-between; align-items: center; gap: var(--gap-md); flex-wrap: wrap; }
+    .foot-bottom .fine { font-size: 12px; color: color-mix(in oklch, var(--paper) 50%, transparent); }
+    .to-top {
+      width: 48px; height: 48px; border-radius: 999px;
+      border: 1px solid color-mix(in oklch, var(--paper) 30%, transparent);
+      background: transparent; color: var(--paper);
+      display: grid; place-items: center;
+      font-size: 18px;
+      transition: background 0.2s ease, border-color 0.2s ease;
+    }
+    .to-top:hover { background: var(--accent); border-color: var(--accent); }
+    @media (max-width: 920px) {
+      .pagefoot .foot-grid { grid-template-columns: 1fr 1fr; gap: var(--gap-xl) var(--gap-lg); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+      html { scroll-behavior: auto; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topnav" id="topnav" data-od-id="topnav">
+    <div class="container topnav-inner">
+      <span class="logo">Riva<em>.</em>Bike</span>
+      <nav>
+        <a href="#servicios">Servicios</a>
+        <a href="#trabajos">Trabajos</a>
+        <a href="#contacto">Contacto</a>
+        <a href="#servicios" class="nav-cta">Solicitar presupuesto</a>
+      </nav>
+      <button class="theme-toggle" id="theme-toggle" data-od-id="theme-toggle" aria-label="Cambiar a modo oscuro" title="Cambiar tema">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+      </button>
+      <button class="nav-burger" id="nav-burger" aria-label="Abrir menú" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <div class="mobile-menu" id="mobile-menu">
+    <a href="#nosotros">Nosotros</a>
+    <a href="#como-trabajamos">Cómo trabajamos</a>
+    <a href="#servicios">Servicios</a>
+    <a href="#trabajos">Trabajos</a>
+    <a href="#contacto">Contacto</a>
+    <a href="#servicios" class="m-cta">Solicitar presupuesto</a>
+  </div>
+
+  <main id="content">
+
+    <!-- HERO -->
+    <section class="hero" id="inicio" data-od-id="hero">
+      <div class="hero-media">
+        <div class="racing-accents">
+          <div class="racing-wheel" style="width: 280px; height: 280px; top: 10%; right: 5%; animation-duration: 25s;"></div>
+          <div class="racing-wheel" style="width: 180px; height: 180px; top: 60%; right: 15%; animation-duration: 18s; opacity: 0.1;"></div>
+          <div class="racing-wheel" style="width: 120px; height: 120px; top: 20%; right: 35%; animation-duration: 30s; opacity: 0.08;"></div>
+          <div class="racing-tape" style="top: 15%; left: -20%;"></div>
+          <div class="racing-tape" style="bottom: 20%; right: -20%;"></div>
+          <div class="racing-tape vertical" style="top: -20%; left: 8%;"></div>
+          <div class="racing-tape vertical" style="bottom: -20%; right: 12%;"></div>
+        </div>
+        <div class="hero-bike" data-od-id="hero-bike">
+          <img src="https://www.fauconbikes.cl/cdn/shop/files/510A0857.png?v=1759686278&amp;width=2000" alt="Bicicleta de competencia Faucon Bikes" loading="eager">
+        </div>
+      </div>
+      <div class="hero-inner" style="transform: translate(27px, -73px);">
+        <p class="eyebrow">Taller · Servicio técnico</p>
+        <h1>Tu bici, en las mejores manos.</h1>
+        <div class="rating" data-od-id="hero-rating">
+          <span class="stars">★★★★★</span>
+          <span class="val">4.8/5</span>
+          <span class="sep">·</span>
+          <span class="val">63 reseñas de Google</span>
+        </div>
+        <div class="hero-cta">
+          <a class="btn btn-light" href="#servicios">Solicitar presupuesto</a>
+          <a class="btn btn-secondary" href="#trabajos">Ver nuestros trabajos</a>
+        </div>
+      </div>
+      <div class="hero-scroll">deslizá ↓</div>
+    </section>
+
+    <!-- NOSOTROS: texto + imagen -->
+    <section class="section reveal" id="nosotros" data-od-id="nosotros">
+      <div class="container grid-2-1 stagger-children" style="gap: 22px;">
+        <div class="stack" style="gap: 22px;">
+          <p class="eyebrow">Quiénes somos</p>
+          <h2>El taller de bicicletas del barrio, con oficio de verdad.</h2>
+          <p class="lead">En Riva Bike arreglamos y mantenemos bicicletas de todo tipo. Trabajo prolijo, repuestos de calidad y un diagnóstico claro antes de tocar nada.</p>
+          <div class="stack" style="gap: 14px;">
+            <div class="row" style="align-items: flex-start; gap: 12px;">
+              <span class="pill">✓</span>
+              <div>
+                <h3 style="font-size: 17px;">Especialistas en bicis</h3>
+                <p class="lead" style="font-size: 15px;">No hacemos de todo: hacemos bicicletas. Por eso cada ajuste queda como corresponde.</p>
+              </div>
+            </div>
+            <div class="row" style="align-items: flex-start; gap: 12px;">
+              <span class="pill">✓</span>
+              <div>
+                <h3 style="font-size: 17px;">Trabajo con garantía</h3>
+                <p class="lead" style="font-size: 15px;">Entregamos cada bicicleta probada y te explicamos qué se hizo y por qué.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="ph-img float-gentle" aria-label="Foto del taller"><span class="ph-label">Foto del taller</span></div>
+      </div>
+    </section>
+
+    <!-- CÓMO TRABAJAMOS -->
+    <section class="section reveal" id="como-trabajamos" data-od-id="como-trabajamos" style="background: var(--fg-soft); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+      <div class="container stack" style="gap: 48px;">
+        <div class="row-between" style="align-items: flex-end; flex-wrap: wrap;">
+          <div style="max-width: 40ch;">
+            <p class="eyebrow">Cómo trabajamos</p>
+            <h2>Cuatro pasos y tu bici vuelve lista.</h2>
+          </div>
+          <p class="lead" style="max-width: 34ch;">Sin vueltas: te mostramos el presupuesto antes de empezar y no arreglamos nada que no hayas aprobado.</p>
+        </div>
+        <div class="grid-4 stagger-children">
+          <div class="step" data-od-id="step-1" style="--stagger-index: 0;">
+            <span class="pill accent">01</span>
+            <h3>Traés tu bici</h3>
+            <p>La traés al taller, o coordinamos retirarla por la zona.</p>
+          </div>
+          <div class="step" style="--stagger-index: 1;">
+            <span class="pill">02</span>
+            <h3>Diagnóstico y presupuesto</h3>
+            <p>Revisamos qué tiene y te pasamos un presupuesto claro por WhatsApp.</p>
+          </div>
+          <div class="step" style="--stagger-index: 2;">
+            <span class="pill">03</span>
+            <h3>Reparación</h3>
+            <p>Trabajamos con repuestos de calidad y te avisamos si surge algo más.</p>
+          </div>
+          <div class="step" style="--stagger-index: 3;">
+            <span class="pill">04</span>
+            <h3>Retirás tu bici</h3>
+            <p>Probamos todo en banco y te la entregamos lista para rodar.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SERVICIOS -->
+    <section class="section reveal" id="servicios" data-od-id="servicios">
+      <div class="container stack" style="gap: 48px;">
+        <div style="max-width: 44ch;">
+          <p class="eyebrow">Servicios</p>
+          <h2>Los trabajos que más pedís, con precio a la vista.</h2>
+        </div>
+        <div class="grid-3 stagger-children" data-od-id="servicios-grid">
+          <div class="card svc card-hover" style="--stagger-index: 0;">
+            <div class="svc-head">
+              <div>
+                <div class="svc-name">Regulación de cambios</div>
+                <div class="svc-note">Ajuste fino para cambios precisos</div>
+              </div>
+              <span class="svc-price">$9.000</span>
+            </div>
+            <div class="svc-meta"><span class="svc-tag">Manos libres · Repuesto aparte</span><span class="svc-tag num">≈ 1 día</span></div>
+          </div>
+          <div class="card svc card-hover" style="--stagger-index: 1;">
+            <div class="svc-head">
+              <div>
+                <div class="svc-name">Regulación de frenos</div>
+                <div class="svc-note">Frenado firme y parejo</div>
+              </div>
+              <span class="svc-price">$9.000</span>
+            </div>
+            <div class="svc-meta"><span class="svc-tag">Manos libres · Repuesto aparte</span><span class="svc-tag num">≈ 1 día</span></div>
+          </div>
+          <div class="card svc card-hover card-featured" style="--stagger-index: 2;">
+            <div class="svc-head">
+              <div>
+                <div class="svc-name">Service completo</div>
+                <div class="svc-note">El más pedido. Dejás la bici como nueva</div>
+              </div>
+              <span class="svc-price">$40.000</span>
+            </div>
+            <div class="svc-meta"><span class="svc-tag" style="color: var(--accent); font-weight: 600;">Destacado</span><span class="svc-tag num">≈ 2 días</span></div>
+          </div>
+          <div class="card svc card-hover" style="--stagger-index: 3;">
+            <div class="svc-head">
+              <div>
+                <div class="svc-name">Centrado de ruedas</div>
+                <div class="svc-note">Radas parejas, sin saltos</div>
+              </div>
+              <span class="svc-price">$14.000</span>
+            </div>
+            <div class="svc-meta"><span class="svc-tag">Manos libres · Repuesto aparte</span><span class="svc-tag num">≈ 1 día</span></div>
+          </div>
+          <div class="card svc card-hover" style="--stagger-index: 4;">
+            <div class="svc-head">
+              <div>
+                <div class="svc-name">Limpieza y lubricación</div>
+                <div class="svc-note">Transmisión limpia, rodar más suave</div>
+              </div>
+              <span class="svc-price">$10.000</span>
+            </div>
+            <div class="svc-meta"><span class="svc-tag">Manos libres · Incluye insumos</span><span class="svc-tag num">≈ 1 día</span></div>
+          </div>
+          <div class="card svc card-hover" style="--stagger-index: 5;">
+            <div class="svc-head">
+              <div>
+                <div class="svc-name">Armado de bici</div>
+                <div class="svc-note">Desarmada en caja, lista para andar</div>
+              </div>
+              <span class="svc-price">$25.000</span>
+            </div>
+            <div class="svc-meta"><span class="svc-tag">Manos libres · Repuesto aparte</span><span class="svc-tag num">≈ 2 días</span></div>
+          </div>
+        </div>
+        <p class="meta" style="max-width: 60ch;">Los precios son de referencia y pueden variar. Pedí tu presupuesto sin compromiso.</p>
+      </div>
+    </section>
+
+    <!-- OPINIONES -->
+    <section class="section reveal" id="opiniones" data-od-id="opiniones" style="background: var(--fg-soft); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+      <div class="container stack" style="gap: 48px;">
+        <div style="max-width: 44ch;">
+          <p class="eyebrow">Opiniones</p>
+          <h2>Lo que dicen quienes ya pasaron por el taller.</h2>
+        </div>
+        <div class="grid-3 stagger-children" data-od-id="opiniones-grid">
+          <div class="card tst" style="--stagger-index: 0;">
+            <span class="stars">★★★★★</span>
+            <blockquote>“Llevé la bici con los cambios hechos un desastre y me la dejaron perfecta. Me explicaron todo y encima me avisaron por WhatsApp apenas estuvo lista.”</blockquote>
+            <div class="tst-author">
+              <span class="avatar">M</span>
+              <div>
+                <div class="tst-name">Matías R.</div>
+                <div class="tst-when">hace 2 semanas</div>
+              </div>
+            </div>
+          </div>
+          <div class="card tst" style="--stagger-index: 1;">
+            <span class="stars">★★★★★</span>
+            <blockquote>“Trabajo prolijo y precio justo. Pedí un service completo y la bici volvió andando mejor que cuando la compré.”</blockquote>
+            <div class="tst-author">
+              <span class="avatar">C</span>
+              <div>
+                <div class="tst-name">Carolina G.</div>
+                <div class="tst-when">hace 1 mes</div>
+              </div>
+            </div>
+          </div>
+          <div class="card tst" style="--stagger-index: 2;">
+            <span class="stars">★★★★★</span>
+            <blockquote>“Me armaron una bici nueva y quedó impecable. Se nota que saben del tema y ponen atención a los detalles.”</blockquote>
+            <div class="tst-author">
+              <span class="avatar">F</span>
+              <div>
+                <div class="tst-name">Facundo L.</div>
+                <div class="tst-when">hace 1 mes</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TRABAJOS -->
+    <section class="section reveal" id="trabajos" data-od-id="trabajos">
+      <div class="container stack" style="gap: 40px;">
+        <div class="row-between" style="align-items: flex-end; flex-wrap: wrap;">
+          <div style="max-width: 44ch;">
+            <p class="eyebrow">Nuestros trabajos</p>
+            <h2>Bicicletas que pasaron por el taller.</h2>
+          </div>
+          <a class="btn btn-ghost btn-arrow" style="color: var(--ink);" href="#contacto">Consultá por la tuya</a>
+        </div>
+        <div class="gallery stagger-children" data-od-id="galeria">
+          <div class="g-item" style="--stagger-index: 0;"><div class="ph-img"><span class="ph-label">Mantenimiento</span></div><span class="g-tag">Mantenimiento</span></div>
+          <div class="g-item" style="--stagger-index: 1;"><div class="ph-img"><span class="ph-label">Regulación</span></div><span class="g-tag">Regulación</span></div>
+          <div class="g-item" style="--stagger-index: 2;"><div class="ph-img"><span class="ph-label">Armado</span></div><span class="g-tag">Armado</span></div>
+          <div class="g-item" style="--stagger-index: 3;"><div class="ph-img"><span class="ph-label">Service</span></div><span class="g-tag">Service</span></div>
+          <div class="g-item" style="--stagger-index: 4;"><div class="ph-img"><span class="ph-label">Transmisión</span></div><span class="g-tag">Transmisión</span></div>
+          <div class="g-item" style="--stagger-index: 5;"><div class="ph-img"><span class="ph-label">Ruedas</span></div><span class="g-tag">Ruedas</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACTO -->
+    <section class="section reveal" id="contacto" data-od-id="contacto">
+      <div class="container stack" style="gap: 48px;">
+        <div style="max-width: 44ch;">
+          <p class="eyebrow">Contacto</p>
+          <h2>Hablá con nosotros y dejá tu bici en buenas manos.</h2>
+        </div>
+        <div class="grid-2-1" style="align-items: start;">
+          <div class="contact-info">
+            <div class="contact-row">
+              <span class="c-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.9.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"></path></svg></span>
+              <div>
+                <div class="c-label">WhatsApp</div>
+                <a class="c-val" href="https://wa.me/543878224212">3878 224212</a>
+              </div>
+            </div>
+            <div class="contact-row">
+              <span class="c-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg></span>
+              <div>
+                <div class="c-label">Dirección</div>
+                <span class="c-val">Rivadavia 243, Hipólito Yrigoyen</span>
+              </div>
+            </div>
+            <div class="contact-row">
+              <span class="c-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg></span>
+              <div>
+                <div class="c-label">Horarios</div>
+                <span class="c-val">Lun a Vie · 8:30–13:00 y 16:30–20:30<br><span style="font-weight:400; color: var(--muted);">Sáb · 8:30–13:00</span></span>
+              </div>
+            </div>
+            <a class="btn btn-primary" style="align-self: flex-start;" href="https://maps.google.com/?q=Rivadavia+243+Hipolito+Yrigoyen" target="_blank" rel="noopener">Cómo llegar</a>
+          </div>
+          <div class="stack" style="gap: 28px;">
+            <div class="ph-img map-ph" aria-label="Mapa del taller"><span class="ph-label">Mapa (placeholder)</span></div>
+          </div>
+        </div>
+
+        <form id="contacto-form" class="stack" style="gap: 24px; max-width: 640px;" data-od-id="contacto-form">
+          <div class="grid-2" style="gap: var(--gap-lg);">
+            <div class="field">
+              <label for="f-nombre">Nombre</label>
+              <input class="input" id="f-nombre" name="nombre" type="text" placeholder="Tu nombre" required="">
+            </div>
+            <div class="field">
+              <label for="f-telefono">Teléfono</label>
+              <input class="input" id="f-telefono" name="telefono" type="tel" placeholder="3878 000 000" required="">
+            </div>
+          </div>
+          <div class="field">
+            <label for="f-mensaje">Mensaje</label>
+            <textarea class="textarea" id="f-mensaje" name="mensaje" placeholder="Contanos qué le pasa a tu bici o qué servicio te interesa…" required=""></textarea>
+          </div>
+          <div class="row-between" style="flex-wrap: wrap; gap: var(--gap-md);">
+            <p class="meta" id="form-status" style="margin:0;"></p>
+            <button type="submit" class="btn btn-primary">Enviar consulta</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="pagefoot" data-od-id="footer">
+    <div class="container">
+      <div class="foot-grid">
+        <div>
+          <div class="foot-brand">Riva<em>.</em>Bike</div>
+          <p class="foot-tag">Taller de reparación, mantenimiento y servicio técnico de bicicletas en Hipólito Yrigoyen.</p>
+        </div>
+        <div>
+          <h4>Navegación</h4>
+          <ul>
+            <li><a href="#nosotros">Nosotros</a></li>
+            <li><a href="#como-trabajamos">Cómo trabajamos</a></li>
+            <li><a href="#servicios">Servicios</a></li>
+            <li><a href="#trabajos">Trabajos</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Contacto</h4>
+          <ul>
+            <li><a href="https://wa.me/543878224212">WhatsApp</a></li>
+            <li><a href="tel:+543878224212">3878 224212</a></li>
+            <li><span style="color: color-mix(in oklch, var(--paper) 60%, transparent);">Rivadavia 243</span></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Redes</h4>
+          <ul>
+            <li><a href="#" rel="noopener">Instagram</a></li>
+            <li><a href="#" rel="noopener">Facebook</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="foot-bottom">
+        <span class="fine">© 2026 Riva Bike · Hipólito Yrigoyen, Salta</span>
+        <button class="to-top" id="to-top" aria-label="Volver arriba">↑</button>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      var nav = document.getElementById('topnav');
+      var burger = document.getElementById('nav-burger');
+      var menu = document.getElementById('mobile-menu');
+
+      function onScroll() {
+        if (window.scrollY > 24) { nav.classList.add('scrolled'); }
+        else { nav.classList.remove('scrolled'); }
+      }
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+
+      function setMenu(open) {
+        burger.classList.toggle('open', open);
+        menu.classList.toggle('open', open);
+        burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+        document.body.style.overflow = open ? 'hidden' : '';
+      }
+      burger.addEventListener('click', function () {
+        setMenu(!menu.classList.contains('open'));
+      });
+      menu.querySelectorAll('a').forEach(function (a) {
+        a.addEventListener('click', function () { setMenu(false); });
+      });
+
+      // Theme toggle (light / dark)
+      var themeToggle = document.getElementById('theme-toggle');
+      function applyTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        try { localStorage.setItem('riva-theme', theme); } catch (e) {}
+        var dark = theme === 'dark';
+        themeToggle.setAttribute('aria-label', dark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro');
+        themeToggle.setAttribute('aria-pressed', String(dark));
+      }
+      themeToggle.addEventListener('click', function () {
+        var current = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+        applyTheme(current === 'dark' ? 'light' : 'dark');
+      });
+      applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light');
+
+      var toTop = document.getElementById('to-top');
+      toTop.addEventListener('click', function () {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+
+      var form = document.getElementById('contacto-form');
+      var statusEl = document.getElementById('form-status');
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        statusEl.textContent = '¡Gracias! Te respondemos por WhatsApp a la brevedad.';
+        statusEl.style.color = 'var(--accent)';
+        form.reset();
+      });
+
+      // Scroll-triggered reveals + staggered cards
+      var revealEls = document.querySelectorAll('.reveal');
+      var staggerEls = document.querySelectorAll('.stagger-children');
+      if ('IntersectionObserver' in window) {
+        var io = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('visible');
+              io.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.14, rootMargin: '0px 0px -8% 0px' });
+        revealEls.forEach(function (el) { io.observe(el); });
+        staggerEls.forEach(function (el) { io.observe(el); });
+      } else {
+        revealEls.forEach(function (el) { el.classList.add('visible'); });
+        staggerEls.forEach(function (el) { el.classList.add('visible'); });
+      }
+      // Make hero-first stagger visible immediately (in viewport on load)
+      staggerEls.forEach(function (el) {
+        var r = el.getBoundingClientRect();
+        if (r.top < window.innerHeight) { el.classList.add('visible'); }
+      });
+    })();
+  </script>
+
+</body></html>

@@ -24,6 +24,11 @@ export function loadGoogleMaps(apiKey: string): Promise<void> {
 
 declare global {
   interface Window {
-    google?: typeof google;
+    google?: {
+      maps?: {
+        Map: unknown;
+        Marker: unknown;
+      };
+    };
   }
 }

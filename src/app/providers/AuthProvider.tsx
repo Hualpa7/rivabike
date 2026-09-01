@@ -10,6 +10,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const setSession = useAuthStore((s) => s.setSession);
 
   useEffect(() => {
+    if (!supabase) {
+      // Sin credenciales no hay sesion posible: marcar como unauthenticated
+      // para que ProtectedRoute redirija a /login en vez de quedar "loading".
+      setSession(null);
+      return;
+    }
+
     supabase.auth.getSession().then(({ data }) => setSession(data.session));
 
     const { data: subscription } = supabase.auth.onAuthStateChange((_event, session) => {
