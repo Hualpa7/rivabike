@@ -26,7 +26,7 @@ export function SectionHeading({
     <Reveal className={cn('max-w-2xl', className)}>
       <p
         className={cn(
-          'font-mono text-xs font-extrabold uppercase tracking-[0.16em]',
+          'font-mono text-xl font-extrabold uppercase tracking-[0.16em]',
           onDark ? 'text-pink' : 'text-pink-deep',
         )}
       >

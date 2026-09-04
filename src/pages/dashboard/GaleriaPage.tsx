@@ -11,6 +11,7 @@ import { Modal } from '@/components/ui/Modal';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { Button } from '@/components/ui/Button';
+import { PageLoader } from '@/components/ui/PageLoader';
 import { Switch } from '@/components/ui/Switch';
 import { PlusIcon, ImageIcon } from '@/components/ui/icons';
 import { PageHeader } from './PageHeader';
@@ -20,6 +21,8 @@ export function GaleriaPage() {
   const { data: items = [], isLoading } = useGalleryItemsAdmin();
   const [createOpen, setCreateOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<GalleryItemWithImages | null>(null);
+
+  if (isLoading) return <PageLoader />;
 
   return (
     <div className="space-y-6">
@@ -34,9 +37,7 @@ export function GaleriaPage() {
         }
       />
 
-      {isLoading ? (
-        <p className="text-sm text-muted">Cargando…</p>
-      ) : items.length === 0 ? (
+      {items.length === 0 ? (
         <p className="text-sm text-muted">No hay trabajos cargados.</p>
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -45,7 +46,7 @@ export function GaleriaPage() {
             return (
               <figure
                 key={item.id}
-                className="group cursor-pointer overflow-hidden rounded-card border border-line bg-paper transition-colors hover:border-pink-deep"
+                className="group cursor-pointer overflow-hidden rounded-card border-2 border-line bg-paper transition-colors hover:border-pink-deep"
                 onClick={() => setEditTarget(item)}
               >
                 <div className="relative">
@@ -137,7 +138,7 @@ function CreateWorkModal({
     titulo.trim().length > 0 && antes !== null && despues !== null;
 
   return (
-    <Modal open onClose={onClose} title="Nuevo trabajo" className="sm:max-w-lg">
+    <Modal open onClose={onClose} title="Nuevo trabajo" className="sm:max-w-2xl">
       <div className="space-y-4">
         <div>
           <label className="mb-1.5 block text-[13.5px] font-medium text-muted">
@@ -291,7 +292,7 @@ function EditWorkModal({
   };
 
   return (
-    <Modal open onClose={onClose} title="Editar trabajo" className="sm:max-w-lg">
+    <Modal open onClose={onClose} title="Editar trabajo" className="sm:max-w-2xl">
       <div className="space-y-4">
         <div>
           <label className="mb-1.5 block text-[13.5px] font-medium text-muted">

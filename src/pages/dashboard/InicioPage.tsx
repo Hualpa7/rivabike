@@ -5,6 +5,7 @@ import { useAuthStore } from '@/features/auth/store';
 import { formatCurrency, formatDate } from '@/lib/utils/fmt';
 import { cn } from '@/lib/utils/cn';
 import { Button } from '@/components/ui/Button';
+import { PageLoader } from '@/components/ui/PageLoader';
 import {
   DashboardIcon,
   WrenchIcon,
@@ -24,7 +25,7 @@ export function InicioPage() {
   const { data: orders = [] } = useWorkOrders();
   const { data: items = [] } = useInventoryItems();
 
-  if (status === 'loading') return <div className="text-muted">Cargando…</div>;
+  if (status === 'loading') return <PageLoader />;
 
   const pendientes = orders.filter((o) => o.estado === 'pendiente' || o.estado === 'aceptado').length;
   const enTrabajo = orders.filter((o) => o.estado === 'en_ejecucion').length;
@@ -64,7 +65,7 @@ export function InicioPage() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1.5fr_1fr]">
-        <section className="rounded-card border border-line bg-paper">
+        <section className="rounded-card border-2 border-line bg-paper">
           <div className="flex items-center justify-between border-b border-line px-5 py-4">
             <h2 className="font-display text-lg font-semibold text-ink">Órdenes recientes</h2>
             <Link to="/dashboard/ordenes" className="text-sm text-muted transition-colors hover:text-pink-deep">
@@ -97,7 +98,7 @@ export function InicioPage() {
         </section>
 
         <div className="space-y-5">
-          <section className="rounded-card border border-line bg-paper">
+          <section className="rounded-card border-2 border-line bg-paper">
             <div className="flex items-center justify-between border-b border-line px-5 py-4">
               <h2 className="font-display text-lg font-semibold text-ink">Stock bajo</h2>
               <Link to="/dashboard/inventario" className="text-sm text-muted transition-colors hover:text-pink-deep">
@@ -125,7 +126,7 @@ export function InicioPage() {
             </div>
           </section>
 
-          <section className="rounded-card border border-line bg-paper p-5">
+          <section className="rounded-card border-2 border-line bg-paper p-5">
             <h2 className="font-display text-lg font-semibold text-ink">Acciones rápidas</h2>
             <div className="mt-4 flex flex-col gap-3">
               <Link to="/dashboard/inventario">

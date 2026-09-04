@@ -107,7 +107,7 @@ export function Modal({
             exit={{ opacity: 0, y: reduce ? 0 : 16, scale: reduce ? 1 : 0.98 }}
             transition={{ duration: reduce ? 0 : 0.2, ease: 'easeOut' }}
             className={cn(
-              'relative max-h-[92dvh] w-full overflow-y-auto rounded-t-card bg-paper p-6 shadow-soft sm:max-w-xl sm:rounded-card',
+              'relative max-h-[92dvh] w-full overflow-y-auto rounded-t-card bg-paper pt-16 p-7 shadow-soft sm:max-h-[90vh] sm:max-w-3xl sm:rounded-card sm:pt-16 sm:px-8 sm:pb-8',
               className,
             )}
           >
@@ -115,7 +115,7 @@ export function Modal({
               type="button"
               onClick={onClose}
               aria-label="Cerrar"
-              className="absolute right-4 top-4 inline-flex h-9 w-9 items-center justify-center rounded-full text-muted transition-colors hover:text-ink"
+              className="absolute right-7 top-7 inline-flex h-10 w-10 items-center justify-center rounded-full bg-pink text-white transition-all duration-200 hover:brightness-110 hover:shadow-[0_0_18px_rgba(238,125,151,0.6)] active:scale-95"
             >
               <CloseIcon size={20} />
             </button>

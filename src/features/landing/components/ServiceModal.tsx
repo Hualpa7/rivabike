@@ -46,7 +46,7 @@ export function ServiceModal({ service, onClose }: ServiceModalProps) {
         <a
           href="#contacto"
           onClick={onClose}
-          className="mt-6 inline-flex w-full items-center justify-center rounded-pill bg-ink px-6 py-3.5 text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-pink-deep"
+          className="mt-6 inline-flex w-full items-center justify-center rounded-pill bg-ink px-6 py-3.5 text-sm font-semibold uppercase tracking-wide text-paper transition-colors hover:bg-pink-deep"
         >
           Solicitar presupuesto
         </a>

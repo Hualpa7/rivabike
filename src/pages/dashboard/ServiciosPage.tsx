@@ -15,6 +15,7 @@ import {
 import { uploadImage } from '@/lib/supabase/storage';
 import { formatCurrency } from '@/lib/utils/fmt';
 import { Button } from '@/components/ui/Button';
+import { PageLoader } from '@/components/ui/PageLoader';
 import { Modal } from '@/components/ui/Modal';
 import { Input } from '@/components/ui/Input';
 import { Switch } from '@/components/ui/Switch';
@@ -93,6 +94,8 @@ export function ServiciosPage() {
     await deleteCategory.mutateAsync({ id: c.id });
   };
 
+  if (isLoading) return <PageLoader />;
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -106,7 +109,7 @@ export function ServiciosPage() {
         }
       />
 
-      <section className="rounded-card border border-line bg-paper">
+      <section className="rounded-card border-2 border-line bg-paper">
         <div className="flex items-center justify-between border-b border-line px-5 py-4">
           <h2 className="font-display text-lg font-semibold text-ink">Categorías</h2>
         </div>
@@ -194,15 +197,13 @@ export function ServiciosPage() {
         </div>
       </section>
 
-      <section className="rounded-card border border-line bg-paper">
+      <section className="rounded-card border-2 border-line bg-paper">
         <div className="flex items-center justify-between border-b border-line px-5 py-4">
           <h2 className="font-display text-lg font-semibold text-ink">Servicios activos</h2>
           <span className="num text-sm text-muted">{services.length} servicios</span>
         </div>
 
-        {isLoading ? (
-          <p className="px-5 py-10 text-sm text-muted">Cargando…</p>
-        ) : services.length === 0 ? (
+        {services.length === 0 ? (
           <EmptyState
             icon={<SearchIcon size={24} />}
             title="Sin servicios"
@@ -316,7 +317,7 @@ function ServiceFormModal({
       open={open}
       onClose={onClose}
       title={service ? 'Editar servicio' : 'Nuevo servicio'}
-      className="sm:max-w-lg"
+      className="sm:max-w-2xl"
     >
       <form
         onSubmit={handleSubmit((v) =>

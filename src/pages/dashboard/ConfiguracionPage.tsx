@@ -23,7 +23,7 @@ export function ConfiguracionPage() {
         {GROUPS.map((group) => (
           <section
             key={group.title}
-            className="rounded-card border border-line bg-paper p-5"
+            className="rounded-card border-2 border-line bg-paper p-5"
           >
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div>

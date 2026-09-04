@@ -23,13 +23,13 @@ export function Reviews() {
         <div className="mt-10 grid gap-6 md:grid-cols-3">
           {reviews.map((r, i) => (
             <Reveal key={r.author_name} from="up" delay={i * 0.09}>
-              <figure className="flex h-full flex-col rounded-card border border-line bg-paper p-6">
+              <figure className="flex h-full flex-col rounded-card border border-line bg-paper p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-soft">
                 <StarRating rating={r.rating} starClassName="h-4 w-4 text-gold" />
                 <blockquote className="mt-4 flex-1 leading-relaxed text-ink">
                   “{r.text}”
                 </blockquote>
                 <figcaption className="mt-5 flex items-center gap-3">
-                  <span className="flex h-10 w-10 items-center justify-center rounded-full bg-ink font-semibold text-white">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-full bg-ink font-semibold text-paper">
                     {r.author_name.charAt(0)}
                   </span>
                   <div>

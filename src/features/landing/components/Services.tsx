@@ -3,7 +3,7 @@ import { cn } from '@/lib/utils/cn';
 import { formatCurrency } from '@/lib/utils/fmt';
 import { useServices } from '@/features/services/api';
 import { useSiteSettings } from '@/features/settings/api';
-import { servicePresentation } from '@/features/landing/landing';
+import { servicePresentation, SERVICES_BG_URL } from '@/features/landing/landing';
 import { SectionHeading } from './ui/SectionHeading';
 import { Reveal } from './ui/Reveal';
 
@@ -20,9 +20,10 @@ export function Services({ onSelect }: ServicesProps) {
   return (
     <section
       id="servicios"
-      className="relative bg-[url('https://img.magnific.com/foto-gratis/marco-diferentes-herramientas-coche-juguete_23-2148096416.jpg?semt=ais_hybrid&w=740&q=80')] bg-cover bg-center py-[clamp(56px,9vw,120px)]"
+      className="relative bg-cover bg-center py-[clamp(56px,9vw,120px)]"
+      style={{ backgroundImage: `url(${SERVICES_BG_URL})` }}
     >
-      <div className="absolute inset-0 bg-ink/72" aria-hidden="true" />
+      <div className="absolute inset-0 bg-photo-scrim" aria-hidden="true" />
       <div className="absolute inset-0 backdrop-blur-[2px]" aria-hidden="true" />
       <div className="relative mx-auto max-w-[1120px] px-6">
         <SectionHeading
@@ -30,7 +31,7 @@ export function Services({ onSelect }: ServicesProps) {
           title={s?.services_subtitulo ?? 'Los trabajos que más pedís, con precio a la vista.'}
           onDark
         />
-        <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3 [--ink:var(--ink-fixed)] [--paper:var(--cream)] [--muted:rgba(42,14,30,0.66)] [--border:rgba(42,14,30,0.18)] [--surface-2:rgba(42,14,30,0.05)]">
           {items.map((s, i) => {
             const p = servicePresentation(s);
             const featured = p.featured ?? false;
@@ -38,7 +39,7 @@ export function Services({ onSelect }: ServicesProps) {
               <Reveal key={s.id} from="up" delay={(i % 3) * 0.09}>
                 <article
                   className={cn(
-                    'flex h-full flex-col overflow-hidden rounded-card border bg-paper',
+                    'group flex h-full flex-col overflow-hidden rounded-card border bg-paper transition-all duration-300 hover:-translate-y-1 hover:shadow-soft',
                     featured ? 'border-pink-deep shadow-soft' : 'border-white/10',
                   )}
                 >
@@ -47,17 +48,17 @@ export function Services({ onSelect }: ServicesProps) {
                       src={s.imagen_url}
                       alt={s.titulo}
                       loading="lazy"
-                      className="aspect-[4/3] w-full object-cover"
+                      className="aspect-[4/3] w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
                     />
                   ) : (
                     <div className="flex aspect-[4/3] w-full items-center justify-center bg-[var(--surface-2)] font-mono text-xs uppercase tracking-[0.14em] text-muted">
                       Foto del servicio
                     </div>
                   )}
-                  <div className="flex flex-1 flex-col p-5">
+                  <div className="flex flex-1 flex-col gap-[5px] p-5">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <h3 className="font-display text-[19px] font-semibold leading-tight text-ink">
+                      <h3 className="font-display text-lg font-semibold leading-tight text-ink">
                         {s.titulo}
                       </h3>
                       {p.note ? (
@@ -77,13 +78,15 @@ export function Services({ onSelect }: ServicesProps) {
                         </span>
                       ))}
                     </span>
-                    <span className="font-mono text-muted">{p.time}</span>
+                    <span className="font-mono text-[13px] font-semibold text-ink">
+                      Plazo {p.time}
+                    </span>
                   </div>
 
                   <button
                     type="button"
                     onClick={() => onSelect(s)}
-                    className="mt-auto w-full rounded-pill bg-surface px-4 py-2.5 pt-2.5 text-sm font-semibold uppercase tracking-wide text-ink transition-colors hover:bg-ink hover:text-white"
+                    className="mt-auto w-full rounded-pill bg-surface px-4 py-2.5 pt-2.5 text-sm font-semibold uppercase tracking-wide text-ink transition-colors hover:bg-ink hover:text-paper"
                   >
                     Ver detalle →
                   </button>

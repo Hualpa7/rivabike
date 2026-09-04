@@ -67,7 +67,7 @@ export function ContenidoPage() {
     <div className="space-y-6">
       <PageHeader title="Contenido del sitio" sub="Textos y datos que alimentan la web pública" />
 
-      <section className="overflow-hidden rounded-card border border-line bg-paper">
+      <section className="overflow-hidden rounded-card border-2 border-line bg-paper">
         <div className="divide-y divide-line">
           {BLOCKS.map((b) => (
             <div key={b.key} className="flex items-center justify-between gap-4 px-5 py-4">
@@ -89,7 +89,7 @@ export function ContenidoPage() {
       </section>
 
       {editing ? (
-        <Modal open onClose={() => setEditing(null)} title="Editar bloque" className="sm:max-w-md">
+        <Modal open onClose={() => setEditing(null)} title="Editar bloque" className="sm:max-w-xl">
           <div className="space-y-4">
             <div>
               <label className="mb-1.5 block text-[13.5px] font-medium text-muted">Bloque</label>

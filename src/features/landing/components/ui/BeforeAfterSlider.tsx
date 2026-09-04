@@ -65,10 +65,10 @@ export function BeforeAfterSlider({ before, after }: BeforeAfterSliderProps) {
         style={{ clipPath: `inset(0 ${100 - pos}% 0 0)` }}
       />
 
-      <span className="pointer-events-none absolute left-3 top-3 rounded-pill bg-ink/70 px-3 py-1 font-mono text-xs font-semibold uppercase tracking-[0.14em] text-white backdrop-blur-sm">
+      <span className="pointer-events-none absolute left-3 top-3 rounded-pill bg-white px-3 py-1 font-mono text-xs font-semibold uppercase tracking-[0.14em] text-ink dark:bg-ink dark:text-paper">
         Antes
       </span>
-      <span className="pointer-events-none absolute right-3 top-3 rounded-pill bg-white/80 px-3 py-1 font-mono text-xs font-semibold uppercase tracking-[0.14em] text-black backdrop-blur-sm">
+      <span className="pointer-events-none absolute right-3 top-3 rounded-pill bg-white px-3 py-1 font-mono text-xs font-semibold uppercase tracking-[0.14em] text-ink dark:bg-ink dark:text-paper">
         Después
       </span>
 

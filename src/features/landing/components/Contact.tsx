@@ -5,7 +5,6 @@ import { z } from 'zod';
 import { useSiteSettings } from '@/features/settings/api';
 import { SectionHeading } from './ui/SectionHeading';
 import { Reveal } from './ui/Reveal';
-import { PhImg } from './ui/PhImg';
 import { PhoneIcon, MapPinIcon, ClockIcon, ArrowRightIcon } from '@/components/ui/icons';
 
 const empty = { nombre: '', telefono: '', mensaje: '' };
@@ -59,7 +58,7 @@ export function Contact() {
       id="contacto"
       className="relative bg-[url('https://www.10wallpaper.com/wallpaper/1366x768/1412/Extreme_mountain_biking_Sports_HD_Wallpaper_01_1366x768.jpg')] bg-cover bg-center py-[clamp(56px,9vw,120px)]"
     >
-      <div className="absolute inset-0 bg-ink/75" aria-hidden="true" />
+      <div className="absolute inset-0 bg-photo-scrim" aria-hidden="true" />
       <div className="absolute inset-0 backdrop-blur-[2px]" aria-hidden="true" />
       <div className="relative mx-auto max-w-[1120px] px-6">
         <SectionHeading
@@ -69,8 +68,8 @@ export function Contact() {
           onDark
         />
 
-        <div className="mt-10 grid gap-8 lg:grid-cols-2">
-          <div className="space-y-6">
+        <div className="mt-10 grid gap-12 lg:grid-cols-2">
+          <div className="space-y-8">
             <div className="space-y-3">
               {rows(
                 settings?.telefono ?? null,
@@ -78,20 +77,20 @@ export function Contact() {
                 settings?.horarios ?? null,
               ).map((r) => (
                 <Reveal key={r.label} from="left">
-                  <div className="flex items-center gap-4 rounded-card border border-white/15 bg-white/5 p-4 backdrop-blur-md">
-                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] border border-white/20 text-pink">
+                  <div className="flex items-center gap-4 rounded-card border-2 border-line bg-paper p-4 shadow-soft">
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] border-2 border-line text-pink-deep dark:text-pink">
                       <r.icon size={20} />
                     </span>
                     <div className="min-w-0">
-                      <div className="font-mono text-[11px] uppercase tracking-[0.14em] text-white/60">
+                      <div className="font-mono text-[11px] uppercase tracking-[0.14em] text-muted">
                         {r.label}
                       </div>
                       {r.href ? (
-                        <a href={r.href} target="_blank" rel="noopener noreferrer" className="text-white transition-colors hover:text-pink">
+                        <a href={r.href} target="_blank" rel="noopener noreferrer" className="text-ink transition-colors hover:text-pink-deep dark:hover:text-pink">
                           {r.value}
                         </a>
                       ) : (
-                        <div className="text-white">{r.value}</div>
+                        <div className="text-ink">{r.value}</div>
                       )}
                     </div>
                   </div>
@@ -109,15 +108,39 @@ export function Contact() {
                 <ArrowRightIcon size={18} />
               </a>
             </Reveal>
+
+            {/* Logo + slogan grande (copia independiente del navbar - tamanios propios) */}
+            <Reveal from="left" className="hidden flex-col items-center text-center lg:flex">
+              <a href="#inicio" className="flex flex-col items-center justify-center transition-opacity hover:opacity-90" aria-label="Riva Bike">
+                <ContactBrandMark />
+                <ContactBrandWordmark />
+              </a>
+              <div className="mt-5 leading-snug">
+                <p className="text-xl font-black uppercase tracking-[2px] text-cream">
+                  Tu libertad
+                </p>
+                <p className="text-xl font-bold uppercase tracking-[2px] text-pink">
+                  sobre ruedas
+                </p>
+              </div>
+            </Reveal>
           </div>
 
           <div className="space-y-6">
             <Reveal from="right">
-              <PhImg label="Mapa (placeholder)" ratio="aspect-[16/10]" className="backdrop-blur-md" />
+              <div className="aspect-[16/10] w-full overflow-hidden rounded-card border border-line backdrop-blur-md">
+                <iframe
+                  title="Mapa: Rivadavia 243, Hipólito Yrigoyen, Salta"
+                  src="https://maps.google.com/maps?q=Rivadavia%20243%2C%20Hip%C3%B3lito%20Yrigoyen%2C%20Salta&t=&z=16&ie=UTF8&iwloc=&output=embed"
+                  className="h-full w-full"
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
+              </div>
             </Reveal>
 
-            <Reveal from="right" delay={0.1}>
-              <form onSubmit={handleSubmit(onSubmit)} className="rounded-card bg-paper/95 p-6 backdrop-blur-sm md:p-8">
+            <Reveal from="right" delay={0.1} className="mt-4 md:mt-8">
+              <form onSubmit={handleSubmit(onSubmit)} className="rounded-card border-2 border-line bg-paper p-6 shadow-soft md:p-8">
                 <h3 className="font-display text-xl font-bold text-ink">Dejanos tu consulta</h3>
                 <div className="mt-5 space-y-5">
                   <Field
@@ -151,7 +174,7 @@ export function Contact() {
                 </div>
                 <button
                   type="submit"
-                  className="mt-6 w-full rounded-pill bg-ink px-6 py-3.5 text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-pink-deep"
+                  className="mt-6 w-full rounded-pill bg-ink px-6 py-3.5 text-sm font-semibold uppercase tracking-wide text-paper transition-colors hover:bg-pink-deep"
                 >
                   Enviar consulta
                 </button>
@@ -166,6 +189,50 @@ export function Contact() {
         </div>
       </div>
     </section>
+  );
+}
+
+/**
+ * Marca del contacto: copia autonoma del logo (no usa los componentes
+ * compartidos del navbar), asi su tamanio se puede modificar sin afectar
+ * al topbar. Trazo crema + rosa sobre la foto oscura.
+ */
+function ContactBrandMark() {
+  return (
+    <svg
+      viewBox="0 0 100 60"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className="h-40 w-auto"
+      aria-hidden="true"
+    >
+      <circle cx={24} cy={42} r={15} stroke="#faf5f2" strokeWidth={4} />
+      <circle cx={70} cy={42} r={15} stroke="#ef7d97" strokeWidth={4} />
+      <path
+        d="M24 42 L46 14 L58 14 M46 14 L38 24 M70 42 L52 20"
+        stroke="#ef7d97"
+        strokeWidth={4}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+/**
+ * Wordmark del contacto: copia autonoma (no usa BrandWordmark del
+ * navbar). Tamanios propios, independientes del topbar.
+ */
+function ContactBrandWordmark() {
+  return (
+    <span className="mt-4 leading-none">
+      <span className="block text-5xl font-black lowercase tracking-[0.5px] text-cream">
+        riva
+      </span>
+      <span className="block text-3xl font-black lowercase tracking-[4px] text-pink">
+        bike
+      </span>
+    </span>
   );
 }
 

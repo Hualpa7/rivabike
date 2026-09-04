@@ -782,6 +782,10 @@ export type Database = {
         }
         Returns: Json
       }
+      update_work_order_observaciones: {
+        Args: { p_observaciones: string | null; p_work_order_id: string }
+        Returns: Json
+      }
       update_work_order_status: {
         Args: { p_new_status: string; p_work_order_id: string }
         Returns: Json

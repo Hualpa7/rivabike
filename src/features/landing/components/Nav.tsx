@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'motion/react';
 import { cn } from '@/lib/utils/cn';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
+import { useAuthStore } from '@/features/auth/store';
 import { CloseIcon } from '@/components/ui/icons';
+import { BrandMark, BrandWordmark } from '@/components/ui/icons/BrandMark';
 
 const SCOLLED_AT = 24;
 
@@ -29,6 +31,11 @@ const MOBILE_LINKS = [
 export function LandingNav() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
+  const status = useAuthStore((s) => s.status);
+
+  const authLabel = status === 'authenticated' ? 'Ir al dashboard' : 'Iniciar sesión';
+  const authHref = status === 'authenticated' ? '/dashboard/inicio' : '/login';
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > SCOLLED_AT);
@@ -43,23 +50,19 @@ export function LandingNav() {
     <>
       <header
         className={cn(
-          'fixed inset-x-0 top-0 z-50 transition-all duration-300',
-          solid
-            ? 'bg-paper/88 shadow-soft backdrop-blur-xl'
-            : 'border-b border-white/10 bg-black/55 backdrop-blur-[14px]',
+          'fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-ink-fixed pb-[0.3rem] backdrop-blur-[14px] transition-all duration-300',
+          solid ? 'shadow-md' : '',
         )}
       >
         <div className="mx-auto flex h-16 max-w-[1120px] items-center justify-between gap-6 px-6">
           <Link
             to="/#inicio"
             onClick={() => setOpen(false)}
-            className={cn(
-              'font-display text-[21px] font-bold tracking-[-0.02em] transition-colors',
-              solid ? 'text-ink' : 'text-white',
-            )}
+            className="flex items-center gap-3 transition-opacity hover:opacity-90"
             aria-label="Riva Bike"
           >
-            Riva<span className="text-pink">.</span>Bike
+            <BrandMark className="h-8 w-auto" />
+            <BrandWordmark />
           </Link>
 
           <nav className="hidden items-center gap-7 md:flex" aria-label="Principal">
@@ -67,39 +70,42 @@ export function LandingNav() {
               <a
                 key={l.href}
                 href={l.href}
-                className={cn(
-                  'text-sm font-medium transition-colors hover:text-pink',
-                  solid ? 'text-ink/90' : 'text-white/90',
-                )}
+                className="text-sm font-medium text-on-ink-fixed transition-colors hover:text-pink"
               >
                 {l.label}
               </a>
             ))}
             <a
               href="#servicios"
-              className={cn(
-                'rounded-pill border px-[18px] py-2.5 text-sm font-semibold transition-colors hover:border-pink hover:bg-pink hover:text-white',
-                solid ? 'border-ink text-ink' : 'border-white text-white',
-              )}
+              className="rounded-pill border border-white/35 px-[18px] py-2.5 text-sm font-semibold text-on-ink-fixed transition-colors hover:border-pink hover:bg-pink hover:text-white"
             >
               Solicitar presupuesto
             </a>
+            <button
+              type="button"
+              onClick={() => { setOpen(false); navigate(authHref); }}
+              className="rounded-pill border border-white/40 px-[18px] py-2.5 text-sm font-semibold text-on-ink-fixed transition-colors hover:border-pink hover:text-pink"
+            >
+              {authLabel}
+            </button>
           </nav>
 
           <div className="flex items-center gap-1">
-            <ThemeToggle
-              className={solid ? 'text-ink' : 'text-white'}
-              label={solid ? 'Cambiar tema' : 'Cambiar tema'}
-            />
+            <div className="hidden pr-1 text-right leading-snug md:block">
+              <p className="text-[10px] font-black uppercase tracking-[1.6px] text-cream">
+                Tu libertad
+              </p>
+              <p className="text-[10px] font-bold uppercase tracking-[1.6px] text-pink">
+                sobre ruedas
+              </p>
+            </div>
+            <ThemeToggle className="text-on-ink-fixed" />
             <button
               type="button"
               onClick={() => setOpen((v) => !v)}
               aria-label={open ? 'Cerrar menú' : 'Abrir menú'}
               aria-expanded={open}
-              className={cn(
-                'inline-flex h-10 w-10 items-center justify-center rounded-full md:hidden',
-                solid ? 'text-ink' : 'text-white',
-              )}
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full text-on-ink-fixed md:hidden"
             >
               {open ? <CloseIcon size={24} /> : <HamburgerIcon />}
             </button>
@@ -114,7 +120,7 @@ export function LandingNav() {
             animate={{ y: 0 }}
             exit={{ y: '-100%' }}
             transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
-            className="fixed inset-0 z-40 bg-ink md:hidden"
+            className="fixed inset-0 z-40 bg-ink-fixed md:hidden"
           >
             <div className="flex h-full flex-col justify-between px-6 pb-10 pt-24">
               <nav className="flex flex-col" aria-label="Menú móvil">
@@ -123,19 +129,28 @@ export function LandingNav() {
                     key={l.href}
                     href={l.href}
                     onClick={() => setOpen(false)}
-                    className="border-b border-white/10 py-4 font-display text-[28px] font-semibold text-white transition-colors hover:text-pink"
+                    className="border-b border-white/10 py-4 font-display text-[28px] font-semibold text-on-ink-fixed transition-colors hover:text-pink"
                   >
                     {l.label}
                   </a>
                 ))}
               </nav>
-              <a
-                href="#servicios"
-                onClick={() => setOpen(false)}
-                className="rounded-pill bg-pink px-6 py-4 text-center text-sm font-semibold uppercase tracking-wide text-white hover:bg-pink-deep"
-              >
-                Solicitar presupuesto
-              </a>
+              <div className="flex flex-col gap-3">
+                <a
+                  href="#servicios"
+                  onClick={() => setOpen(false)}
+                  className="rounded-pill bg-pink px-6 py-4 text-center text-sm font-semibold uppercase tracking-wide text-white hover:bg-pink-deep"
+                >
+                  Solicitar presupuesto
+                </a>
+                <button
+                  type="button"
+                  onClick={() => { setOpen(false); navigate(authHref); }}
+                  className="rounded-pill border border-white/30 px-6 py-4 text-center text-sm font-semibold uppercase tracking-wide text-on-ink-fixed transition-colors hover:border-pink hover:text-pink"
+                >
+                  {authLabel}
+                </button>
+              </div>
             </div>
           </motion.div>
         )}

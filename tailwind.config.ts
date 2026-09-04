@@ -4,20 +4,25 @@ import type { Config } from 'tailwindcss';
 // del taller). Un unico acento de color a proposito: todo lo demas se
 // resuelve con negro / blanco / grises neutros.
 export default {
+  darkMode: ['class', '[data-theme="dark"]'],
   content: ['./index.html', './src/**/*.{ts,tsx}'],
   theme: {
     extend: {
       colors: {
-        ink: 'var(--ink)', // texto / fondos (conmuta en dark)
-        paper: 'var(--paper)', // fondo base (conmuta en dark)
+        ink: 'var(--ink)',
+        paper: 'var(--paper)',
         pink: {
           DEFAULT: 'var(--pink)',
           deep: 'var(--pink-deep)',
         },
-        surface: 'var(--surface-2)', // fondo alterno sutil
-        muted: 'var(--muted)', // texto secundario
-        line: 'var(--border)', // bordes y divisores
+        surface: 'var(--surface-2)',
+        muted: 'var(--muted)',
+        line: 'var(--border)',
         gold: 'var(--gold)',
+        'ink-fixed': 'var(--ink-fixed)',
+        'on-ink-fixed': 'var(--on-ink-fixed)',
+        cream: 'var(--cream)',
+        'photo-scrim': 'var(--photo-scrim)',
       },
       fontFamily: {
         display: ['"Archivo"', '"Inter"', 'system-ui', 'sans-serif'],
@@ -28,7 +33,7 @@ export default {
         pill: '999px',
       },
       boxShadow: {
-        soft: '0 4px 24px rgba(10, 10, 10, 0.08)',
+        soft: 'var(--shadow)',
       },
     },
   },

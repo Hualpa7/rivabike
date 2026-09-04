@@ -123,6 +123,18 @@ export async function updateWorkOrderStatus(input: {
   return toWorkOrder(data as WorkOrderRow);
 }
 
+export async function updateWorkOrderObservaciones(input: {
+  work_order_id: string;
+  observaciones: string | null;
+}): Promise<WorkOrderDetail> {
+  const { data, error } = await db().rpc('update_work_order_observaciones', {
+    p_work_order_id: input.work_order_id,
+    p_observaciones: input.observaciones,
+  });
+  if (error) throw error;
+  return resolvePhotos(normalizeDetail(data));
+}
+
 export async function uploadWorkOrderPhoto(input: {
   workOrderId: string;
   file: File;

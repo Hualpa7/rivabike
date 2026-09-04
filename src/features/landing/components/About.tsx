@@ -1,6 +1,6 @@
 import { useSiteSettings } from '@/features/settings/api';
+import { SERVICES_BG_URL } from '@/features/landing/landing';
 import { SectionHeading } from './ui/SectionHeading';
-import { PhImg } from './ui/PhImg';
 import { Reveal } from './ui/Reveal';
 import { CheckIcon } from '@/components/ui/icons';
 
@@ -34,7 +34,7 @@ export function About() {
             {benefits.map((b, i) => (
               <Reveal key={b.title} from="left" delay={i * 0.1}>
                 <div className="flex items-start gap-4">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-ink text-white">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-ink text-paper">
                     <CheckIcon size={18} />
                   </span>
                   <div>
@@ -47,7 +47,12 @@ export function About() {
           </div>
         </div>
         <Reveal from="right" className="animate-float">
-          <PhImg label="Foto del taller" />
+          <img
+            src={SERVICES_BG_URL}
+            alt="Foto del taller"
+            loading="lazy"
+            className="aspect-[4/3] w-full rounded-card border border-line object-cover"
+          />
         </Reveal>
       </div>
     </section>

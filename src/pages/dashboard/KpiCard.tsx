@@ -12,7 +12,7 @@ interface KpiCardProps {
 /** Carta KPI del dashboard: label mono + numero Archivo + nota. */
 export function KpiCard({ label, value, note, accent, icon }: KpiCardProps) {
   return (
-    <div className="flex flex-col gap-1.5 rounded-card border border-line bg-paper p-5">
+    <div className="flex flex-col gap-1.5 rounded-card border-2 border-line bg-paper p-5">
       <div className="flex items-center justify-between">
         <span className="text-xs font-medium uppercase tracking-wider text-muted">{label}</span>
         {icon ? <span className="text-muted">{icon}</span> : null}

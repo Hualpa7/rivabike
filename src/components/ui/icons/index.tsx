@@ -153,6 +153,15 @@ export function LogoutIcon(p: IconProps): JSX.Element {
   );
 }
 
+export function DownloadIcon(p: IconProps): JSX.Element {
+  return (
+    <svg {...base(p)}>
+      <path d="M12 3v12M7 10l5 5 5-5" />
+      <path d="M5 21h14" />
+    </svg>
+  );
+}
+
 export function ChevronLeftIcon(p: IconProps): JSX.Element {
   return (
     <svg {...base(p)}>
@@ -215,6 +224,16 @@ export function EyeOffIcon(p: IconProps): JSX.Element {
     <svg {...base(p)}>
       <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19M6.61 6.61A13.53 13.53 0 0 0 1 12s4 8 11 8a9.74 9.74 0 0 0 5.39-1.61" />
       <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24M1 1l22 22" />
+    </svg>
+  );
+}
+
+export function DotsIcon(p: IconProps): JSX.Element {
+  return (
+    <svg {...base(p)}>
+      <circle cx="12" cy="5" r="1.6" fill="currentColor" stroke="none" />
+      <circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none" />
+      <circle cx="12" cy="19" r="1.6" fill="currentColor" stroke="none" />
     </svg>
   );
 }

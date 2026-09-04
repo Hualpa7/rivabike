@@ -1,5 +1,6 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuthStore } from '@/features/auth/store';
+import { PageLoader } from '@/components/ui/PageLoader';
 
 /**
  * Gate de UI para /dashboard/**. Esto es solo UX (evita el parpadeo de
@@ -11,11 +12,7 @@ export function ProtectedRoute() {
   const location = useLocation();
 
   if (status === 'loading') {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-paper">
-        <span className="text-sm text-ink/60">Cargando...</span>
-      </div>
-    );
+    return <PageLoader />;
   }
 
   if (status === 'unauthenticated') {

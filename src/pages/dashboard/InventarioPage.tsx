@@ -11,6 +11,7 @@ import { formatCurrency, formatDateDayMonthYear } from '@/lib/utils/fmt';
 import { cn } from '@/lib/utils/cn';
 import { uploadImage, resolveStoredPath } from '@/lib/supabase/storage';
 import { Button } from '@/components/ui/Button';
+import { PageLoader } from '@/components/ui/PageLoader';
 import { Chip } from '@/components/ui/Chip';
 import { Modal } from '@/components/ui/Modal';
 import { Input } from '@/components/ui/Input';
@@ -88,6 +89,8 @@ export function InventarioPage() {
     setShow('activos');
   };
 
+  if (isLoading) return <PageLoader />;
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -129,7 +132,7 @@ export function InventarioPage() {
       </div>
 
       {/* Tabla desktop */}
-      <section className="hidden overflow-hidden rounded-card border border-line bg-paper md:block">
+      <section className="hidden overflow-hidden rounded-card border-2 border-line bg-paper md:block">
         <table className="w-full text-left">
           <thead>
             <tr className="border-b border-line text-[11.5px] uppercase tracking-[0.05em] text-muted">
@@ -259,7 +262,7 @@ function RowItem({
             type="button"
             onClick={() => onMovements(item)}
             aria-label={`Movimientos de ${item.nombre}`}
-            className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-line text-muted transition-colors hover:border-pink-deep hover:text-pink-deep"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-full border-2 border-line text-muted transition-colors hover:border-pink-deep hover:text-pink-deep"
           >
             <HistoryIcon />
           </button>
@@ -267,7 +270,7 @@ function RowItem({
             type="button"
             onClick={() => onEdit(item)}
             aria-label={`Editar ${item.nombre}`}
-            className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-line text-muted transition-colors hover:border-pink-deep hover:text-pink-deep"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-full border-2 border-line text-muted transition-colors hover:border-pink-deep hover:text-pink-deep"
           >
             <PencilIcon />
           </button>
@@ -275,7 +278,7 @@ function RowItem({
             type="button"
             onClick={() => onAdjust(item)}
             aria-label={`Ajustar stock de ${item.nombre}`}
-            className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-line text-muted transition-colors hover:border-pink-deep hover:text-pink-deep"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-full border-2 border-line text-muted transition-colors hover:border-pink-deep hover:text-pink-deep"
           >
             <PlusIcon size={16} />
           </button>
@@ -298,7 +301,7 @@ function MobileCard({
 }) {
   const s = stockStatus(item.stock_actual);
   return (
-    <div className="rounded-card border border-line bg-paper p-4">
+    <div className="rounded-card border-2 border-line bg-paper p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
           <ItemThumb url={item.imagen_url} />
@@ -396,8 +399,8 @@ function LastMovement({ itemId }: { itemId: string }) {
 function MovementsModal({ item, onClose }: { item: InventoryItem; onClose: () => void }) {
   const { data: movements = [], isLoading } = useStockMovements({ inventoryItemId: item.id });
   return (
-    <Modal open onClose={onClose} title={`Movimientos · ${item.nombre}`} className="sm:max-w-xl">
-      <div className="max-h-[60vh] overflow-auto rounded-card border border-line">
+    <Modal open onClose={onClose} title={`Movimientos · ${item.nombre}`} className="sm:max-w-2xl">
+      <div className="max-h-[60vh] overflow-auto rounded-card border-2 border-line">
         {isLoading ? (
           <p className="py-10 text-center text-sm text-muted">Cargando…</p>
         ) : movements.length === 0 ? (
@@ -522,7 +525,7 @@ function AdjustStockModal({ item, onClose }: { item: InventoryItem; onClose: () 
   const motivoValid = motivo.trim().length > 0;
 
   return (
-    <Modal open onClose={onClose} title="Ajustar stock" className="sm:max-w-md">
+    <Modal open onClose={onClose} title="Ajustar stock" className="sm:max-w-xl">
       <div className="space-y-5">
         <div>
           <div className="text-sm font-semibold text-ink">{item.nombre}</div>
@@ -597,7 +600,7 @@ function NewItemModal({
   const valid = nombre.trim().length > 0;
 
   return (
-    <Modal open onClose={onClose} title="Nuevo producto" className="sm:max-w-md">
+    <Modal open onClose={onClose} title="Nuevo producto" className="sm:max-w-2xl">
       <div className="space-y-4">
         <div>
           <label className="mb-1.5 block text-[13.5px] font-medium text-muted">
@@ -666,7 +669,7 @@ function EditProductoModal({
   const valid = nombre.trim().length > 0;
 
   return (
-    <Modal open onClose={onClose} title="Editar producto" className="sm:max-w-md">
+    <Modal open onClose={onClose} title="Editar producto" className="sm:max-w-2xl">
       <div className="space-y-4">
         <div>
           <label className="mb-1.5 block text-[13.5px] font-medium text-muted">
@@ -689,7 +692,7 @@ function EditProductoModal({
           <label className="mb-1.5 block text-[13.5px] font-medium text-muted">Precio unitario</label>
           <Input type="number" value={precio} onChange={(e) => setPrecio(Number(e.target.value))} />
         </div>
-        <div className="rounded-card border border-line bg-[var(--surface-2)] px-4 py-3 text-sm">
+        <div className="rounded-card border-2 border-line bg-[var(--surface-2)] px-4 py-3 text-sm">
           <div className="flex justify-between">
             <span className="text-muted">Stock actual</span>
             <span className="num">{item.stock_actual} u.</span>
@@ -698,7 +701,7 @@ function EditProductoModal({
             El stock se ajusta con el movimiento, no acá.
           </p>
         </div>
-        <div className="flex items-center justify-between rounded-card border border-line px-4 py-3">
+        <div className="flex items-center justify-between rounded-card border-2 border-line px-4 py-3">
           <div>
             <div className="text-sm font-medium text-ink">Producto activo</div>
             <div className="text-xs text-muted">

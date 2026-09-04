@@ -1,5 +1,10 @@
 import type { Service } from '@/types';
 
+// Foto de fondo compartida: banda de Servicios y "Foto del taller" en
+// Nosotros usan la misma imagen.
+export const SERVICES_BG_URL =
+  'https://img.magnific.com/foto-gratis/marco-diferentes-herramientas-coche-juguete_23-2148096416.jpg?semt=ais_hybrid&w=740&q=80';
+
 // Presentacion de la landing: los campos "note", meta tags y plazo que el
 // contrato visual muestra en las cards de servicios no viven en el tipo
 // `Service` (dato core). Se resuelven aqui por id, de forma local y

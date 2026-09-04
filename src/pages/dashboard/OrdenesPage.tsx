@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useWorkOrders } from '@/features/work-orders/api';
 import { formatCurrency } from '@/lib/utils/fmt';
 import { Button } from '@/components/ui/Button';
+import { PageLoader } from '@/components/ui/PageLoader';
 import { WorkOrderStatusBadge } from '@/components/ui/WorkOrderStatusBadge';
 import { PlusIcon } from '@/components/ui/icons';
 import { PageHeader } from './PageHeader';
@@ -20,6 +21,8 @@ export function OrdenesPage() {
     .reduce((a, o) => a + o.total, 0);
 
   const sorted = [...orders].sort((a, b) => b.created_at.localeCompare(a.created_at));
+
+  if (isLoading) return <PageLoader />;
 
   return (
     <div className="space-y-6">
@@ -42,11 +45,9 @@ export function OrdenesPage() {
         <KpiCard label="Listas este mes" value={String(listas)} />
       </div>
 
-      <section className="overflow-hidden rounded-card border border-line bg-paper">
+      <section className="overflow-hidden rounded-card border-2 border-line bg-paper">
         <div className="divide-y divide-line">
-          {isLoading ? (
-            <p className="px-5 py-10 text-center text-sm text-muted">Cargando…</p>
-          ) : sorted.length === 0 ? (
+          {sorted.length === 0 ? (
             <p className="px-5 py-10 text-center text-sm text-muted">No hay órdenes todavía.</p>
           ) : (
             sorted.map((o) => (

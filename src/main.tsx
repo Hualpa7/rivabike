@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { RouterProvider } from 'react-router-dom';
+import { Toaster } from 'sonner';
 import { router } from '@/app/router';
 import { QueryProvider } from '@/app/providers/QueryProvider';
 import { AuthProvider } from '@/app/providers/AuthProvider';
@@ -11,6 +12,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <QueryProvider>
       <AuthProvider>
         <RouterProvider router={router} />
+        <Toaster position="top-center" richColors closeButton />
       </AuthProvider>
     </QueryProvider>
   </React.StrictMode>,

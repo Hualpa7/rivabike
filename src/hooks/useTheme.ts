@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { create } from 'zustand';
 
 export type Theme = 'light' | 'dark';
 
@@ -20,21 +20,28 @@ function applyTheme(theme: Theme) {
   }
 }
 
-/**
- * Tema claro/oscuro con persistencia en localStorage ('riva-theme'),
- * fallback a prefers-color-scheme y escritura del attribute [data-theme]
- * en <html> (mismo mecanismo que el anti-FOUC de index.html).
- */
-export function useTheme() {
-  const [theme, setTheme] = useState<Theme>(resolveInitialTheme);
-
-  useEffect(() => {
-    applyTheme(theme);
-  }, [theme]);
-
-  const toggle = useCallback(() => {
-    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
-  }, []);
-
-  return { theme, toggle, setTheme };
+interface ThemeState {
+  theme: Theme;
+  toggle: () => void;
+  setTheme: (theme: Theme) => void;
 }
+
+/**
+ * Tema claro/oscuro compartido entre toda la app (Zustand). Persistencia
+ * en localStorage ('riva-theme'), fallback a prefers-color-scheme y
+ * escritura del attribute [data-theme] en <html>. Al ser un store
+ * compartido, TODOS los <ThemeToggle /> montados a la vez quedan
+ * sincronizados entre si.
+ */
+export const useTheme = create<ThemeState>((set, get) => ({
+  theme: resolveInitialTheme(),
+  toggle: () => {
+    const next: Theme = get().theme === 'dark' ? 'light' : 'dark';
+    applyTheme(next);
+    set({ theme: next });
+  },
+  setTheme: (theme) => {
+    applyTheme(theme);
+    set({ theme });
+  },
+}));

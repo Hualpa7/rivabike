@@ -22,7 +22,9 @@ interface Draft {
   rodado: string;
   color: string;
   serviceIds: string[];
+  servicePrices: Record<string, number>;
   repuestos: Record<string, number>;
+  repuestoPrices: Record<string, number>;
   observaciones: string;
   fechaEntrega: string;
 }
@@ -35,7 +37,9 @@ const initialDraft: Draft = {
   rodado: '',
   color: '',
   serviceIds: [],
+  servicePrices: {},
   repuestos: {},
+  repuestoPrices: {},
   observaciones: '',
   fechaEntrega: '',
 };
@@ -55,10 +59,14 @@ export function NuevaOrdenPage() {
   const selectedServices = services.filter((s) => draft.serviceIds.includes(s.id));
   const selectedRepuestos = Object.entries(draft.repuestos).filter(([, qty]) => qty > 0);
 
-  const subtotalServices = selectedServices.reduce((a, s) => a + s.precio_base, 0);
+  const subtotalServices = selectedServices.reduce(
+    (a, s) => a + (draft.servicePrices[s.id] ?? s.precio_base),
+    0,
+  );
   const subtotalRepuestos = selectedRepuestos.reduce((a, [id, qty]) => {
+    const price = draft.repuestoPrices[id];
     const item = inventory.find((i) => i.id === id);
-    return a + (item ? item.precio_unitario * qty : 0);
+    return a + (price ?? item?.precio_unitario ?? 0) * qty;
   }, 0);
   const total = subtotalServices + subtotalRepuestos;
 
@@ -69,6 +77,8 @@ export function NuevaOrdenPage() {
         return draft.nombre.trim().length > 0;
       case 1:
         return draft.marcas.trim().length > 0 && draft.modelo.trim().length > 0;
+      case 4:
+        return draft.fechaEntrega.trim().length > 0;
       default:
         return true;
     }
@@ -87,7 +97,7 @@ export function NuevaOrdenPage() {
         service_id: s.id,
         title_snapshot: s.titulo,
         description_snapshot: s.descripcion,
-        unit_price: s.precio_base,
+        unit_price: draft.servicePrices[s.id] ?? s.precio_base,
         quantity: 1,
       })),
       inventory_items: selectedRepuestos.map(([id, qty]) => {
@@ -95,7 +105,7 @@ export function NuevaOrdenPage() {
         return {
           inventory_item_id: id,
           name_snapshot: item?.nombre ?? id,
-          unit_price: item?.precio_unitario ?? 0,
+          unit_price: draft.repuestoPrices[id] ?? item?.precio_unitario ?? 0,
           quantity: qty,
         };
       }),
@@ -135,10 +145,26 @@ export function NuevaOrdenPage() {
             <BiciStep draft={draft} set={set} />
           )}
           {step === 2 && (
-            <ServiciosStep services={services} selected={draft.serviceIds} onChange={(ids) => set('serviceIds', ids)} />
+            <ServiciosStep
+              services={services}
+              selected={draft.serviceIds}
+              onChange={(ids) => set('serviceIds', ids)}
+              servicePrices={draft.servicePrices}
+              onPriceChange={(id, price) =>
+                setDraft((d) => ({ ...d, servicePrices: { ...d.servicePrices, [id]: price } }))
+              }
+            />
           )}
           {step === 3 && (
-            <RepuestosStep inventory={inventory} repuestos={draft.repuestos} onChange={(r) => set('repuestos', r)} />
+            <RepuestosStep
+              inventory={inventory}
+              repuestos={draft.repuestos}
+              onChange={(r) => set('repuestos', r)}
+              repuestoPrices={draft.repuestoPrices}
+              onPriceChange={(id, price) =>
+                setDraft((d) => ({ ...d, repuestoPrices: { ...d.repuestoPrices, [id]: price } }))
+              }
+            />
           )}
           {step === 4 && (
             <ObsStep draft={draft} set={set} />
@@ -148,6 +174,8 @@ export function NuevaOrdenPage() {
               services={selectedServices}
               inventory={inventory}
               repuestos={draft.repuestos}
+              servicePrices={draft.servicePrices}
+              repuestoPrices={draft.repuestoPrices}
               subtotalServices={subtotalServices}
               subtotalRepuestos={subtotalRepuestos}
               total={total}
@@ -223,47 +251,79 @@ function ServiciosStep({
   services,
   selected,
   onChange,
+  servicePrices,
+  onPriceChange,
 }: {
   services: { id: string; titulo: string; descripcion: string; precio_base: number }[];
   selected: string[];
   onChange: (ids: string[]) => void;
+  servicePrices: Record<string, number>;
+  onPriceChange: (id: string, price: number) => void;
 }) {
-  const toggle = (id: string) =>
-    onChange(selected.includes(id) ? selected.filter((x) => x !== id) : [...selected, id]);
+  const toggle = (s: { id: string; precio_base: number }) => {
+    if (selected.includes(s.id)) {
+      onChange(selected.filter((x) => x !== s.id));
+    } else {
+      onChange([...selected, s.id]);
+      if (!(s.id in servicePrices)) onPriceChange(s.id, s.precio_base);
+    }
+  };
   return (
     <div className="space-y-2">
       {services.length === 0 ? <p className="text-sm text-muted">Sin servicios cargados.</p> : null}
       {services.map((s) => {
         const on = selected.includes(s.id);
+        const price = servicePrices[s.id] ?? s.precio_base;
         return (
-          <button
+          <div
             key={s.id}
-            type="button"
-            onClick={() => toggle(s.id)}
-            aria-pressed={on}
             className={cn(
-              'flex w-full items-center justify-between gap-3 rounded-[10px] border px-4 py-3 text-left transition-colors',
+              'rounded-[10px] border px-4 py-3 transition-colors',
               on ? 'border-pink-deep bg-[var(--accent-soft)]' : 'border-line bg-paper hover:border-pink-deep',
             )}
           >
-            <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => toggle(s)}
+              aria-pressed={on}
+              className="flex w-full items-center gap-3 text-left"
+            >
               <span
                 className={cn(
-                  'flex h-5 w-5 items-center justify-center rounded-full border text-[10px] transition-colors',
+                  'flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-[10px] transition-colors',
                   on ? 'border-pink-deep bg-pink-deep text-white' : 'border-line',
                 )}
               >
                 {on ? '✓' : ''}
               </span>
-              <div>
+              <div className="min-w-0 flex-1">
                 <div className="text-sm font-semibold text-ink">{s.titulo}</div>
                 <div className="text-xs text-muted">{s.descripcion}</div>
               </div>
-            </div>
-            <span className="num shrink-0 text-sm font-semibold text-pink-deep">
-              {formatCurrency(s.precio_base)}
-            </span>
-          </button>
+              {!on && (
+                <span className="num shrink-0 text-sm font-semibold text-pink-deep">
+                  {formatCurrency(s.precio_base)}
+                </span>
+              )}
+            </button>
+            {on && (
+              <div className="mt-3 flex flex-wrap items-center gap-3 border-t border-pink-deep/20 pt-3">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs text-muted">$</span>
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    value={price}
+                    onChange={(e) => onPriceChange(s.id, Math.max(0, Number(e.target.value)))}
+                    className="num w-28 rounded-card border border-line bg-paper px-2.5 py-1.5 text-right text-sm font-semibold text-ink focus:border-pink-deep focus:outline-none"
+                  />
+                </div>
+                <span className="num ml-auto text-sm font-semibold text-pink-deep">
+                  {formatCurrency(price)}
+                </span>
+              </div>
+            )}
+          </div>
         );
       })}
     </div>
@@ -274,52 +334,89 @@ function RepuestosStep({
   inventory,
   repuestos,
   onChange,
+  repuestoPrices,
+  onPriceChange,
 }: {
   inventory: { id: string; nombre: string; stock_actual: number; precio_unitario: number }[];
   repuestos: Record<string, number>;
   onChange: (r: Record<string, number>) => void;
+  repuestoPrices: Record<string, number>;
+  onPriceChange: (id: string, price: number) => void;
 }) {
-  const setQty = (id: string, qty: number) => onChange({ ...repuestos, [id]: qty });
-  const toggle = (item: { id: string; stock_actual: number }) => {
+  const setQty = (id: string, qty: number) => {
+    onChange({ ...repuestos, [id]: qty });
+    if (qty > 0 && !(id in repuestoPrices)) {
+      const item = inventory.find((i) => i.id === id);
+      if (item) onPriceChange(id, item.precio_unitario);
+    }
+  };
+  const toggle = (item: { id: string; stock_actual: number; precio_unitario: number }) => {
     if (item.stock_actual <= 0) return;
     const current = repuestos[item.id] ?? 0;
-    setQty(item.id, current > 0 ? 0 : 1);
+    if (current > 0) {
+      onChange({ ...repuestos, [item.id]: 0 });
+    } else {
+      onChange({ ...repuestos, [item.id]: 1 });
+      if (!(item.id in repuestoPrices)) onPriceChange(item.id, item.precio_unitario);
+    }
   };
   return (
     <div className="space-y-2">
       {inventory.map((it) => {
         const qty = repuestos[it.id] ?? 0;
+        const price = repuestoPrices[it.id] ?? it.precio_unitario;
         const disabled = it.stock_actual <= 0;
         return (
           <div
             key={it.id}
             className={cn(
-              'flex items-center justify-between gap-3 rounded-[10px] border px-4 py-3',
+              'rounded-[10px] border px-4 py-3',
               qty > 0 ? 'border-pink-deep bg-[var(--accent-soft)]' : 'border-line bg-paper',
             )}
           >
-            <div className="min-w-0 flex-1">
-              <div className="text-sm font-semibold text-ink">{it.nombre}</div>
-              <div className="text-xs text-muted">
-                Stock: {it.stock_actual} u. · {formatCurrency(it.precio_unitario)}
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0 flex-1">
+                <div className="text-sm font-semibold text-ink">{it.nombre}</div>
+                <div className="text-xs text-muted">
+                  Stock: {it.stock_actual} u. · {formatCurrency(it.precio_unitario)}
+                </div>
               </div>
-            </div>
-            {disabled ? (
-              <span className="text-xs font-semibold text-pink-deep">Sin stock</span>
-            ) : (
-              <div className="flex shrink-0 items-center gap-3">
-                {qty > 0 ? (
-                  <>
+              {disabled ? (
+                <span className="text-xs font-semibold text-pink-deep">Sin stock</span>
+              ) : (
+                <div className="flex shrink-0 items-center gap-3">
+                  {qty > 0 ? (
                     <QtyStepper value={qty} onChange={(v) => setQty(it.id, v)} min={0} max={it.stock_actual} />
-                    <span className="num w-20 text-right text-sm font-semibold text-pink-deep">
-                      {formatCurrency(it.precio_unitario * qty)}
-                    </span>
-                  </>
-                ) : (
-                  <Button variant="secondary" size="sm" onClick={() => toggle(it)}>
-                    Agregar
-                  </Button>
-                )}
+                  ) : (
+                    <Button variant="secondary" size="sm" onClick={() => toggle(it)}>
+                      Agregar
+                    </Button>
+                  )}
+                </div>
+              )}
+            </div>
+            {qty > 0 && (
+              <div className="mt-2 flex items-center gap-3 border-t border-pink-deep/20 pt-2">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs text-muted">$</span>
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    value={price}
+                    onChange={(e) => onPriceChange(it.id, Math.max(0, Number(e.target.value)))}
+                    className="num w-24 rounded-card border border-line bg-paper px-2.5 py-1.5 text-right text-sm font-semibold text-ink focus:border-pink-deep focus:outline-none"
+                  />
+                </div>
+                <span className="num ml-auto text-sm font-semibold text-pink-deep">
+                  {formatCurrency(price * qty)}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => toggle(it)}
+                  className="text-xs text-muted underline transition-colors hover:text-pink-deep"
+                >
+                  Quitar
+                </button>
               </div>
             )}
           </div>
@@ -348,8 +445,8 @@ function ObsStep({
         />
       </div>
       <div>
-        <FieldLabel>Fecha estimada de entrega</FieldLabel>
-        <Input type="date" value={draft.fechaEntrega} onChange={(e) => set('fechaEntrega', e.target.value)} />
+        <FieldLabel required>Fecha estimada de entrega</FieldLabel>
+        <Input type="date" value={draft.fechaEntrega} onChange={(e) => set('fechaEntrega', e.target.value)} required />
       </div>
     </div>
   );
@@ -359,6 +456,8 @@ function ResumenStep({
   services,
   inventory,
   repuestos,
+  servicePrices,
+  repuestoPrices,
   subtotalServices,
   subtotalRepuestos,
   total,
@@ -366,6 +465,8 @@ function ResumenStep({
   services: { id: string; titulo: string; precio_base: number }[];
   inventory: { id: string; nombre: string; precio_unitario: number }[];
   repuestos: Record<string, number>;
+  servicePrices: Record<string, number>;
+  repuestoPrices: Record<string, number>;
   subtotalServices: number;
   subtotalRepuestos: number;
   total: number;
@@ -373,21 +474,23 @@ function ResumenStep({
   const repuestoRows = Object.entries(repuestos).filter(([, q]) => q > 0);
   return (
     <div className="space-y-6">
-      <div className="rounded-card border border-line bg-paper p-5">
+      <div className="rounded-card border-2 border-line bg-paper p-5">
         <h3 className="text-xs font-semibold uppercase tracking-wide text-muted">Servicios</h3>
         <div className="mt-3 divide-y divide-line">
           {services.length === 0 && <p className="text-sm text-muted">Sin servicios seleccionados.</p>}
-          {services.map((s) => (
-            <Row name={s.titulo} price={s.precio_base} key={s.id} />
-          ))}
+          {services.map((s) => {
+            const price = servicePrices[s.id] ?? s.precio_base;
+            return <Row key={s.id} name={s.titulo} price={price} />;
+          })}
         </div>
         <h3 className="mt-5 text-xs font-semibold uppercase tracking-wide text-muted">Repuestos</h3>
         <div className="mt-3 divide-y divide-line">
           {repuestoRows.length === 0 && <p className="text-sm text-muted">Sin repuestos.</p>}
           {repuestoRows.map(([id, qty]) => {
             const item = inventory.find((i) => i.id === id);
+            const price = repuestoPrices[id] ?? item?.precio_unitario ?? 0;
             return (
-              <Row key={id} name={item?.nombre ?? id} sub={`${qty} u.`} price={(item?.precio_unitario ?? 0) * qty} />
+              <Row key={id} name={item?.nombre ?? id} sub={`${qty} u.`} price={price * qty} />
             );
           })}
         </div>
@@ -408,7 +511,7 @@ function ResumenStep({
         </div>
       </div>
 
-      <div className="rounded-card border border-line bg-[var(--accent-soft)] p-5">
+      <div className="rounded-card border-2 border-line bg-[var(--accent-soft)] p-5">
         <div className="flex items-start gap-3">
           <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-pink-deep text-white">✓</span>
           <div>

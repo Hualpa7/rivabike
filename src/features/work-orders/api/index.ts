@@ -22,6 +22,7 @@ const uploadWorkOrderPhotoFn = useMocks ? mock.uploadWorkOrderPhoto : real.uploa
 const consumeWorkOrderInventoryItemFn = useMocks
   ? mock.consumeWorkOrderInventoryItem
   : real.consumeWorkOrderInventoryItem;
+const updateWorkOrderObservacionesFn = real.updateWorkOrderObservaciones;
 
 export function useWorkOrders(params?: { estado?: WorkOrderStatus }) {
   const status = useAuthStore((s) => s.status);
@@ -96,6 +97,18 @@ export function useConsumeWorkOrderInventoryItem() {
       void qc.invalidateQueries({ queryKey: ['work-orders', 'detail', variables.workOrderId] });
       void qc.invalidateQueries({ queryKey: ['inventory', 'items'] });
       void qc.invalidateQueries({ queryKey: ['inventory', 'movements'] });
+    },
+  });
+}
+
+export function useUpdateWorkOrderObservaciones() {
+  const qc = useQueryClient();
+  return useMutation<WorkOrderDetail, Error, { id: string; observaciones: string | null }>({
+    mutationFn: ({ id, observaciones }) =>
+      updateWorkOrderObservacionesFn({ work_order_id: id, observaciones }),
+    onSuccess: (data) => {
+      void qc.invalidateQueries({ queryKey: ['work-orders'] });
+      void qc.setQueryData(['work-orders', 'detail', data.id], data);
     },
   });
 }

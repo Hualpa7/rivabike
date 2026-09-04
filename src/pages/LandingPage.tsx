@@ -29,7 +29,7 @@ export function LandingPage() {
         <HowWeWork />
         <Reviews />
         <Services onSelect={(s) => setOpenId(s.id)} />
-        <Trabajos onOpenService={setOpenId} />
+        <Trabajos />
         <Contact />
       </main>
       <Footer />
