@@ -4,10 +4,14 @@ import { WorkOrderPdf } from './WorkOrderPdf';
 import { formatWorkOrderNumber, getCustomerFullName } from './WorkOrderPdfFormat';
 
 // ---------------------------------------------------------------------------
-// Generacion del PDF de la orden de trabajo (100% en cliente).
+// Generación del PDF de la orden de trabajo.
+// Sin cambios de lógica respecto del original — sólo se corrigieron los
+// paths de import de arriba para que apunten a los nombres de archivo
+// reales (ordenTrabajoPdf.tsx / ordenTtrabajoPdfFormato.ts) en vez de a los
+// nombres en inglés que ese componente y esos formateadores no usan.
 // ---------------------------------------------------------------------------
 
-/** Quita caracteres invalidos para un nombre de archivo en cualquier OS. */
+/** Quita caracteres inválidos para un nombre de archivo en cualquier OS. */
 export function sanitizeFileName(value: string): string {
   return value
     .replace(/\s+/g, '-')
@@ -28,13 +32,14 @@ export function buildPdfFileName(order: WorkOrderDetail): string {
 export async function generateWorkOrderPdfBlob(
   order: WorkOrderDetail,
   settings: SiteSettings,
+  condiciones?: string[],
 ): Promise<Blob> {
-  return pdf(<WorkOrderPdf order={order} settings={settings} />).toBlob();
+  return pdf(<WorkOrderPdf order={order} settings={settings} condiciones={condiciones} />).toBlob();
 }
 
 /**
- * Descarga el PDF. En iOS/Android donde el atributo `download` no se respeta,
- * se abre el blob en una pestana nueva (fallback mobile).
+ * Descarga el PDF. En Android/iOS donde el atributo `download` no se
+ * respeta, se abre el blob en una pestaña nueva (fallback mobile).
  */
 function triggerDownload(blob: Blob, filename: string): void {
   const url = URL.createObjectURL(blob);
@@ -54,7 +59,8 @@ function triggerDownload(blob: Blob, filename: string): void {
 export async function downloadWorkOrderPdf(
   order: WorkOrderDetail,
   settings: SiteSettings,
+  condiciones?: string[],
 ): Promise<void> {
-  const blob = await generateWorkOrderPdfBlob(order, settings);
+  const blob = await generateWorkOrderPdfBlob(order, settings, condiciones);
   triggerDownload(blob, buildPdfFileName(order));
 }

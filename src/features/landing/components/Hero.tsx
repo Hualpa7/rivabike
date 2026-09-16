@@ -1,21 +1,26 @@
 import { motion } from 'motion/react';
 import { useSiteSettings } from '@/features/settings/api';
-import { useGoogleReviews } from '@/features/landing/api';
+import { useApprovedCustomerReviews } from '@/features/landing/api';
 import { StarRating } from './ui/StarRating';
-import heroImg from '@/assets/hero.jpg';
+import { BrandMark, BrandWordmark } from '@/components/ui/icons/BrandMark';
+import heroImg from '@/assets/hero.webp';
 
 /**
  * Hero: banda fotografica full-bleed oscura con eyebrow, titular, pill de
- * rating de Google y doble CTA. A la derecha el circulo de bici con aro
+ * rating propio y doble CTA. A la derecha el circulo de bici con aro
  * rayado giratorio y badge "Taller · Salta".
  */
 export function Hero() {
   const { data: settings } = useSiteSettings();
-  const { data: reviews } = useGoogleReviews();
+  const { data: reviews } = useApprovedCustomerReviews();
 
   const eyebrow = settings?.hero_eyebrow ?? 'Taller · Servicio técnico';
   const titulo = settings?.hero_titulo ?? 'Tu bici, en las mejores manos.';
   const bg = settings?.hero_imagen_url ?? '';
+
+  const avgRating = reviews && reviews.length > 0
+    ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
+    : null;
 
   const circle = (
     <motion.div
@@ -34,7 +39,7 @@ export function Hero() {
         <img src={heroImg} alt="Bicicleta del taller" className="h-full w-full -scale-x-110 scale-y-110 object-cover" />
       </div>
       <span className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 rounded-pill bg-pink px-4 py-1.5 font-mono text-xs font-semibold uppercase tracking-[0.18em] text-white">
-        Taller · Salta
+        Riva · Bike
       </span>
     </motion.div>
   );
@@ -69,7 +74,20 @@ export function Hero() {
         {circle}
       </div>
 
-      <div className="relative mx-auto flex w-full max-w-[1120px] flex-col gap-12 px-6 pb-16 pt-40 text-center md:block md:pb-20 md:pl-3 md:pr-6 md:pt-32 md:text-left">
+      <div className="relative mx-auto flex w-full max-w-[1120px] flex-col gap-12 px-6 pb-16 pt-40 text-center md:block md:pb-20 md:pl-3 md:pr-6 md:pt-28 md:text-left">
+        {/* Logo + slogan (solo desktop), agrandados y con mas aire al titulo */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7 }}
+          className="hidden items-center gap-3 md:mb-8 md:flex md:origin-left md:scale-[1.25]"
+        >
+          <BrandMark className="h-11 w-auto" />
+          <BrandWordmark />
+          <span className="ml-2 border-l border-white/20 pl-4 text-[14px] font-bold uppercase tracking-[0.18em] text-white/80" aria-hidden="true">
+            Tu libertad <span className="text-pink">sobre ruedas</span>
+          </span>
+        </motion.div>
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -90,18 +108,18 @@ export function Hero() {
         {/* Circulo de bici (solo mobil): entre el titulo y los botones */}
         <div className="mx-auto w-[min(72vw,340px)] md:mx-0 md:mt-12 md:hidden">{circle}</div>
 
-        {reviews ? (
+        {avgRating ? (
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.25 }}
             className="mx-auto inline-flex items-center gap-2.5 rounded-pill border border-white/25 bg-ink/25 px-4 py-2 backdrop-blur-md md:mx-0 md:mt-6"
           >
-            <StarRating rating={reviews.rating} starClassName="h-4 w-4 text-gold" />
-            <span className="text-sm font-semibold text-white">{reviews.rating}/5</span>
+            <StarRating rating={Math.round(Number(avgRating))} starClassName="h-4 w-4 text-gold" />
+            <span className="text-sm font-semibold text-white">{avgRating}/5</span>
             <span className="text-white/60">·</span>
             <span className="text-sm text-white/80">
-              {reviews.total_reviews} reseñas de Google
+              {reviews?.length} reseña{reviews?.length === 1 ? '' : 's'}
             </span>
           </motion.div>
         ) : null}

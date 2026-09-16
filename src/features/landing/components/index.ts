@@ -8,3 +8,4 @@ export { ServiceModal } from './ServiceModal';
 export { Trabajos } from './Trabajos';
 export { Contact } from './Contact';
 export { Footer } from './Footer';
+export { WhatsAppFab } from './WhatsAppFab';

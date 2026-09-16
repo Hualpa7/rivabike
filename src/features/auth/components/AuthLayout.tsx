@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { ThemeToggle } from '@/components/ui';
 
 interface AuthLayoutProps {
   eyebrow: string;
@@ -14,10 +13,10 @@ interface AuthLayoutProps {
 }
 
 /**
- * Layout compartido de autenticacion (login / olvide-password): panel de
- * marca oscuro en desktop con el pitch del taller, y panel de formulario
- * a la derecha. En movil el brand-panel se oculta y aparece el logo arriba.
- * Replica docs/riva-bike-login.html.
+ * Layout compartido de autenticacion (login / olvide-password / dejar-resena):
+ * panel de marca oscuro en desktop con el pitch del taller, y panel de
+ * formulario a la derecha. En movil el brand-panel se oculta.
+ * El navbar (logo + theme toggle) lo provee PublicLayout.
  */
 export function AuthLayout({
   eyebrow,
@@ -30,7 +29,7 @@ export function AuthLayout({
   children,
 }: AuthLayoutProps) {
   return (
-    <div className="grid min-h-svh md:grid-cols-[minmax(0,1fr)_480px]">
+    <div className="grid min-h-[calc(100svh-64px)] md:grid-cols-[minmax(0,1fr)_480px]">
       {/* brand panel (desktop) */}
       <aside className="relative hidden flex-col justify-end overflow-hidden bg-ink p-[clamp(32px,6vw,72px)] text-paper md:flex">
         <div
@@ -45,11 +44,6 @@ export function AuthLayout({
           aria-hidden="true"
           className="absolute right-[6%] top-[12%] h-[220px] w-[220px] rounded-full border-2 border-pink/40 opacity-50 after:absolute after:left-1/2 after:top-1/2 after:h-[62%] after:w-[62%] after:-translate-x-1/2 after:-translate-y-1/2 after:rounded-full after:border after:border-pink/30"
         />
-        <div className="relative z-[1]">
-          <span className="font-display text-2xl font-bold tracking-tight">
-            Riva<em className="not-italic text-pink">.</em>Bike
-          </span>
-        </div>
         <div className="relative z-[1] mt-auto max-w-[34ch] pt-20">
           <h1 className="font-display text-[clamp(30px,4.4vw,48px)] font-bold leading-[1.02] tracking-tight">
             {pitchTitle}
@@ -60,16 +54,7 @@ export function AuthLayout({
 
       {/* form panel */}
       <main className="relative flex flex-col items-center justify-center bg-paper px-6 py-10 text-ink">
-        <div className="absolute right-0 top-0 flex w-full justify-end p-5 md:w-[480px]">
-          <ThemeToggle />
-        </div>
-
         <div className="w-full max-w-[360px]">
-          <div className="mb-7 block md:hidden">
-            <span className="font-display text-[22px] font-bold tracking-tight">
-              Riva<em className="not-italic text-pink">.</em>Bike
-            </span>
-          </div>
           <p className="mb-3.5 font-mono text-xs font-extrabold uppercase tracking-[0.16em] text-pink">
             {eyebrow}
           </p>

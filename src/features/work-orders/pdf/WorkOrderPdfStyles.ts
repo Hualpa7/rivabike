@@ -1,86 +1,86 @@
-// workOrderPdfStyles.ts
+// OrdenTtrabajoPdfEstilos.ts
 import { StyleSheet } from '@react-pdf/renderer';
 
 /**
- * Identidad visual RivaBike para documentos PDF basada en el diseño del ejemplo.
- * Paleta cerrada: rosa / bordo / negro / blanco (sin morado).
+ * Identidad visual RivaBike para documentos PDF.
+ * Calcada del diseño real usado en los presupuestos/órdenes de trabajo
+ * generados en chat (Python + reportlab). Paleta plana, sin cajas
+ * decorativas ni degradados: barras sólidas negras para separar
+ * secciones, una sola línea rosa como acento, y una tabla de ítems
+ * combinada (servicios + repuestos juntos, sin dividir en dos tablas).
  */
 export const BRAND = {
-  ink: '#1A1A2E',
-  paper: '#FFFFFF',
-
-  pink: '#EF7D97',
-  pinkDeep: '#E8546F',
-  pinkSoft: '#FDF0F3',
-
-  muted: '#6F6A70',
-  line: '#E7E1E8',
-  soft: '#F7F5F7',
-  softGray: '#F2F1F2',
-
+  pink: '#D81B60',
+  pinkDeep: '#C2185B',
+  black: '#1A1A1A',
+  lightGray: '#F4F4F4',
+  midGray: '#666666',
+  gridLine: '#DDDDDD',
   white: '#FFFFFF',
-  dark: '#2A0E1E',
 };
 
 export const workOrderPdfStyles = StyleSheet.create({
   page: {
     fontFamily: 'Helvetica',
-    fontSize: 10,
-    color: BRAND.ink,
-    lineHeight: 1.4,
+    fontSize: 13.5,
+    color: BRAND.black,
+    lineHeight: 1.25,
 
-    paddingTop: 0,
-    paddingBottom: 72,
-    paddingHorizontal: 0,
+    paddingTop: 24,
+    paddingBottom: 40,
+    paddingHorizontal: 45,
 
-    backgroundColor: BRAND.paper,
+    backgroundColor: BRAND.white,
   },
 
   /*
    * ============================================================
-   * HEADER - FRANJA SUPERIOR OSCURA
+   * HEADER — sin franja oscura. Marca a la izquierda (ícono de
+   * bicicleta + wordmark, bien alineados), título en rosa a la
+   * derecha, todo sobre fondo blanco.
    * ============================================================
    */
-
-  headerBar: {
-    backgroundColor: BRAND.dark,
-    paddingTop: 30,
-    paddingBottom: 25,
-    paddingHorizontal: 38,
-    marginBottom: 25,
-  },
 
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    alignItems: 'center',
+  },
+
+  // Ícono de la bicicleta (BrandMark real renderizado a PNG) al
+  // costado del wordmark — nunca una aproximación en texto.
+  bikeIcon: {
+    width: 60,
+    height: 36,
+    objectFit: 'contain',
   },
 
   brandBlock: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
+  brandWordmarkText: {
+    marginLeft: 10,
     flexDirection: 'column',
   },
 
-  brandText: {
+  brandWordmark: {
     fontFamily: 'Helvetica-Bold',
-    fontSize: 32,
-    letterSpacing: -1,
-    color: BRAND.white,
-  },
-
-  brandDot: {
-    color: BRAND.white,
+    fontSize: 22,
+    color: BRAND.black,
   },
 
   brandBike: {
-    color: BRAND.pinkDeep,
+    color: BRAND.pink,
   },
 
+  // Slogan bien separado del wordmark "riva bike".
   brandSlogan: {
-    fontFamily: 'Helvetica',
-    fontSize: 8,
-    color: '#FFB6C9',
-    letterSpacing: 1.5,
-    marginTop: 9,
+    fontFamily: 'Helvetica-Bold',
+    fontSize: 9,
+    color: BRAND.midGray,
+    marginTop: 6,
   },
 
   titleBlock: {
@@ -89,448 +89,315 @@ export const workOrderPdfStyles = StyleSheet.create({
 
   docTitle: {
     fontFamily: 'Helvetica-Bold',
-    fontSize: 18,
-    letterSpacing: 3,
+    fontSize: 24,
+    color: BRAND.pink,
+  },
+
+  // N° de orden y fecha bien distanciados del título.
+  docMetaLine: {
+    marginTop: 12,
+    fontFamily: 'Helvetica',
+    fontSize: 13,
+    color: BRAND.midGray,
+  },
+
+  headerDivider: {
+    marginTop: 8,
+    marginBottom: 14,
+    borderBottomWidth: 1.2,
+    borderBottomColor: BRAND.pink,
+  },
+
+  /*
+   * ============================================================
+   * BARRA DE SECCIÓN — negra, ancho completo, texto blanco.
+   * Se usa igual para "DATOS DEL CLIENTE Y LA BICICLETA",
+   * "DETALLE DEL SERVICIO REALIZADO", "OBSERVACIONES" y
+   * "CONDICIONES". No es una franja de acento angosta: es una
+   * barra sólida de punta a punta.
+   * ============================================================
+   */
+
+  sectionBar: {
+    backgroundColor: BRAND.black,
+    paddingVertical: 5,
+    paddingHorizontal: 8,
+    marginBottom: 10,
+  },
+
+  sectionBarText: {
+    fontFamily: 'Helvetica-Bold',
+    fontSize: 15.5,
     color: BRAND.white,
   },
 
-  docNumber: {
+  section: {
     marginTop: 4,
-    fontFamily: 'Helvetica-Bold',
-    fontSize: 13,
-    color: BRAND.pinkDeep,
-  },
-
-  docDate: {
-    marginTop: 2,
-    fontFamily: 'Helvetica',
-    fontSize: 11,
-    color: '#FFB6C9',
+    marginBottom: 16,
   },
 
   /*
    * ============================================================
-   * CONTENIDO PRINCIPAL
+   * CLIENTE / BICICLETA — texto plano en dos filas, SIN caja,
+   * SIN borde, SIN relleno de color. Etiqueta en negrita + valor
+   * normal, cuatro columnas por fila.
    * ============================================================
    */
 
-  content: {
-    paddingHorizontal: 38,
-  },
-
-  /*
-   * ============================================================
-   * CLIENTE / BICICLETA
-   * ============================================================
-   */
-
-  infoRow: {
+  clienteRow: {
     flexDirection: 'row',
-    marginBottom: 22,
-  },
-
-  infoBlock: {
-    flex: 1,
-
-    minHeight: 84,
-
-    paddingTop: 14,
-    paddingBottom: 14,
-    paddingHorizontal: 16,
-
-    borderWidth: 1,
-    borderColor: BRAND.pink,
-    borderRadius: 8,
-
-    backgroundColor: BRAND.pinkSoft,
-  },
-
-  infoBlockRight: {
-    marginLeft: 12,
-  },
-
-  infoTopLine: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     marginBottom: 6,
   },
 
-  infoAccent: {
-    width: 4,
-    height: 18,
-    marginRight: 7,
-    backgroundColor: BRAND.pinkDeep,
-    borderRadius: 2,
-  },
-
-  infoLabel: {
+  clienteLabel: {
+    flexBasis: '29%',
     fontFamily: 'Helvetica-Bold',
-    fontSize: 8,
-    letterSpacing: 1.5,
-    color: BRAND.pinkDeep,
+    fontSize: 13.5,
+    color: BRAND.black,
   },
 
-  infoValue: {
-    fontFamily: 'Helvetica-Bold',
-    fontSize: 13,
-    color: BRAND.ink,
+  clienteValueWide: {
+    flexBasis: '24%',
+    fontFamily: 'Helvetica',
+    fontSize: 13.5,
+    color: BRAND.black,
   },
 
-  infoSub: {
-    marginTop: 3,
-    fontSize: 10,
-    color: BRAND.muted,
-  },
-
-  infoSubLabel: {
-    fontFamily: 'Helvetica-Bold',
-    color: BRAND.pinkDeep,
+  clienteValueNarrow: {
+    flexBasis: '18%',
+    fontFamily: 'Helvetica',
+    fontSize: 13.5,
+    color: BRAND.black,
   },
 
   /*
    * ============================================================
-   * SECCIONES
-   * ============================================================
-   */
-
-  section: {
-    marginTop: 5,
-    marginBottom: 18,
-  },
-
-  sectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-
-  sectionBand: {
-    width: 6,
-    height: 20,
-    marginRight: 8,
-    backgroundColor: BRAND.pinkDeep,
-    borderRadius: 2,
-  },
-
-  sectionTitle: {
-    fontFamily: 'Helvetica-Bold',
-    fontSize: 11,
-    letterSpacing: 1.5,
-    color: BRAND.ink,
-  },
-
-  sectionSubtitle: {
-    marginTop: 1,
-    fontSize: 8,
-    color: BRAND.muted,
-  },
-
-  /*
-   * ============================================================
-   * TABLAS
+   * TABLA DE ÍTEMS — una sola tabla combinada (servicios +
+   * repuestos juntos). Encabezado rosa sólido con texto blanco.
+   * Filas alternadas blanco / gris clarísimo. Grilla fina gris.
+   * Sin bordes redondeados.
    * ============================================================
    */
 
   table: {
-    borderWidth: 1,
-    borderColor: BRAND.line,
-    borderRadius: 6,
-    overflow: 'hidden',
+    borderWidth: 0.5,
+    borderColor: BRAND.gridLine,
   },
 
-  tableHeader: {
+  tableHeaderRow: {
     flexDirection: 'row',
-    alignItems: 'center',
-
-    minHeight: 25,
-
-    paddingVertical: 6,
-    paddingHorizontal: 9,
-
-    backgroundColor: BRAND.pinkSoft,
-
-    borderBottomWidth: 1,
-    borderBottomColor: BRAND.line,
+    backgroundColor: BRAND.pink,
   },
 
   tableHeaderCell: {
     fontFamily: 'Helvetica-Bold',
-    fontSize: 8,
-    letterSpacing: 0.8,
-    color: BRAND.pinkDeep,
+    fontSize: 12.5,
+    color: BRAND.white,
+    paddingVertical: 6,
+    paddingHorizontal: 6,
   },
 
   tableRow: {
     flexDirection: 'row',
-    alignItems: 'center',
-
-    minHeight: 28,
-
-    paddingVertical: 6,
-    paddingHorizontal: 9,
-
-    backgroundColor: BRAND.paper,
-
-    borderBottomWidth: 1,
-    borderBottomColor: BRAND.line,
+    borderTopWidth: 0.5,
+    borderTopColor: BRAND.gridLine,
   },
 
-  tableRowLast: {
-    borderBottomWidth: 0,
+  tableRowAlt: {
+    backgroundColor: BRAND.lightGray,
   },
 
   tableCell: {
-    fontSize: 10,
-    color: BRAND.ink,
+    fontSize: 13.5,
+    color: BRAND.black,
+    paddingVertical: 6,
+    paddingHorizontal: 6,
   },
 
-  numCell: {
-    fontFamily: 'Helvetica-Bold',
-    fontSize: 10,
-    color: BRAND.ink,
+  tableCellDetail: {
+    fontSize: 11,
+    color: BRAND.midGray,
+    marginTop: 2,
   },
 
-  colDesc: {
-    flex: 3,
-    paddingRight: 8,
-  },
-
-  colQty: {
-    flex: 0.6,
+  tableCellNum: {
+    fontSize: 13.5,
+    color: BRAND.black,
+    paddingVertical: 6,
+    paddingHorizontal: 6,
     textAlign: 'center',
   },
 
-  colUnit: {
-    flex: 1.2,
-    textAlign: 'right',
-  },
-
-  colSubtotal: {
-    flex: 1.2,
-    textAlign: 'right',
-  },
-
-  sectionTotalRow: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-
-    minHeight: 30,
-
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-
-    backgroundColor: BRAND.pinkSoft,
-  },
-
-  sectionTotalLabel: {
-    marginRight: 10,
-    fontFamily: 'Helvetica-Bold',
-    fontSize: 8,
-    letterSpacing: 1,
-    color: BRAND.muted,
-  },
-
-  sectionTotalValue: {
-    fontFamily: 'Helvetica-Bold',
-    fontSize: 11,
-    color: BRAND.pinkDeep,
-  },
-
-  emptyRow: {
-    paddingVertical: 10,
-    paddingHorizontal: 10,
-    fontSize: 10,
-    color: BRAND.muted,
-  },
+  colDesc: { flex: 5.2 },
+  colQty: { flex: 1.1, textAlign: 'center' },
+  colUnit: { flex: 1.8, textAlign: 'right' },
+  colSubtotal: { flex: 1.8, textAlign: 'right' },
 
   /*
    * ============================================================
-   * TOTAL FINAL
+   * TOTALES — texto plano alineado a la derecha, SIN caja de
+   * color. Sólo una línea fina arriba de la fila de TOTAL.
    * ============================================================
    */
 
-  totalContainer: {
-    marginTop: 10,
-    marginBottom: 20,
-
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
+  totalsBlock: {
+    marginTop: 16,
+    marginBottom: 4,
+    alignItems: 'flex-end',
   },
 
-  totalBox: {
+  totalsRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
     minWidth: 220,
-
-    paddingTop: 10,
-    paddingBottom: 10,
-    paddingHorizontal: 16,
-
-    borderRadius: 6,
-
-    backgroundColor: BRAND.pinkDeep,
+    marginBottom: 2,
   },
 
-  totalBoxLabel: {
+  totalsLabel: {
     fontFamily: 'Helvetica-Bold',
-    fontSize: 9,
-    letterSpacing: 1.5,
-    color: BRAND.white,
+    fontSize: 13.5,
+    color: BRAND.black,
+    marginRight: 10,
   },
 
-  totalBoxBottom: {
+  totalsValue: {
+    fontFamily: 'Helvetica',
+    fontSize: 13.5,
+    color: BRAND.black,
+    minWidth: 90,
+    textAlign: 'right',
+  },
+
+  totalsRowFinal: {
     flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-
+    justifyContent: 'flex-end',
+    minWidth: 220,
     marginTop: 4,
+    paddingTop: 4,
+    borderTopWidth: 0.8,
+    borderTopColor: BRAND.black,
   },
 
-  totalBoxCaption: {
-    fontSize: 9,
-    color: '#FFDDE6',
-  },
-
-  totalValue: {
+  totalsLabelFinal: {
     fontFamily: 'Helvetica-Bold',
-    fontSize: 18,
-    color: BRAND.white,
+    fontSize: 17,
+    color: BRAND.pink,
+    marginRight: 10,
+  },
+
+  totalsValueFinal: {
+    fontFamily: 'Helvetica-Bold',
+    fontSize: 17,
+    color: BRAND.black,
+    minWidth: 90,
+    textAlign: 'right',
   },
 
   /*
    * ============================================================
-   * OBSERVACIONES
+   * OBSERVACIONES — mismo patrón que cualquier otra sección
+   * (barra negra + texto plano abajo). Nada de caja con borde
+   * rosa y fondo de color: eso no forma parte del diseño real.
    * ============================================================
    */
-
-  observationsBox: {
-    marginTop: 2,
-    marginBottom: 16,
-
-    paddingTop: 10,
-    paddingBottom: 10,
-    paddingHorizontal: 14,
-
-    borderWidth: 1,
-    borderColor: BRAND.pink,
-    borderRadius: 6,
-
-    backgroundColor: BRAND.pinkSoft,
-  },
-
-  observationsHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 6,
-  },
-
-  observationsAccent: {
-    width: 4,
-    height: 14,
-    marginRight: 7,
-    backgroundColor: BRAND.pinkDeep,
-    borderRadius: 2,
-  },
-
-  observationsTitle: {
-    fontFamily: 'Helvetica-Bold',
-    fontSize: 9,
-    letterSpacing: 1.5,
-    color: BRAND.pinkDeep,
-  },
 
   observationsText: {
-    fontSize: 10,
-    lineHeight: 1.4,
-    color: BRAND.ink,
+    fontSize: 13,
+    lineHeight: 1.35,
+    color: BRAND.black,
   },
 
   /*
    * ============================================================
-   * GARANTÍA
+   * FOTOS — grilla de 2 columnas debajo de observaciones.
+   * Cada celda ocupa el 50% del ancho; la fila envuelve sola,
+   * así la última fila puede llevar 1 sola foto. Las imágenes
+   * se recortan (cover) a una altura fija para que todas las
+   * celdas queden del mismo tamaño.
    * ============================================================
    */
 
-  guaranteeBox: {
-    marginTop: 2,
-
-    paddingTop: 11,
-    paddingBottom: 11,
-    paddingHorizontal: 14,
-
-    borderWidth: 1,
-    borderColor: BRAND.line,
-    borderRadius: 6,
-
-    backgroundColor: BRAND.soft,
-  },
-
-  guaranteeHeader: {
+  photosGrid: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+
+  photoCell: {
+    width: '50%',
+    padding: 4,
     alignItems: 'center',
-    marginBottom: 6,
   },
 
-  guaranteeAccent: {
-    width: 4,
-    height: 14,
-    marginRight: 7,
-    backgroundColor: BRAND.pinkDeep,
-    borderRadius: 2,
+  photoImage: {
+    width: '100%',
+    height: 150,
+    objectFit: 'cover',
   },
 
-  guaranteeTitle: {
-    fontFamily: 'Helvetica-Bold',
+  photoLabel: {
     fontSize: 9,
-    letterSpacing: 1.5,
-    color: BRAND.pinkDeep,
-  },
-
-  guaranteeText: {
-    fontSize: 9,
-    lineHeight: 1.4,
-    color: BRAND.muted,
+    color: BRAND.midGray,
+    marginTop: 2,
+    textAlign: 'center',
   },
 
   /*
    * ============================================================
-   * FOOTER
+   * CONDICIONES — texto plano gris con viñetas. La cláusula de
+   * garantía va en negrita dentro del mismo párrafo, no en una
+   * caja aparte.
+   * ============================================================
+   */
+
+  conditionsText: {
+    fontSize: 12,
+    lineHeight: 1.35,
+    color: BRAND.midGray,
+  },
+
+  conditionsBold: {
+    fontFamily: 'Helvetica-Bold',
+    color: BRAND.midGray,
+  },
+
+  conditionsBullet: {
+    color: BRAND.pink,
+  },
+
+  /*
+   * ============================================================
+   * FOOTER — línea rosa fina arriba, dos líneas de texto
+   * centradas (no dos columnas izq/der, no barra oscura de
+   * fondo).
    * ============================================================
    */
 
   footer: {
     position: 'absolute',
+    left: 45,
+    right: 45,
+    bottom: 20,
 
-    left: 38,
-    right: 38,
-    bottom: 23,
-
-    paddingTop: 10,
-
+    paddingTop: 8,
     borderTopWidth: 1,
-    borderTopColor: BRAND.line,
+    borderTopColor: BRAND.pink,
 
-    flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
   },
 
-  footerLeft: {
-    flex: 1,
-
+  footerBold: {
     fontFamily: 'Helvetica-Bold',
-    fontSize: 8,
-    letterSpacing: 0.6,
-
-    color: BRAND.pinkDeep,
+    fontSize: 12,
+    color: BRAND.black,
+    textAlign: 'center',
   },
 
-  footerRight: {
-    marginLeft: 12,
-
+  footerText: {
+    marginTop: 2,
     fontFamily: 'Helvetica',
-    fontSize: 8,
-
-    color: BRAND.muted,
-    textAlign: 'right',
+    fontSize: 11,
+    color: BRAND.midGray,
+    textAlign: 'center',
   },
 });

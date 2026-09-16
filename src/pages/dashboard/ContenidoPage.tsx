@@ -38,8 +38,12 @@ const BLOCKS: { key: StringField; label: string; desc: string }[] = [
   // Servicios
   { key: 'services_titulo', label: 'Servicios · título', desc: 'Título de la sección de servicios' },
   { key: 'services_subtitulo', label: 'Servicios · subtítulo', desc: 'Apoyo del título' },
+  // Sitio
+  { key: 'descripcion', label: 'Sitio · descripción', desc: 'Descripción breve del negocio (buscadores)' },
   // Contacto
-  { key: 'descripcion', label: 'Nosotros · descripción', desc: 'Quiénes somos y cómo trabajamos' },
+  { key: 'telefono', label: 'Contacto · teléfono', desc: 'Número que se muestra en la landing y el footer' },
+  { key: 'whatsapp', label: 'Contacto · WhatsApp', desc: 'Número del botón flotante y enlaces de WhatsApp (sin +)' },
+  { key: 'instagram', label: 'Contacto · Instagram', desc: 'Usuario de Instagram (sin @)' },
   { key: 'direccion', label: 'Contacto · dirección', desc: 'Dónde encontrarnos' },
   { key: 'horarios', label: 'Contacto · horarios', desc: 'Horarios de atención' },
 ];

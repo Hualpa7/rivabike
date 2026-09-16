@@ -46,7 +46,6 @@ export type Database = {
           customer_id: string
           id: string
           marca: string
-          modelo: string
           updated_at: string
         }
         Insert: {
@@ -55,7 +54,6 @@ export type Database = {
           customer_id: string
           id?: string
           marca: string
-          modelo: string
           updated_at?: string
         }
         Update: {
@@ -64,7 +62,6 @@ export type Database = {
           customer_id?: string
           id?: string
           marca?: string
-          modelo?: string
           updated_at?: string
         }
         Relationships: [
@@ -104,6 +101,80 @@ export type Database = {
           nombre?: string
           telefono?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      customer_review_photos: {
+        Row: {
+          created_at: string
+          id: string
+          orden: number
+          review_id: string
+          storage_path: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          orden?: number
+          review_id: string
+          storage_path: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          orden?: number
+          review_id?: string
+          storage_path?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_review_photos_review_id_fkey"
+            columns: ["review_id"]
+            isOneToOne: false
+            referencedRelation: "customer_reviews"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      customer_reviews: {
+        Row: {
+          created_at: string
+          estado: string
+          id: string
+          motivo_rechazo: string | null
+          nombre_visible: string
+          rating: number
+          reviewed_at: string | null
+          reviewed_by: string | null
+          texto: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          estado?: string
+          id?: string
+          motivo_rechazo?: string | null
+          nombre_visible: string
+          rating: number
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          texto: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          estado?: string
+          id?: string
+          motivo_rechazo?: string | null
+          nombre_visible?: string
+          rating?: number
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          texto?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -280,6 +351,153 @@ export type Database = {
         }
         Relationships: []
       }
+      presupuesto_inventory_items: {
+        Row: {
+          id: string
+          inventory_item_id: string | null
+          name_snapshot: string
+          presupuesto_id: string
+          quantity: number
+          subtotal: number
+          unit_price: number
+        }
+        Insert: {
+          id?: string
+          inventory_item_id?: string | null
+          name_snapshot: string
+          presupuesto_id: string
+          quantity: number
+          subtotal: number
+          unit_price: number
+        }
+        Update: {
+          id?: string
+          inventory_item_id?: string | null
+          name_snapshot?: string
+          presupuesto_id?: string
+          quantity?: number
+          subtotal?: number
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "presupuesto_inventory_items_inventory_item_id_fkey"
+            columns: ["inventory_item_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "presupuesto_inventory_items_presupuesto_id_fkey"
+            columns: ["presupuesto_id"]
+            isOneToOne: false
+            referencedRelation: "presupuestos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      presupuesto_services: {
+        Row: {
+          description_snapshot: string | null
+          id: string
+          presupuesto_id: string
+          quantity: number
+          service_id: string | null
+          subtotal: number
+          title_snapshot: string
+          unit_price: number
+        }
+        Insert: {
+          description_snapshot?: string | null
+          id?: string
+          presupuesto_id: string
+          quantity: number
+          service_id?: string | null
+          subtotal: number
+          title_snapshot: string
+          unit_price: number
+        }
+        Update: {
+          description_snapshot?: string | null
+          id?: string
+          presupuesto_id?: string
+          quantity?: number
+          service_id?: string | null
+          subtotal?: number
+          title_snapshot?: string
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "presupuesto_services_presupuesto_id_fkey"
+            columns: ["presupuesto_id"]
+            isOneToOne: false
+            referencedRelation: "presupuestos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "presupuesto_services_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      presupuestos: {
+        Row: {
+          bicycle_id: string
+          code: string
+          created_at: string
+          created_by: string
+          customer_id: string
+          estado: string
+          id: string
+          observaciones: string | null
+          total: number
+          updated_at: string
+        }
+        Insert: {
+          bicycle_id: string
+          code?: string
+          created_at?: string
+          created_by: string
+          customer_id: string
+          estado?: string
+          id?: string
+          observaciones?: string | null
+          total?: number
+          updated_at?: string
+        }
+        Update: {
+          bicycle_id?: string
+          code?: string
+          created_at?: string
+          created_by?: string
+          customer_id?: string
+          estado?: string
+          id?: string
+          observaciones?: string | null
+          total?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "presupuestos_bicycle_id_fkey"
+            columns: ["bicycle_id"]
+            isOneToOne: false
+            referencedRelation: "bicycles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "presupuestos_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       service_inventory_items: {
         Row: {
           cantidad: number
@@ -395,6 +613,27 @@ export type Database = {
             referencedColumns: ["id"]
           }
         ]
+      }
+      pdf_condiciones: {
+        Row: {
+          id: string
+          items: string[]
+          tipo: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          items?: string[]
+          tipo: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          items?: string[]
+          tipo?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       site_settings: {
         Row: {
@@ -707,6 +946,7 @@ export type Database = {
       work_orders: {
         Row: {
           bicycle_id: string
+          code: string
           created_at: string
           created_by: string
           customer_id: string
@@ -714,11 +954,13 @@ export type Database = {
           fecha_estimada_entrega: string | null
           id: string
           observaciones: string | null
+          senia: number
           total: number
           updated_at: string
         }
         Insert: {
           bicycle_id: string
+          code?: string
           created_at?: string
           created_by: string
           customer_id: string
@@ -726,11 +968,13 @@ export type Database = {
           fecha_estimada_entrega?: string | null
           id?: string
           observaciones?: string | null
+          senia?: number
           total?: number
           updated_at?: string
         }
         Update: {
           bicycle_id?: string
+          code?: string
           created_at?: string
           created_by?: string
           customer_id?: string
@@ -738,6 +982,7 @@ export type Database = {
           fecha_estimada_entrega?: string | null
           id?: string
           observaciones?: string | null
+          senia?: number
           total?: number
           updated_at?: string
         }
@@ -763,11 +1008,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      consume_work_order_inventory_item: {
-        Args: { p_work_order_inventory_item_id: string }
+      create_presupuesto: { Args: { payload: Json }; Returns: Json }
+      create_work_order: { Args: { payload: Json }; Returns: Json }
+      delete_presupuesto: { Args: { p_presupuesto_id: string }; Returns: undefined }
+      get_presupuesto_detail: {
+        Args: { p_presupuesto_id: string }
         Returns: Json
       }
-      create_work_order: { Args: { payload: Json }; Returns: Json }
       get_work_order_detail: {
         Args: { p_work_order_id: string }
         Returns: Json
@@ -782,17 +1029,67 @@ export type Database = {
         }
         Returns: Json
       }
+      update_presupuesto_estado: {
+        Args: { p_new_estado: string; p_presupuesto_id: string }
+        Returns: Json
+      }
+      update_presupuesto_observaciones: {
+        Args: { p_observaciones: string | null; p_presupuesto_id: string }
+        Returns: Json
+      }
       update_work_order_observaciones: {
         Args: { p_observaciones: string | null; p_work_order_id: string }
         Returns: Json
       }
-      update_work_order_status: {
-        Args: { p_new_status: string; p_work_order_id: string }
+      update_work_order_senia: {
+        Args: { p_senia: number; p_work_order_id: string }
+        Returns: Json
+      }
+      upsert_pdf_condiciones: {
+        Args: { p_items: string[]; p_tipo: string }
+        Returns: {
+          id: string
+          items: string[]
+          tipo: string
+          updated_at: string
+        }
+      }
+      create_customer_review: {
+        Args: {
+          p_nombre_visible: string
+          p_rating: number
+          p_texto: string
+        }
+        Returns: Json
+      }
+      update_customer_review: {
+        Args: {
+          p_review_id: string
+          p_nombre_visible: string
+          p_rating: number
+          p_texto: string
+        }
+        Returns: Json
+      }
+      moderate_customer_review: {
+        Args: {
+          p_review_id: string
+          p_new_estado: string
+          p_motivo_rechazo?: string
+        }
+        Returns: Json
+      }
+      delete_customer_review: {
+        Args: { p_review_id: string }
         Returns: Json
       }
     }
     Enums: {
-      [_ in never]: never
+      customer_review_status: {
+        aprobada: "aprobada"
+        pendiente: "pendiente"
+        rechazada: "rechazada"
+      }
     }
     CompositeTypes: {
       [_ in never]: never

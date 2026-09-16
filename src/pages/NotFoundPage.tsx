@@ -1,10 +1,9 @@
 import { Link } from 'react-router-dom';
-import { ThemeToggle } from '@/components/ui';
 
 /** Pagina 404: replica el contrato visual de riva-bike-404.html. */
 export function NotFoundPage() {
   return (
-    <div className="relative flex min-h-svh flex-col overflow-hidden bg-paper px-6 text-ink">
+    <div className="relative flex min-h-[calc(100svh-64px)] flex-col overflow-hidden px-6">
       {/* ruedas decorativas de fondo */}
       <div
         aria-hidden="true"
@@ -14,29 +13,6 @@ export function NotFoundPage() {
         aria-hidden="true"
         className="pointer-events-none absolute bottom-[6%] right-[4%] h-44 w-44 rounded-full border-[3px] border-pink/15 opacity-40 sm:h-72 sm:w-72"
       />
-
-      <header className="mx-auto flex w-full max-w-5xl items-center justify-between py-6">
-        <span className="font-display text-xl font-bold tracking-tight">
-          Riva<em className="not-italic text-pink">.</em>Bike
-        </span>
-        <div className="flex items-center gap-2">
-          <nav className="hidden items-center gap-6 md:flex">
-            <Link to="/" className="text-sm font-medium text-muted hover:text-ink">
-              Inicio
-            </Link>
-            <Link to="/#servicios" className="text-sm font-medium text-muted hover:text-ink">
-              Servicios
-            </Link>
-            <Link to="/#trabajos" className="text-sm font-medium text-muted hover:text-ink">
-              Trabajos
-            </Link>
-            <Link to="/#contacto" className="text-sm font-medium text-muted hover:text-ink">
-              Contacto
-            </Link>
-          </nav>
-          <ThemeToggle />
-        </div>
-      </header>
 
       <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col items-center justify-center py-10 text-center">
         <p className="mb-4 text-sm font-extrabold uppercase tracking-[0.16em] text-pink">

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useGalleryItems } from '@/features/gallery/api';
+import { toThumbUrl } from '@/lib/supabase/storage';
 import { SectionHeading } from './ui/SectionHeading';
 import { Reveal } from './ui/Reveal';
 import { ArrowRightIcon } from '@/components/ui/icons';
@@ -95,6 +96,7 @@ export function Trabajos() {
         {items.map((item, i) => {
           const tag = item.categoria ?? 'Trabajo';
           const img = item.images[0]?.storage_path;
+          const thumb = img ? toThumbUrl(img) : '';
           const isSelected = i === selectedIndex;
           return (
             <Reveal key={item.id} from="up" delay={(i % 3) * 0.09}>
@@ -108,9 +110,13 @@ export function Trabajos() {
               >
                 {img ? (
                   <img
-                    src={img}
+                    src={thumb}
                     alt={item.titulo}
                     loading="lazy"
+                    decoding="async"
+                    onError={(e) => {
+                      if (e.currentTarget.src !== img) e.currentTarget.src = img;
+                    }}
                     className="aspect-[4/3] w-full object-cover transition-transform duration-300 group-hover:scale-105"
                   />
                 ) : (

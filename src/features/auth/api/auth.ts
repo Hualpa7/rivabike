@@ -20,10 +20,43 @@ export async function signIn(email: string, password: string): Promise<SignInRes
   return { error: error?.message ?? null };
 }
 
-/** Cierra la sesion actual. */
+/** Cierra la sesión actual. */
 export async function signOut(): Promise<void> {
   if (!supabase) return;
   await supabase.auth.signOut();
+}
+
+export type OAuthProvider = 'google';
+
+/** Inicia sesión con OAuth (Google) para dejar una reseña. */
+export async function signInWithOAuth(provider: OAuthProvider): Promise<SignInResult> {
+  if (!supabase) return { error: NOT_CONFIGURED };
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider,
+    options: {
+      redirectTo: `${window.location.origin}/dejar-resena`,
+    },
+  });
+  return { error: error?.message ?? null };
+}
+
+/**
+ * Resuelve si el usuario autenticado es staff (tiene fila propia en
+ * `profiles`). Un usuario que solo dejó una reseña con OAuth no tiene fila,
+ * por lo que esto devuelve `false`.
+ */
+export async function resolveIsStaff(): Promise<boolean> {
+  if (!supabase) return false;
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return false;
+  const { data } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('id', user.id)
+    .maybeSingle();
+  return Boolean(data);
 }
 
 export interface ResetResult {

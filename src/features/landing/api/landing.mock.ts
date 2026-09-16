@@ -1,40 +1,51 @@
-import type { GoogleReviewsSummary } from '@/types';
+import type { CustomerReviewWithPhotos } from '@/types';
 import { clone, delay } from '@/lib/mock/helpers';
 
-// Resumen de reseñas de Google (consistentes con el rating del hero de la
-// landing: 4.8/5, 63 reseñas). Las tres reviews de ejemplo reproducen los
-// testimonios del contrato visual.
-export async function getGoogleReviews(): Promise<GoogleReviewsSummary> {
+const BASE = '2026-08-20T12:00:00.000Z';
+
+// Reseñas propias aprobadas (moderadas) para la seccion de opiniones.
+export async function getApprovedCustomerReviews(): Promise<CustomerReviewWithPhotos[]> {
   await delay();
-  const summary: GoogleReviewsSummary = {
-    rating: 4.8,
-    total_reviews: 63,
-    reviews: [
-      {
-        author_name: 'Matías R.',
-        author_url: null,
-        profile_photo_url: null,
-        rating: 5,
-        text: 'Llevé la bici con los cambios hechos un desastre y me la dejaron perfecta. Me explicaron todo y encima me avisaron por WhatsApp apenas estuvo lista.',
-        relative_time_description: 'hace 2 semanas',
-      },
-      {
-        author_name: 'Carolina G.',
-        author_url: null,
-        profile_photo_url: null,
-        rating: 5,
-        text: 'Trabajo prolijo y precio justo. Pedí un service completo y la bici volvió andando mejor que cuando la compré.',
-        relative_time_description: 'hace 1 mes',
-      },
-      {
-        author_name: 'Facundo L.',
-        author_url: null,
-        profile_photo_url: null,
-        rating: 5,
-        text: 'Me armaron una bici nueva y quedó impecable. Se nota que saben del tema y ponen atención a los detalles.',
-        relative_time_description: 'hace 1 mes',
-      },
-    ],
-  };
-  return clone(summary);
+  const reviews: CustomerReviewWithPhotos[] = [
+    {
+      id: 'gal-rev-1',
+      user_id: '00000000-0000-0000-0000-000000000001',
+      nombre_visible: 'Carolina G.',
+      rating: 5,
+      texto:
+        'Trabajo prolijo y precio justo. Pedí un service completo y la bici volvió andando mejor que cuando la compré.',
+      estado: 'aprobada',
+      motivo_rechazo: null,
+      reviewed_by: 'staff-1',
+      reviewed_at: BASE,
+      created_at: BASE,
+      updated_at: BASE,
+      photos: [
+        {
+          id: 'gal-rev-1-p0',
+          review_id: 'gal-rev-1',
+          storage_path:
+            'https://www.fauconbikes.cl/cdn/shop/files/510A0857.png?v=1759686278&width=2000',
+          orden: 0,
+          created_at: BASE,
+        },
+      ],
+    },
+    {
+      id: 'gal-rev-2',
+      user_id: '00000000-0000-0000-0000-000000000002',
+      nombre_visible: 'Sofía T.',
+      rating: 4,
+      texto:
+        'Excelente atención y muy buena comunicación. El trabajo quedó perfecto, solo tuve que esperar un poco más de lo previsto por el fin de semana largo.',
+      estado: 'aprobada',
+      motivo_rechazo: null,
+      reviewed_by: 'staff-1',
+      reviewed_at: BASE,
+      created_at: BASE,
+      updated_at: BASE,
+      photos: [],
+    },
+  ];
+  return clone(reviews);
 }

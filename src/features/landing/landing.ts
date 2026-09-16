@@ -1,9 +1,9 @@
 import type { Service } from '@/types';
 
 // Foto de fondo compartida: banda de Servicios y "Foto del taller" en
-// Nosotros usan la misma imagen.
-export const SERVICES_BG_URL =
-  'https://img.magnific.com/foto-gratis/marco-diferentes-herramientas-coche-juguete_23-2148096416.jpg?semt=ais_hybrid&w=740&q=80';
+// Nosotros usan la misma imagen. Asset local webp generado con
+// scripts/optimize-landing-assets.mjs (sin egress a terceros).
+export const SERVICES_BG_URL = '/services-bg.webp';
 
 // Presentacion de la landing: los campos "note", meta tags y plazo que el
 // contrato visual muestra en las cards de servicios no viven en el tipo

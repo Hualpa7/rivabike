@@ -11,9 +11,10 @@ import {
   WrenchIcon,
   BoxIcon,
   TicketIcon,
+  FileTextIcon,
   ImageIcon,
   TextIcon,
-  GearIcon,
+  StarIcon,
   LogoutIcon,
   PlusIcon,
   DotsIcon,
@@ -25,9 +26,10 @@ const NAV = [
   { to: '/dashboard/servicios', label: 'Servicios', icon: WrenchIcon },
   { to: '/dashboard/inventario', label: 'Inventario', icon: BoxIcon },
   { to: '/dashboard/ordenes', label: 'Órdenes', icon: TicketIcon },
+  { to: '/dashboard/presupuestos', label: 'Presupuestos', icon: FileTextIcon },
   { to: '/dashboard/galeria', label: 'Galería', icon: ImageIcon },
+  { to: '/dashboard/resenas', label: 'Reseñas', icon: StarIcon },
   { to: '/dashboard/contenido', label: 'Contenido del sitio', icon: TextIcon },
-  { to: '/dashboard/configuracion', label: 'Configuración', icon: GearIcon },
 ];
 
 const NAV_BOTTOM = [
@@ -43,9 +45,10 @@ const NAV_RIGHT = [
 
 const NAV_MORE = [
   { to: '/dashboard/servicios', label: 'Servicios', icon: WrenchIcon },
+  { to: '/dashboard/presupuestos', label: 'Presupuestos', icon: FileTextIcon },
   { to: '/dashboard/galeria', label: 'Galería', icon: ImageIcon },
+  { to: '/dashboard/resenas', label: 'Reseñas', icon: StarIcon },
   { to: '/dashboard/contenido', label: 'Contenido del sitio', icon: TextIcon },
-  { to: '/dashboard/configuracion', label: 'Configuración', icon: GearIcon },
 ];
 
 /** Shell del dashboard: topbar + sidebar desktop + bottom drawer movil. */

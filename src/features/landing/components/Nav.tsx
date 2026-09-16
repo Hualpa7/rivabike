@@ -12,7 +12,7 @@ const SCOLLED_AT = 24;
 const DESKTOP_LINKS = [
   { label: 'Servicios', href: '#servicios' },
   { label: 'Trabajos', href: '#trabajos' },
-  { label: 'Contacto', href: '#contacto' },
+  { label: 'Reseñas', href: '#opiniones' },
 ];
 
 const MOBILE_LINKS = [
@@ -20,7 +20,7 @@ const MOBILE_LINKS = [
   { label: 'Cómo trabajamos', href: '#como-trabajamos' },
   { label: 'Servicios', href: '#servicios' },
   { label: 'Trabajos', href: '#trabajos' },
-  { label: 'Contacto', href: '#contacto' },
+  { label: 'Reseñas', href: '#opiniones' },
 ];
 
 /**
@@ -33,9 +33,17 @@ export function LandingNav() {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const status = useAuthStore((s) => s.status);
+  const isStaff = useAuthStore((s) => s.isStaff);
 
-  const authLabel = status === 'authenticated' ? 'Ir al dashboard' : 'Iniciar sesión';
-  const authHref = status === 'authenticated' ? '/dashboard/inicio' : '/login';
+  const reviewLabel = status !== 'authenticated'
+    ? 'Dejar reseñas'
+    : 'Ver mis reseñas';
+
+  const staffLabel = isStaff
+    ? 'Ir al dashboard'
+    : '¿Sos del equipo? Iniciar sesión';
+
+  const staffHref = isStaff ? '/dashboard/inicio' : '/login';
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > SCOLLED_AT);
@@ -75,19 +83,22 @@ export function LandingNav() {
                 {l.label}
               </a>
             ))}
-            <a
-              href="#servicios"
-              className="rounded-pill border border-white/35 px-[18px] py-2.5 text-sm font-semibold text-on-ink-fixed transition-colors hover:border-pink hover:bg-pink hover:text-white"
-            >
-              Solicitar presupuesto
-            </a>
             <button
               type="button"
-              onClick={() => { setOpen(false); navigate(authHref); }}
-              className="rounded-pill border border-white/40 px-[18px] py-2.5 text-sm font-semibold text-on-ink-fixed transition-colors hover:border-pink hover:text-pink"
+              onClick={() => { setOpen(false); navigate('/dejar-resena'); }}
+              className="rounded-pill bg-pink px-[18px] py-2.5 text-sm font-semibold text-white transition-colors hover:bg-pink-deep"
             >
-              {authLabel}
+              {reviewLabel}
             </button>
+            {status !== 'authenticated' || isStaff ? (
+              <button
+                type="button"
+                onClick={() => { setOpen(false); navigate(staffHref); }}
+                className="rounded-pill border border-white/40 px-[18px] py-2.5 text-sm font-semibold text-on-ink-fixed transition-colors hover:border-pink hover:text-pink"
+              >
+                {staffLabel}
+              </button>
+            ) : null}
           </nav>
 
           <div className="flex items-center gap-1">
@@ -136,20 +147,22 @@ export function LandingNav() {
                 ))}
               </nav>
               <div className="flex flex-col gap-3">
-                <a
-                  href="#servicios"
-                  onClick={() => setOpen(false)}
-                  className="rounded-pill bg-pink px-6 py-4 text-center text-sm font-semibold uppercase tracking-wide text-white hover:bg-pink-deep"
-                >
-                  Solicitar presupuesto
-                </a>
                 <button
                   type="button"
-                  onClick={() => { setOpen(false); navigate(authHref); }}
-                  className="rounded-pill border border-white/30 px-6 py-4 text-center text-sm font-semibold uppercase tracking-wide text-on-ink-fixed transition-colors hover:border-pink hover:text-pink"
+                  onClick={() => { setOpen(false); navigate('/dejar-resena'); }}
+                  className="rounded-pill bg-pink px-6 py-4 text-center text-sm font-semibold uppercase tracking-wide text-white hover:bg-pink-deep"
                 >
-                  {authLabel}
+                  {reviewLabel}
                 </button>
+                {status !== 'authenticated' || isStaff ? (
+                  <button
+                    type="button"
+                    onClick={() => { setOpen(false); navigate(staffHref); }}
+                    className="rounded-pill border border-white/30 px-6 py-4 text-center text-sm font-semibold uppercase tracking-wide text-on-ink-fixed transition-colors hover:border-pink hover:text-pink"
+                  >
+                    {staffLabel}
+                  </button>
+                ) : null}
               </div>
             </div>
           </motion.div>

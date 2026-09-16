@@ -85,8 +85,24 @@
   0%, 100% { opacity: 0.5; }
   50% { opacity: 1; }
 }
+@keyframes riva-marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
 
 .animate-spin-slow { animation: riva-spin 28s linear infinite; }
 .animate-spin-wheels { animation: riva-spin 12s linear infinite; }
 .animate-float { animation: riva-float 6s ease-in-out infinite; }
+
+/* Carrusel de opiniones: se desplaza de izquierda a derecha de forma
+   continua cuando hay varias tarjetas. Se activa solo con motion-safe y se
+   pausa al pasar el cursor. */
+.riva-marquee-track {
+  display: flex;
+  width: max-content;
+  animation: riva-marquee 40s linear infinite;
+}
+.riva-marquee-track:hover {
+  animation-play-state: paused;
+}
 

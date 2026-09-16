@@ -108,6 +108,16 @@ export function BoxIcon(p: IconProps): JSX.Element {
   );
 }
 
+export function FileTextIcon(p: IconProps): JSX.Element {
+  return (
+    <svg {...base(p)}>
+      <path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z" />
+      <path d="M14 3v5h5" />
+      <path d="M9 13h6M9 17h6" />
+    </svg>
+  );
+}
+
 export function TicketIcon(p: IconProps): JSX.Element {
   return (
     <svg {...base(p)}>
@@ -140,6 +150,14 @@ export function GearIcon(p: IconProps): JSX.Element {
     <svg {...base(p)}>
       <circle cx="12" cy="12" r="3" />
       <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+    </svg>
+  );
+}
+
+export function StarIcon(p: IconProps): JSX.Element {
+  return (
+    <svg {...base(p)}>
+      <path d="M12 2.5 15 9l6.5.9-4.7 4.6 1.1 6.5L12 17.8 6.1 21l1.1-6.5L2.5 9.9 9 9z" />
     </svg>
   );
 }
@@ -234,6 +252,15 @@ export function DotsIcon(p: IconProps): JSX.Element {
       <circle cx="12" cy="5" r="1.6" fill="currentColor" stroke="none" />
       <circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none" />
       <circle cx="12" cy="19" r="1.6" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+export function TrashIcon(p: IconProps): JSX.Element {
+  return (
+    <svg {...base(p)}>
+      <path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+      <path d="M10 11v6M15 11v6" />
     </svg>
   );
 }

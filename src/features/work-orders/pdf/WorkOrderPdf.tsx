@@ -1,6 +1,8 @@
-// workOrderPdf.tsx
-import { Document, Page, Text, View } from '@react-pdf/renderer';
+// ordenTrabajoPdf.tsx
+import { Document, Page, Text, View, Image } from '@react-pdf/renderer';
 import type { SiteSettings, WorkOrderDetail } from '@/types';
+
+import brandMark from '@/assets/pdf-brand-mark.png';
 
 import {
   formatWorkOrderCurrency,
@@ -14,122 +16,132 @@ import {
   workOrderPdfStyles as s,
 } from './WorkOrderPdfStyles';
 
+import { PDF_CONDICIONES_DEFAULT } from '@/features/settings/pdf-condiciones';
+
 interface WorkOrderPdfProps {
   order: WorkOrderDetail;
   settings: SiteSettings;
+  /** Condiciones editadas por el admin (lista actualizada del backend). */
+  condiciones?: string[];
 }
-
-const GUARANTEE_TEXT =
-  'Los precios pueden variar según el estado de la bicicleta al momento de la revisión. • A partir de la fecha de entrega de la bicicleta, la reparación cuenta con una garantía de 10 días sobre el trabajo realizado. La garantía cubre fallas directamente relacionadas con la tarea efectuada (mano de obra) y no aplica en casos de golpes, caídas, mal uso, manipulación por terceros ajenos al taller, desgaste normal de otras piezas no intervenidas, o repuestos provistos por el cliente. Para hacer efectiva la garantía, la bicicleta debe presentarse en el local junto con este comprobante';
 
 interface PdfLine {
   key: string;
   desc: string;
+  detail?: string;
   qty: number;
   unit: number;
   subtotal: number;
 }
 
-function SectionHeader({ title }: { title: string }) {
+/**
+ * Barra de sección negra, ancho completo, texto blanco en mayúsculas.
+ * Igual para las cuatro secciones del documento — no es una franja de
+ * acento angosta al costado de un título oscuro.
+ */
+function SectionBar({ title }: { title: string }) {
   return (
-    <View style={s.sectionHeader} wrap={false}>
-      <View style={s.sectionBand} />
-      <Text style={s.sectionTitle}>{title}</Text>
+    <View style={s.sectionBar} wrap={false}>
+      <Text style={s.sectionBarText}>{title}</Text>
     </View>
   );
 }
 
-interface PdfDetail {
-  label?: string;
-  value: string;
-}
-
-function InfoCard({
-  label,
-  value,
-  details,
-  isRight = false,
+/**
+ * Fila de dato "Cliente:" / "Bicicleta:" — texto plano, sin caja,
+ * sin borde, sin relleno de color. Cuatro columnas por fila.
+ */
+function ClienteRow({
+  label1,
+  value1,
+  label2,
+  value2,
 }: {
-  label: string;
-  value: string;
-  details?: PdfDetail[];
-  isRight?: boolean;
+  label1: string;
+  value1: string;
+  label2: string;
+  value2: string;
 }) {
   return (
-    <View
-      style={[
-        s.infoBlock,
-        isRight ? s.infoBlockRight : undefined,
-      ]}
-    >
-      <View style={s.infoTopLine}>
-        <View style={s.infoAccent} />
-        <Text style={s.infoLabel}>{label}</Text>
+    <View style={s.clienteRow}>
+      <Text style={s.clienteLabel}>{label1}</Text>
+      <Text style={s.clienteValueWide}>{value1}</Text>
+      <Text style={s.clienteLabel}>{label2}</Text>
+      <Text style={s.clienteValueNarrow}>{value2}</Text>
+    </View>
+  );
+}
+
+/**
+ * Fila de la bicicleta separada: "Bicicleta:" con "Fecha de entrega:"
+ * en la misma fila, y "Color:" en la fila siguiente, debajo de
+ * "Bicicleta:" y a la izquierda. Misma idea de texto plano, sin caja,
+ * que ClienteRow.
+ */
+function BikeInfoRow({
+  marca,
+  color,
+  due,
+}: {
+  marca: string;
+  color?: string | null;
+  due: string;
+}) {
+  return (
+    <>
+      <ClienteRow
+        label1="Bicicleta:"
+        value1={marca}
+        label2="Fecha de entrega:"
+        value2={due}
+      />
+      <View style={s.clienteRow}>
+        <Text style={s.clienteLabel}>Color:</Text>
+        <Text style={s.clienteValueWide}>{color || '—'}</Text>
       </View>
-
-      <Text style={s.infoValue}>{value}</Text>
-
-      {details?.map((detail, index) => (
-        <Text key={index} style={s.infoSub}>
-          {detail.label ? <Text style={s.infoSubLabel}>{detail.label} </Text> : null}
-          {detail.value}
-        </Text>
-      ))}
-    </View>
+    </>
   );
 }
 
-function LineTable({
-  lines,
-  emptyMessage,
-  totalLabel,
-  total,
-}: {
-  lines: PdfLine[];
-  emptyMessage: string;
-  totalLabel: string;
-  total: number;
-}) {
+/**
+ * Tabla de ítems ÚNICA y combinada (servicios + repuestos juntos, en
+ * el orden en que se cargaron). El diseño real nunca separa esto en
+ * dos tablas con subtotales propios: todo va en un solo detalle y el
+ * desglose de totales aparece una sola vez, al final.
+ */
+function ItemsTable({ lines }: { lines: PdfLine[] }) {
   return (
     <View style={s.table}>
-      <View style={s.tableHeader}>
+      <View style={s.tableHeaderRow}>
         <Text style={[s.tableHeaderCell, s.colDesc]}>DESCRIPCIÓN</Text>
         <Text style={[s.tableHeaderCell, s.colQty]}>CANT.</Text>
         <Text style={[s.tableHeaderCell, s.colUnit]}>PRECIO UNIT.</Text>
         <Text style={[s.tableHeaderCell, s.colSubtotal]}>SUBTOTAL</Text>
       </View>
 
-      {lines.length === 0 ? (
-        <View style={s.tableRow}>
-          <Text style={s.emptyRow}>{emptyMessage}</Text>
-        </View>
-      ) : (
-        lines.map((line, index) => (
-          <View
-            key={line.key}
-            style={[
-              s.tableRow,
-              index === lines.length - 1 ? s.tableRowLast : undefined,
-            ]}
-          >
-            <Text style={[s.tableCell, s.colDesc]}>{line.desc}</Text>
-            <Text style={[s.tableCell, s.colQty]}>{line.qty}</Text>
-            <Text style={[s.numCell, s.colUnit]}>
-              {formatWorkOrderCurrency(line.unit)}
-            </Text>
-            <Text style={[s.numCell, s.colSubtotal]}>
-              {formatWorkOrderCurrency(line.subtotal)}
-            </Text>
+      {lines.map((line, index) => (
+        <View
+          key={line.key}
+          style={[
+            s.tableRow,
+            index % 2 === 1 ? s.tableRowAlt : undefined,
+          ]}
+        >
+          <View style={[s.tableCell, s.colDesc]}>
+            <Text>{line.desc}</Text>
+            {line.detail ? (
+              <Text style={s.tableCellDetail}>{line.detail}</Text>
+            ) : null}
           </View>
-        ))
-      )}
-
-      <View style={s.sectionTotalRow}>
-        <Text style={s.sectionTotalLabel}>{totalLabel}</Text>
-        <Text style={s.sectionTotalValue}>
-          {formatWorkOrderCurrency(total)}
-        </Text>
-      </View>
+          <Text style={[s.tableCellNum, s.colQty]}>{line.qty}</Text>
+          <Text style={[s.tableCellNum, s.colUnit]}>
+            {formatWorkOrderCurrency(line.unit)}
+          </Text>
+          <Text style={[s.tableCellNum, s.colSubtotal]}>
+            {formatWorkOrderCurrency(line.subtotal)}
+          </Text>
+        </View>
+      ))}
     </View>
   );
 }
@@ -137,65 +149,46 @@ function LineTable({
 export function WorkOrderPdf({
   order,
   settings,
+  condiciones,
 }: WorkOrderPdfProps) {
-  const serviceLines: PdfLine[] = order.services.map((service) => ({
-    key: `svc-${service.id}`,
-    desc: service.title_snapshot,
-    qty: service.quantity,
-    unit: service.unit_price,
-    subtotal: service.subtotal,
-  }));
+  // Condiciones vigentes: las editadas por el admin si existen, si no las
+  // por defecto (mismas que siembra la migracion en la base).
+  const conditions =
+    condiciones && condiciones.length > 0
+      ? condiciones
+      : PDF_CONDICIONES_DEFAULT.orden;
 
-  const sparePartLines: PdfLine[] = order.inventoryItems.map((item) => ({
-    key: `inv-${item.id}`,
-    desc: item.name_snapshot,
-    qty: item.quantity,
-    unit: item.unit_price,
-    subtotal: item.subtotal,
-  }));
+  // Unimos servicios y repuestos en una sola lista, en ese orden.
+  // Si el título del servicio trae una segunda línea separada por
+  // "\n" (p. ej. el detalle de qué incluye un "Service Completo"),
+  // se muestra debajo en gris chico — igual que en el diseño de chat.
+  const allLines: PdfLine[] = [
+    ...order.services.map((service) => {
+      const [main, ...rest] = service.title_snapshot.split('\n');
+      return {
+        key: `svc-${service.id}`,
+        desc: main,
+        detail: rest.length > 0 ? rest.join(' ') : undefined,
+        qty: service.quantity,
+        unit: service.unit_price,
+        subtotal: service.subtotal,
+      };
+    }),
+    ...order.inventoryItems.map((item) => ({
+      key: `inv-${item.id}`,
+      desc: `${item.name_snapshot} (repuesto)`,
+      qty: item.quantity,
+      unit: item.unit_price,
+      subtotal: item.subtotal,
+    })),
+  ];
 
-  const servicesTotal = serviceLines.reduce(
-    (total, line) => total + line.subtotal,
-    0,
-  );
-
-  const sparePartsTotal = sparePartLines.reduce(
-    (total, line) => total + line.subtotal,
-    0,
-  );
+  const subtotal = allLines.reduce((acc, line) => acc + line.subtotal, 0);
+  // El tipo actual no trae descuento como campo aparte del total;
+  // se deja en 0 salvo que WorkOrderDetail incorpore ese campo.
+ 
 
   const customerName = getCustomerFullName(order);
-
-  const bicycleName =
-    [
-      order.bicycle.marca,
-      order.bicycle.modelo,
-    ]
-      .filter(Boolean)
-      .join(' ') || 'Bicicleta';
-
-  const customerDetails: PdfDetail[] = [
-    ...(order.customer.telefono
-      ? [{ label: 'Teléfono:', value: order.customer.telefono }]
-      : []),
-    ...(order.customer.direccion
-      ? [{ label: 'Dirección:', value: order.customer.direccion }]
-      : []),
-  ];
-
-  const bicycleDetails: PdfDetail[] = [
-    ...(order.bicycle.color
-      ? [{ label: 'Color:', value: order.bicycle.color }]
-      : []),
-    ...(order.fecha_estimada_entrega
-      ? [
-          {
-            label: 'Entrega:',
-            value: formatWorkOrderDueDate(order.fecha_estimada_entrega),
-          },
-        ]
-      : []),
-  ];
 
   return (
     <Document
@@ -203,133 +196,164 @@ export function WorkOrderPdf({
       author={settings.nombre_negocio}
     >
       <Page size="A4" style={s.page}>
-        {/* =====================================================
-            HEADER - FRANJA SUPERIOR OSCURA
-        ====================================================== */}
+        {/* ============================================================
+            HEADER — logo a la izquierda, título rosa a la derecha,
+            sobre fondo blanco. Sin franja oscura.
+        ============================================================ */}
 
-        <View style={s.headerBar}>
-          <View style={s.header}>
-            <View style={s.brandBlock}>
-              <Text style={s.brandText}>
-                riva<Text style={s.brandDot}>.</Text>
-                <Text style={s.brandBike}>bike</Text>
+        <View style={s.header}>
+          {/*
+            Marca real: ícono de la bicicleta (BrandMark renderizado a
+            PNG) al costado del wordmark "riva bike", con el slogan
+            debajo. Nunca se usa una aproximación en texto puro.
+          */}
+          <View style={s.brandBlock}>
+            <Image src={brandMark} style={s.bikeIcon} />
+            <View style={s.brandWordmarkText}>
+              <Text style={s.brandWordmark}>
+                riva<Text style={s.brandBike}>bike</Text>
               </Text>
-              <Text style={s.brandSlogan}>TU LIBERTAD SOBRE RUEDAS</Text>
+              <Text style={s.brandSlogan}>
+                TU LIBERTAD SOBRE RUEDAS
+              </Text>
             </View>
+          </View>
 
-            <View style={s.titleBlock}>
-              <Text style={s.docTitle}>ORDEN DE TRABAJO</Text>
-              <Text style={s.docNumber}>N° {formatWorkOrderNumber(order)}</Text>
-              <Text style={s.docDate}>
-                Fecha: {formatWorkOrderDate(order)}
+          <View style={s.titleBlock}>
+            <Text style={s.docTitle}>ORDEN DE TRABAJO</Text>
+            <Text style={s.docMetaLine}>
+              N°: {formatWorkOrderNumber(order)}    Fecha:{' '}
+              {formatWorkOrderDate(order)}
+            </Text>
+          </View>
+        </View>
+
+        <View style={s.headerDivider} />
+
+        {/* ============================================================
+            DATOS DEL CLIENTE Y LA BICICLETA
+        ============================================================ */}
+
+        <View style={s.section}>
+          <SectionBar title="DATOS DEL CLIENTE Y LA BICICLETA" />
+
+          <ClienteRow
+            label1="Cliente:"
+            value1={customerName}
+            label2="Teléfono:"
+            value2={order.customer.telefono || '—'}
+          />
+          <BikeInfoRow
+            marca={order.bicycle.marca || '—'}
+            color={order.bicycle.color}
+            due={
+              order.fecha_estimada_entrega
+                ? formatWorkOrderDueDate(order.fecha_estimada_entrega)
+                : '—'
+            }
+          />
+        </View>
+
+        {/* ============================================================
+            DETALLE DEL SERVICIO REALIZADO (tabla única)
+        ============================================================ */}
+
+        <View style={s.section}>
+          <SectionBar title="DETALLE DEL SERVICIO REALIZADO" />
+          <ItemsTable lines={allLines} />
+
+          <View style={s.totalsBlock}>
+            <View style={s.totalsRow}>
+              <Text style={s.totalsLabel}>Subtotal:</Text>
+              <Text style={s.totalsValue}>
+                {  formatWorkOrderCurrency(subtotal)}
+              </Text>
+            </View>
+            {order.senia > 0 ? (
+              <View style={s.totalsRow}>
+                <Text style={s.totalsLabel}>Seña:</Text>
+                <Text style={s.totalsValue}>
+                  - {formatWorkOrderCurrency(order.senia)}
+                </Text>
+              </View>
+            ) : null}
+            <View style={s.totalsRowFinal}>
+              <Text style={s.totalsLabelFinal}>TOTAL:</Text>
+              <Text style={s.totalsValueFinal}>
+                {formatWorkOrderCurrency(order.total)}
               </Text>
             </View>
           </View>
         </View>
 
-        {/* =====================================================
-            CONTENIDO PRINCIPAL
-        ====================================================== */}
+        {/* ============================================================
+            OBSERVACIONES — mismo patrón de barra + texto plano,
+            sin caja decorada.
+        ============================================================ */}
 
-        <View style={s.content}>
-          {/* CLIENTE / BICICLETA */}
-
-          <View style={s.infoRow} wrap={false}>
-            <InfoCard
-              label="CLIENTE"
-              value={customerName}
-              details={customerDetails}
-            />
-
-            <InfoCard
-              label="BICICLETA"
-              value={bicycleName}
-              details={bicycleDetails}
-              isRight
-            />
+        {order.observaciones && order.observaciones.trim().length > 0 ? (
+          <View style={s.section} wrap={false}>
+            <SectionBar title="OBSERVACIONES" />
+            {order.observaciones.split('\n').map((line, index) => (
+              <Text key={index} style={s.observationsText}>
+                {line}
+              </Text>
+            ))}
           </View>
+        ) : null}
 
-          {/* SERVICIOS */}
+        {/* ============================================================
+            FOTOS — grid de 2 columnas, solo si la orden tiene fotos.
+            Cada imagen se recorta a una altura fija para que todas
+            las celdas queden del mismo tamaño; la última fila puede
+            llevar 1 sola foto.
+        ============================================================ */}
 
-          <View style={s.section}>
-            <SectionHeader title="SERVICIOS" />
-
-            <LineTable
-              lines={serviceLines}
-              emptyMessage="No se registraron servicios para esta orden."
-              totalLabel="SUBTOTAL SERVICIOS"
-              total={servicesTotal}
-            />
-          </View>
-
-          {/* REPUESTOS */}
-
-          <View style={s.section}>
-            <SectionHeader title="REPUESTOS" />
-
-            <LineTable
-              lines={sparePartLines}
-              emptyMessage="No se registraron repuestos para esta orden."
-              totalLabel="SUBTOTAL REPUESTOS"
-              total={sparePartsTotal}
-            />
-          </View>
-
-          {/* TOTAL FINAL */}
-
-          <View style={s.totalContainer} wrap={false}>
-            <View style={s.totalBox}>
-              <Text style={s.totalBoxLabel}>TOTAL DE LA ORDEN</Text>
-
-              <View style={s.totalBoxBottom}>
-                <Text style={s.totalBoxCaption}>Servicios + repuestos</Text>
-                <Text style={s.totalValue}>
-                  {formatWorkOrderCurrency(order.total)}
-                </Text>
-              </View>
-            </View>
-          </View>
-
-          {/* OBSERVACIONES */}
-
-          {order.observaciones && order.observaciones.trim().length > 0 ? (
-            <View style={s.observationsBox} wrap={false}>
-              <View style={s.observationsHeader}>
-                <View style={s.observationsAccent} />
-                <Text style={s.observationsTitle}>OBSERVACIONES</Text>
-              </View>
-
-              {order.observaciones.split('\n').map((line, index) => (
-                <Text key={index} style={s.observationsText}>
-                  {line}
-                </Text>
+        {order.photos.length > 0 ? (
+          <View style={s.section} wrap={false}>
+            <SectionBar title="FOTOS" />
+            <View style={s.photosGrid}>
+              {order.photos.map((photo, index) => (
+                <View key={photo.id ?? index} style={s.photoCell}>
+                  <Image src={photo.storage_path} style={s.photoImage} />
+                  {photo.descripcion ? (
+                    <Text style={s.photoLabel}>{photo.descripcion}</Text>
+                  ) : null}
+                </View>
               ))}
             </View>
-          ) : null}
-
-          {/* GARANTÍA */}
-
-          <View style={s.guaranteeBox} wrap={false}>
-            <View style={s.guaranteeHeader}>
-              <View style={s.guaranteeAccent} />
-              <Text style={s.guaranteeTitle}>GARANTÍA Y CONDICIONES</Text>
-            </View>
-
-            <Text style={s.guaranteeText}>{GUARANTEE_TEXT}</Text>
           </View>
+        ) : null}
+
+        {/* ============================================================
+            CONDICIONES — texto plano gris, garantía en negrita
+            dentro del mismo párrafo (sin caja).
+        ============================================================ */}
+
+        <View style={s.section} wrap={false}>
+          <SectionBar title="CONDICIONES" />
+          {conditions.map((line, index) => (
+            <Text key={index} style={s.conditionsText}>
+              <Text style={s.conditionsBullet}>• </Text>
+              {/garantía/i.test(line) ? (
+                <Text style={s.conditionsBold}>{line}</Text>
+              ) : (
+                line
+              )}
+            </Text>
+          ))}
         </View>
 
-        {/* =====================================================
-            FOOTER
-        ====================================================== */}
+        {/* ============================================================
+            FOOTER — línea rosa fina, dos líneas centradas.
+        ============================================================ */}
 
         <View style={s.footer} fixed>
-          <Text style={s.footerLeft}>
+          <Text style={s.footerBold}>
             MÁS QUE UN TALLER, SOMOS TU ALIADO EN CADA RODADA.
           </Text>
-
-          <Text style={s.footerRight}>
-            Rivadavia 243, Hipólito Yrigoyen | WhatsApp 3878 224212
+          <Text style={s.footerText}>
+            Rivadavia 243, Hipólito Yrigoyen · WhatsApp 3878 224212
           </Text>
         </View>
       </Page>

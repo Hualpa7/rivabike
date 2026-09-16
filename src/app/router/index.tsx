@@ -5,6 +5,7 @@ import { ProtectedRoute } from './ProtectedRoute';
 import { LandingPage } from '@/pages/LandingPage';
 import { LoginPage } from '@/pages/LoginPage';
 import { ForgotPasswordPage } from '@/pages/ForgotPasswordPage';
+import { DejarResenaPage } from '@/pages/DejarResenaPage';
 import { NotFoundPage } from '@/pages/NotFoundPage';
 import {
   InicioPage,
@@ -14,18 +15,24 @@ import {
   OrdenesPage,
   NuevaOrdenPage,
   OrdenDetallePage,
+  PresupuestosPage,
+  NuevaPresupuestoPage,
+  PresupuestoDetallePage,
   GaleriaPage,
+  ResenasPage,
   ContenidoPage,
-  ConfiguracionPage,
 } from '@/pages/dashboard';
 
 export const router = createBrowserRouter([
+  // La landing vive afuera de PublicLayout para no montar PublicNav
+  // junto con LandingNav (doble barra al hacer scroll).
+  { path: '/', element: <LandingPage /> },
   {
     element: <PublicLayout />,
     children: [
-      { path: '/', element: <LandingPage /> },
       { path: '/login', element: <LoginPage /> },
       { path: '/olvide-password', element: <ForgotPasswordPage /> },
+      { path: '/dejar-resena', element: <DejarResenaPage /> },
     ],
   },
   {
@@ -42,9 +49,12 @@ export const router = createBrowserRouter([
           { path: 'ordenes', element: <OrdenesPage /> },
           { path: 'ordenes/nueva', element: <NuevaOrdenPage /> },
           { path: 'ordenes/:id', element: <OrdenDetallePage /> },
+          { path: 'presupuestos', element: <PresupuestosPage /> },
+          { path: 'presupuestos/nueva', element: <NuevaPresupuestoPage /> },
+          { path: 'presupuestos/:id', element: <PresupuestoDetallePage /> },
           { path: 'galeria', element: <GaleriaPage /> },
+          { path: 'resenas', element: <ResenasPage /> },
           { path: 'contenido', element: <ContenidoPage /> },
-          { path: 'configuracion', element: <ConfiguracionPage /> },
         ],
       },
     ],

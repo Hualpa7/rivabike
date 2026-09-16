@@ -1,14 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import type {
-  CreateWorkOrderInput,
-  WorkOrder,
-  WorkOrderDetail,
-  WorkOrderInventoryItem,
-  WorkOrderPhoto,
-  WorkOrderStatus,
-} from '@/types';
+import type { CreateWorkOrderInput, WorkOrderDetail, WorkOrderPhoto } from '@/types';
 import { useAuthStore } from '@/features/auth/store';
-import { WORK_ORDER_TRANSITIONS } from '@/types';
 import * as mock from './work-orders.mock';
 import * as real from './work-orders.supabase';
 
@@ -17,18 +9,16 @@ const useMocks = import.meta.env.VITE_USE_MOCKS === 'true';
 const listWorkOrdersFn = useMocks ? mock.listWorkOrders : real.listWorkOrders;
 const getWorkOrderFn = useMocks ? mock.getWorkOrder : real.getWorkOrder;
 const createWorkOrderFn = useMocks ? mock.createWorkOrder : real.createWorkOrder;
-const updateWorkOrderStatusFn = useMocks ? mock.updateWorkOrderStatus : real.updateWorkOrderStatus;
 const uploadWorkOrderPhotoFn = useMocks ? mock.uploadWorkOrderPhoto : real.uploadWorkOrderPhoto;
-const consumeWorkOrderInventoryItemFn = useMocks
-  ? mock.consumeWorkOrderInventoryItem
-  : real.consumeWorkOrderInventoryItem;
+const deleteWorkOrderPhotoFn = useMocks ? mock.deleteWorkOrderPhoto : real.deleteWorkOrderPhoto;
 const updateWorkOrderObservacionesFn = real.updateWorkOrderObservaciones;
+const updateWorkOrderSeniaFn = useMocks ? mock.updateWorkOrderSenia : real.updateWorkOrderSenia;
 
-export function useWorkOrders(params?: { estado?: WorkOrderStatus }) {
+export function useWorkOrders() {
   const status = useAuthStore((s) => s.status);
   return useQuery({
-    queryKey: ['work-orders', 'list', params?.estado ?? ''],
-    queryFn: () => listWorkOrdersFn(params),
+    queryKey: ['work-orders', 'list'],
+    queryFn: () => listWorkOrdersFn(),
     enabled: status === 'authenticated',
   });
 }
@@ -53,23 +43,6 @@ export function useCreateWorkOrder() {
   });
 }
 
-export function useUpdateWorkOrderStatus() {
-  const qc = useQueryClient();
-  return useMutation<WorkOrder, Error, { id: string; newStatus: WorkOrderStatus }>({
-    mutationFn: ({ id, newStatus }) => updateWorkOrderStatusFn({ work_order_id: id, new_status: newStatus }),
-    onSuccess: (_data, variables) => {
-      void qc.invalidateQueries({ queryKey: ['work-orders'] });
-      const current = qc.getQueryData<WorkOrderDetail>(['work-orders', 'detail', variables.id]);
-      if (current) {
-        void qc.setQueryData(['work-orders', 'detail', variables.id], {
-          ...current,
-          estado: variables.newStatus,
-        });
-      }
-    },
-  });
-}
-
 export function useUploadWorkOrderPhoto() {
   const qc = useQueryClient();
   return useMutation<
@@ -84,19 +57,12 @@ export function useUploadWorkOrderPhoto() {
   });
 }
 
-export function useConsumeWorkOrderInventoryItem() {
+export function useDeleteWorkOrderPhoto() {
   const qc = useQueryClient();
-  return useMutation<
-    { item: WorkOrderInventoryItem },
-    Error,
-    { workOrderInventoryItemId: string; workOrderId: string }
-  >({
-    mutationFn: ({ workOrderInventoryItemId }) =>
-      consumeWorkOrderInventoryItemFn({ workOrderInventoryItemId }),
-    onSuccess: (_data, variables) => {
-      void qc.invalidateQueries({ queryKey: ['work-orders', 'detail', variables.workOrderId] });
-      void qc.invalidateQueries({ queryKey: ['inventory', 'items'] });
-      void qc.invalidateQueries({ queryKey: ['inventory', 'movements'] });
+  return useMutation<void, Error, { photoId: string }>({
+    mutationFn: (input) => deleteWorkOrderPhotoFn(input),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ['work-orders'] });
     },
   });
 }
@@ -113,4 +79,13 @@ export function useUpdateWorkOrderObservaciones() {
   });
 }
 
-export { WORK_ORDER_TRANSITIONS };
+export function useUpdateWorkOrderSenia() {
+  const qc = useQueryClient();
+  return useMutation<WorkOrderDetail, Error, { id: string; senia: number }>({
+    mutationFn: ({ id, senia }) => updateWorkOrderSeniaFn({ work_order_id: id, senia }),
+    onSuccess: (data) => {
+      void qc.invalidateQueries({ queryKey: ['work-orders'] });
+      void qc.setQueryData(['work-orders', 'detail', data.id], data);
+    },
+  });
+}

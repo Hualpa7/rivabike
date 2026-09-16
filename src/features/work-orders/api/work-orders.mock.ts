@@ -2,13 +2,11 @@ import type {
   Bicycle,
   CreateWorkOrderInput,
   Customer,
-  StockMovement,
   WorkOrder,
   WorkOrderDetail,
   WorkOrderInventoryItem,
   WorkOrderPhoto,
   WorkOrderService,
-  WorkOrderStatus,
 } from '@/types';
 import { clone, delay, uid } from '@/lib/mock/helpers';
 
@@ -27,22 +25,22 @@ const CUSTOMERS: Record<string, Customer> = {
 };
 
 const BICYCLES: Record<string, Bicycle> = {
-  'bic-valeria': { id: 'bic-valeria', customer_id: 'cus-valeria', marca: 'Venzo', modelo: 'R29', color: 'Negro', created_at: iso('2026-07-01'), updated_at: iso('2026-07-01') },
-  'bic-torretto': { id: 'bic-torretto', customer_id: 'cus-torretto', marca: 'Trek', modelo: 'Marlin 5', color: 'azul', created_at: iso('2026-07-02'), updated_at: iso('2026-07-02') },
-  'bic-belen': { id: 'bic-belen', customer_id: 'cus-belen', marca: 'Raleigh', modelo: 'Paseo', color: 'blanco', created_at: iso('2026-07-03'), updated_at: iso('2026-07-03') },
-  'bic-rulo': { id: 'bic-rulo', customer_id: 'cus-rulo', marca: 'Vairo', modelo: 'X Rage', color: 'rojo', created_at: iso('2026-07-04'), updated_at: iso('2026-07-04') },
-  'bic-carla': { id: 'bic-carla', customer_id: 'cus-carla', marca: 'Specialized', modelo: 'Rockhopper', color: 'verde', created_at: iso('2026-07-05'), updated_at: iso('2026-07-05') },
-  'bic-marcos': { id: 'bic-marcos', customer_id: 'cus-marcos', marca: 'Giant', modelo: 'Escape', color: 'gris', created_at: iso('2026-07-06'), updated_at: iso('2026-07-06') },
+  'bic-valeria': { id: 'bic-valeria', customer_id: 'cus-valeria', marca: 'Venzo R29', color: 'Negro', created_at: iso('2026-07-01'), updated_at: iso('2026-07-01') },
+  'bic-torretto': { id: 'bic-torretto', customer_id: 'cus-torretto', marca: 'Trek Marlin 5', color: 'azul', created_at: iso('2026-07-02'), updated_at: iso('2026-07-02') },
+  'bic-belen': { id: 'bic-belen', customer_id: 'cus-belen', marca: 'Raleigh Paseo', color: 'blanco', created_at: iso('2026-07-03'), updated_at: iso('2026-07-03') },
+  'bic-rulo': { id: 'bic-rulo', customer_id: 'cus-rulo', marca: 'Vairo X Rage', color: 'rojo', created_at: iso('2026-07-04'), updated_at: iso('2026-07-04') },
+  'bic-carla': { id: 'bic-carla', customer_id: 'cus-carla', marca: 'Specialized Rockhopper', color: 'verde', created_at: iso('2026-07-05'), updated_at: iso('2026-07-05') },
+  'bic-marcos': { id: 'bic-marcos', customer_id: 'cus-marcos', marca: 'Giant Escape', color: 'gris', created_at: iso('2026-07-06'), updated_at: iso('2026-07-06') },
 };
 
 interface SeedWorkOrder {
   id: string;
-  numero: string;
+  code: string;
   customerId: string;
   bicycleId: string;
-  estado: WorkOrderStatus;
   fechaEstimada: string | null;
   observaciones: string | null;
+  senia?: number;
   createdDay: string;
   services: Array<Omit<WorkOrderService, 'id' | 'work_order_id' | 'subtotal'>>;
   inventoryItems: Array<Omit<WorkOrderInventoryItem, 'id' | 'work_order_id' | 'subtotal'>>;
@@ -52,12 +50,12 @@ interface SeedWorkOrder {
 const SEED: SeedWorkOrder[] = [
   {
     id: 'ord-0142',
-    numero: 'OT-0142',
+    code: 'OT-0142',
     customerId: 'cus-valeria',
     bicycleId: 'bic-valeria',
-    estado: 'en_ejecucion',
     fechaEstimada: iso('2026-08-29'),
     observaciones: 'Entrega acordada para el viernes.',
+    senia: 5000,
     createdDay: '2026-08-26',
     services: [
       { service_id: 'adm-aju-general', title_snapshot: 'Ajuste general', description_snapshot: 'Revisión y ajuste completo de la bici', unit_price: 12000, quantity: 1 },
@@ -72,10 +70,9 @@ const SEED: SeedWorkOrder[] = [
   },
   {
     id: 'ord-0141',
-    numero: 'OT-0141',
+    code: 'OT-0141',
     customerId: 'cus-torretto',
     bicycleId: 'bic-torretto',
-    estado: 'en_ejecucion',
     fechaEstimada: iso('2026-08-30'),
     observaciones: null,
     createdDay: '2026-08-25',
@@ -91,10 +88,9 @@ const SEED: SeedWorkOrder[] = [
   },
   {
     id: 'ord-0140',
-    numero: 'OT-0140',
+    code: 'OT-0140',
     customerId: 'cus-belen',
     bicycleId: 'bic-belen',
-    estado: 'pendiente',
     fechaEstimada: iso('2026-08-31'),
     observaciones: 'Avisar por WhatsApp cuando esté lista.',
     createdDay: '2026-08-25',
@@ -106,10 +102,9 @@ const SEED: SeedWorkOrder[] = [
   },
   {
     id: 'ord-0139',
-    numero: 'OT-0139',
+    code: 'OT-0139',
     customerId: 'cus-rulo',
     bicycleId: 'bic-rulo',
-    estado: 'terminado',
     fechaEstimada: iso('2026-08-27'),
     observaciones: null,
     createdDay: '2026-08-24',
@@ -121,10 +116,9 @@ const SEED: SeedWorkOrder[] = [
   },
   {
     id: 'ord-0138',
-    numero: 'OT-0138',
+    code: 'OT-0138',
     customerId: 'cus-carla',
     bicycleId: 'bic-carla',
-    estado: 'terminado',
     fechaEstimada: iso('2026-08-26'),
     observaciones: null,
     createdDay: '2026-08-23',
@@ -136,10 +130,9 @@ const SEED: SeedWorkOrder[] = [
   },
   {
     id: 'ord-0137',
-    numero: 'OT-0137',
+    code: 'OT-0137',
     customerId: 'cus-marcos',
     bicycleId: 'bic-marcos',
-    estado: 'terminado',
     fechaEstimada: iso('2026-08-25'),
     observaciones: null,
     createdDay: '2026-08-22',
@@ -156,14 +149,16 @@ const SEED: SeedWorkOrder[] = [
 function toWorkOrder(seed: SeedWorkOrder): WorkOrder {
   const subtotalServices = seed.services.reduce((acc, s) => acc + s.unit_price * s.quantity, 0);
   const subtotalItems = seed.inventoryItems.reduce((acc, i) => acc + i.unit_price * i.quantity, 0);
+  const subtotal = subtotalServices + subtotalItems;
   return {
     id: seed.id,
+    code: seed.code,
     customer_id: seed.customerId,
     bicycle_id: seed.bicycleId,
     fecha_estimada_entrega: seed.fechaEstimada,
     observaciones: seed.observaciones,
-    estado: seed.estado,
-    total: subtotalServices + subtotalItems,
+    total: Math.max(subtotal - (seed.senia ?? 0), 0),
+    senia: seed.senia ?? 0,
     created_at: iso(seed.createdDay),
     updated_at: iso(seed.createdDay, '18:00:00'),
     created_by: 'mock-admin',
@@ -211,11 +206,9 @@ function toDetail(seed: SeedWorkOrder): WorkOrderDetail {
 
 const DETAILS: WorkOrderDetail[] = SEED.map(toDetail);
 
-export async function listWorkOrders(params?: { estado?: WorkOrderStatus }): Promise<WorkOrder[]> {
+export async function listWorkOrders(): Promise<WorkOrder[]> {
   await delay();
-  let rows = SEED.map(toWorkOrder);
-  if (params?.estado) rows = rows.filter((o) => o.estado === params.estado);
-  return clone(rows);
+  return clone(SEED.map(toWorkOrder));
 }
 
 export async function getWorkOrder(id: string): Promise<WorkOrderDetail> {
@@ -242,13 +235,13 @@ export async function createWorkOrder(input: CreateWorkOrderInput): Promise<Work
     id: bicycleId,
     customer_id: customerId,
     marca: input.bicycle.marca,
-    modelo: input.bicycle.modelo,
     color: input.bicycle.color ?? null,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   };
   const now = new Date().toISOString();
   const id = `ord-${Date.now().toString(36)}`;
+  const code = `OT-${String(SEED.length + 1).padStart(4, '0')}`;
   const services: WorkOrderService[] = input.services.map((s, i) => ({
     id: `${id}-svc-${i}`,
     work_order_id: id,
@@ -271,14 +264,18 @@ export async function createWorkOrder(input: CreateWorkOrderInput): Promise<Work
   }));
   const detail: WorkOrderDetail = {
     id,
+    code,
     customer_id: customerId,
     bicycle_id: bicycleId,
     fecha_estimada_entrega: input.fecha_estimada_entrega ?? null,
     observaciones: input.observaciones ?? null,
-    estado: 'pendiente',
-    total:
+    senia: Math.max(input.senia ?? 0, 0),
+    total: Math.max(
       services.reduce((a, s) => a + s.subtotal, 0) +
-      inventoryItems.reduce((a, i) => a + i.subtotal, 0),
+        inventoryItems.reduce((a, i) => a + i.subtotal, 0) -
+        Math.max(input.senia ?? 0, 0),
+      0,
+    ),
     created_at: now,
     updated_at: now,
     created_by: 'mock-admin',
@@ -292,29 +289,21 @@ export async function createWorkOrder(input: CreateWorkOrderInput): Promise<Work
   return clone(detail);
 }
 
-export async function updateWorkOrderStatus(input: {
+export async function updateWorkOrderSenia(input: {
   work_order_id: string;
-  new_status: WorkOrderStatus;
-}): Promise<WorkOrder> {
+  senia: number;
+}): Promise<WorkOrderDetail> {
   await delay();
   const detail = DETAILS.find((d) => d.id === input.work_order_id);
   if (!detail) throw new Error('Orden no encontrada');
-  // Al pasar la orden a "terminado" el inventario se consume de forma
-  // automatica (igual que en produccion via el RPC update_work_order_status).
-  if (input.new_status === 'terminado') {
-    const now = new Date().toISOString();
-    detail.inventoryItems.forEach((it) => {
-      if (!it.consumed_at) it.consumed_at = now;
-    });
-  }
-  detail.estado = input.new_status;
+  const senia = Math.max(input.senia, 0);
+  const subtotal =
+    detail.services.reduce((a, s) => a + s.subtotal, 0) +
+    detail.inventoryItems.reduce((a, i) => a + i.subtotal, 0);
+  detail.senia = senia;
+  detail.total = Math.max(subtotal - senia, 0);
   detail.updated_at = new Date().toISOString();
-  return clone(toWorkOrderDetailToWorkOrder(detail));
-}
-
-function toWorkOrderDetailToWorkOrder(detail: WorkOrderDetail): WorkOrder {
-  const { customer: _c, bicycle: _b, services: _s, inventoryItems: _i, photos: _p, ...workOrder } = detail;
-  return workOrder;
+  return clone(detail);
 }
 
 export async function uploadWorkOrderPhoto(input: {
@@ -339,30 +328,17 @@ export async function uploadWorkOrderPhoto(input: {
   return clone(photo);
 }
 
-export async function consumeWorkOrderInventoryItem(input: {
-  workOrderInventoryItemId: string;
-}): Promise<{ item: WorkOrderInventoryItem; movement: StockMovement }> {
+export async function deleteWorkOrderPhoto(input: {
+  photoId: string;
+}): Promise<void> {
   await delay();
-  for (const detail of DETAILS) {
-    const target = detail.inventoryItems.find((i) => i.id === input.workOrderInventoryItemId);
-    if (target) {
-      target.consumed_at = new Date().toISOString();
-      const movement: StockMovement = {
-        id: uid(),
-        inventory_item_id: target.inventory_item_id ?? '',
-        tipo: 'consumo_trabajo',
-        cantidad: target.quantity,
-        stock_anterior: 0,
-        stock_posterior: 0,
-        motivo: `${detail.id} · ${target.name_snapshot}`,
-        work_order_id: detail.id,
-        created_by: 'mock-admin',
-        created_at: new Date().toISOString(),
-      };
-      return { item: clone(target), movement: clone(movement) };
+  for (const d of DETAILS) {
+    if (d.photos.some((p) => p.id === input.photoId)) {
+      d.photos = d.photos.filter((p) => p.id !== input.photoId);
+      return;
     }
   }
-  throw new Error('Item no encontrado');
+  throw new Error('Foto no encontrada');
 }
 
 export { today };

@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/Button';
 import { PageLoader } from '@/components/ui/PageLoader';
 import {
   DashboardIcon,
-  WrenchIcon,
   BoxIcon,
   TicketIcon,
   PlusIcon,
@@ -16,7 +15,7 @@ import {
 import { PageHeader } from './PageHeader';
 import { KpiCard } from './KpiCard';
 import { stockStatus, STOCK_STATUS_DOT, STOCK_STATUS_LABEL } from './stock';
-import { ordenNumber } from './utils';
+
 
 /** Inicio del panel: KPIs, ordenes recientes, stock bajo y acciones. */
 export function InicioPage() {
@@ -27,11 +26,7 @@ export function InicioPage() {
 
   if (status === 'loading') return <PageLoader />;
 
-  const pendientes = orders.filter((o) => o.estado === 'pendiente' || o.estado === 'aceptado').length;
-  const enTrabajo = orders.filter((o) => o.estado === 'en_ejecucion').length;
-  const facturado = orders
-    .filter((o) => o.estado === 'terminado')
-    .reduce((a, o) => a + o.total, 0);
+  const facturado = orders.reduce((a, o) => a + o.total, 0);
 
   const lowStock = items.filter((i) => stockStatus(i.stock_actual) !== 'ok');
   const sinStock = lowStock.filter((i) => stockStatus(i.stock_actual) === 'sin_stock').length;
@@ -57,11 +52,10 @@ export function InicioPage() {
         }
       />
 
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <KpiCard label="Órdenes pendientes" value={String(pendientes)} accent note="Requieren atención" icon={<TicketIcon size={18} />} />
-        <KpiCard label="En trabajo hoy" value={String(enTrabajo)} note="Diagnóstico, cadena, frenos" icon={<WrenchIcon size={18} />} />
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
+        <KpiCard label="Órdenes" value={String(orders.length)} note="Historial del taller" icon={<TicketIcon size={18} />} />
         <KpiCard label="Alertas de stock" value={String(lowStock.length)} accent note={`${sinStock} sin stock, ${lowStock.length - sinStock} baja`} icon={<BoxIcon size={18} />} />
-        <KpiCard label="Facturado este mes" value={formatCurrency(facturado)} note="Órdenes listas" icon={<DashboardIcon size={18} />} />
+        <KpiCard label="Facturado este mes" value={formatCurrency(facturado)} note="Suma de órdenes" icon={<DashboardIcon size={18} />} />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1.5fr_1fr]">
@@ -82,12 +76,10 @@ export function InicioPage() {
                     <div className="truncate text-sm font-medium text-ink">
                       {o.customer
                         ? `${o.customer.nombre} ${o.customer.apellido}`.trim()
-                        : ordenNumber(o.id)}
+                        : o.code}
                     </div>
                     <div className="truncate text-xs text-muted">
-                      {o.bicycle
-                        ? [o.bicycle.marca, o.bicycle.modelo].filter(Boolean).join(' ')
-                        : o.estado}
+                      {o.bicycle ? o.bicycle.marca : 'Bicicleta'}
                     </div>
                   </div>
                   <span className="num shrink-0 text-sm font-semibold text-pink-deep">{formatCurrency(o.total)}</span>

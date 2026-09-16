@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase/client';
+import { toWebp, variantPath } from '@/lib/supabase/storage';
 import type { Database } from '@/lib/supabase/types';
 import type {
   GalleryImage,
@@ -191,11 +192,17 @@ export async function uploadGalleryImages(input: {
   const created: GalleryImage[] = [];
   for (let i = 0; i < input.files.length; i++) {
     const file = input.files[i];
-    const storagePath = pathFor(file);
+    const webp = await toWebp(file, { maxDimension: 1600, quality: 0.82 });
+    const storagePath = pathFor(webp);
     const { error: uploadError } = await db()
       .storage.from('public-gallery')
-      .upload(storagePath, file, { cacheControl: '3600', upsert: false });
+      .upload(storagePath, webp, { cacheControl: '3600', upsert: false });
     if (uploadError) throw uploadError;
+    const thumb = await toWebp(file, { maxDimension: 640, quality: 0.8 });
+    const { error: thumbError } = await db()
+      .storage.from('public-gallery')
+      .upload(variantPath(storagePath, '-sm'), thumb, { cacheControl: '3600', upsert: false });
+    if (thumbError) throw thumbError;
     const tipo = input.tipos?.[i] ?? null;
     const { data, error } = await db()
       .from('gallery_images')
@@ -219,7 +226,7 @@ export async function deleteGalleryImage(input: { id: string }): Promise<void> {
   if (rowError) throw rowError;
   const storagePath = img?.storage_path;
   if (storagePath && !/^https?:\/\//.test(storagePath)) {
-    await db().storage.from('public-gallery').remove([storagePath]);
+    await db().storage.from('public-gallery').remove([storagePath, variantPath(storagePath, '-sm')]);
   }
   const { error } = await db().from('gallery_images').delete().eq('id', input.id);
   if (error) throw error;

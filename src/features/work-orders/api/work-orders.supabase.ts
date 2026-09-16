@@ -1,12 +1,10 @@
 import { supabase } from '@/lib/supabase/client';
+import { toWebp } from '@/lib/supabase/storage';
 import type {
   CreateWorkOrderInput,
-  StockMovement,
   WorkOrder,
   WorkOrderDetail,
-  WorkOrderInventoryItem,
   WorkOrderPhoto,
-  WorkOrderStatus,
 } from '@/types';
 
 function db(): NonNullable<typeof supabase> {
@@ -14,14 +12,18 @@ function db(): NonNullable<typeof supabase> {
   return supabase;
 }
 
+/** Bucket privado de fotos de ordenes de trabajo (ver migracion add_orden_fotos_bucket). */
+const ORDER_FOTOS_BUCKET = 'orden-fotos';
+
 type WorkOrderRow = {
   id: string;
+  code: string;
   customer_id: string;
   bicycle_id: string;
   fecha_estimada_entrega: string | null;
   observaciones: string | null;
-  estado: string;
   total: number;
+  senia: number;
   created_at: string;
   updated_at: string;
   created_by: string;
@@ -34,7 +36,6 @@ type WorkOrderRow = {
   bicycle?: {
     id: string;
     marca: string;
-    modelo: string;
     color: string | null;
   } | null;
 };
@@ -42,12 +43,13 @@ type WorkOrderRow = {
 function toWorkOrder(row: WorkOrderRow): WorkOrder {
   return {
     id: row.id,
+    code: row.code,
     customer_id: row.customer_id,
     bicycle_id: row.bicycle_id,
     fecha_estimada_entrega: row.fecha_estimada_entrega,
     observaciones: row.observaciones,
-    estado: row.estado as WorkOrderStatus,
     total: Number(row.total),
+    senia: Number(row.senia),
     created_at: row.created_at,
     updated_at: row.updated_at,
     created_by: row.created_by,
@@ -56,15 +58,13 @@ function toWorkOrder(row: WorkOrderRow): WorkOrder {
   };
 }
 
-export async function listWorkOrders(params?: { estado?: WorkOrderStatus }): Promise<WorkOrder[]> {
-  let query = db()
+export async function listWorkOrders(): Promise<WorkOrder[]> {
+  const { data, error } = await db()
     .from('work_orders')
     .select(
-      '*, customer:customers(id, nombre, apellido, telefono), bicycle:bicycles(id, marca, modelo, color)',
+      '*, customer:customers(id, nombre, apellido, telefono), bicycle:bicycles(id, marca, color)',
     )
     .order('created_at', { ascending: false });
-  if (params?.estado) query = query.eq('estado', params.estado);
-  const { data, error } = await query;
   if (error) throw error;
   return (data ?? []).map(toWorkOrder);
 }
@@ -87,11 +87,11 @@ export async function createWorkOrder(input: CreateWorkOrderInput): Promise<Work
     bicycle: {
       id: input.bicycle.id ?? null,
       marca: input.bicycle.marca,
-      modelo: input.bicycle.modelo,
       color: input.bicycle.color ?? null,
     },
     fecha_estimada_entrega: input.fecha_estimada_entrega ?? null,
     observaciones: input.observaciones ?? null,
+    senia: input.senia ?? 0,
     services: input.services.map((s) => ({
       service_id: s.service_id ?? null,
       title_snapshot: s.title_snapshot,
@@ -111,18 +111,6 @@ export async function createWorkOrder(input: CreateWorkOrderInput): Promise<Work
   return resolvePhotos(normalizeDetail(data));
 }
 
-export async function updateWorkOrderStatus(input: {
-  work_order_id: string;
-  new_status: WorkOrderStatus;
-}): Promise<WorkOrder> {
-  const { data, error } = await db().rpc('update_work_order_status', {
-    p_work_order_id: input.work_order_id,
-    p_new_status: input.new_status,
-  });
-  if (error) throw error;
-  return toWorkOrder(data as WorkOrderRow);
-}
-
 export async function updateWorkOrderObservaciones(input: {
   work_order_id: string;
   observaciones: string | null;
@@ -135,16 +123,29 @@ export async function updateWorkOrderObservaciones(input: {
   return resolvePhotos(normalizeDetail(data));
 }
 
+export async function updateWorkOrderSenia(input: {
+  work_order_id: string;
+  senia: number;
+}): Promise<WorkOrderDetail> {
+  const { data, error } = await db().rpc('update_work_order_senia', {
+    p_work_order_id: input.work_order_id,
+    p_senia: input.senia,
+  });
+  if (error) throw error;
+  return resolvePhotos(normalizeDetail(data));
+}
+
 export async function uploadWorkOrderPhoto(input: {
   workOrderId: string;
   file: File;
   tipo: WorkOrderPhoto['tipo'];
   descripcion?: string;
 }): Promise<WorkOrderPhoto> {
-  const filePath = `${input.workOrderId}/${Date.now()}-${input.file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+  const webp = await toWebp(input.file, { maxDimension: 1600, quality: 0.82 });
+  const filePath = `${input.workOrderId}/${Date.now()}-${webp.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
   const { error: uploadError } = await db()
-    .storage.from('work-order-photos')
-    .upload(filePath, input.file, {
+    .storage.from(ORDER_FOTOS_BUCKET)
+    .upload(filePath, webp, {
       cacheControl: '3600',
       upsert: false,
     });
@@ -171,21 +172,27 @@ export async function uploadWorkOrderPhoto(input: {
   };
 }
 
-export async function consumeWorkOrderInventoryItem(input: {
-  workOrderInventoryItemId: string;
-}): Promise<{ item: WorkOrderInventoryItem; movement: StockMovement }> {
-  const { data, error } = await db().rpc('consume_work_order_inventory_item', {
-    p_work_order_inventory_item_id: input.workOrderInventoryItemId,
-  });
+export async function deleteWorkOrderPhoto(input: {
+  photoId: string;
+}): Promise<void> {
+  const { data: row, error: selectError } = await db()
+    .from('work_order_photos')
+    .select('storage_path')
+    .eq('id', input.photoId)
+    .maybeSingle();
+  if (selectError) throw selectError;
+  if (!row) return;
+
+  const { error: storageError } = await db()
+    .storage.from(ORDER_FOTOS_BUCKET)
+    .remove([row.storage_path]);
+  if (storageError) throw storageError;
+
+  const { error } = await db()
+    .from('work_order_photos')
+    .delete()
+    .eq('id', input.photoId);
   if (error) throw error;
-  const result = data as unknown as {
-    item: WorkOrderInventoryItem;
-    movement: StockMovement;
-  };
-  return {
-    item: result.item,
-    movement: result.movement,
-  };
 }
 
 // ---------------------------------------------------------------------------
@@ -215,12 +222,13 @@ type RawPhoto = {
 function normalizeDetail(data: unknown): WorkOrderDetail {
   const d = data as {
     id: string;
+    code: string;
     customer_id: string;
     bicycle_id: string;
     fecha_estimada_entrega: string | null;
     observaciones: string | null;
-    estado: string;
     total: number;
+    senia: number;
     created_at: string;
     updated_at: string;
     created_by: string;
@@ -237,7 +245,6 @@ function normalizeDetail(data: unknown): WorkOrderDetail {
       id: string;
       customer_id: string;
       marca: string;
-      modelo: string;
       color: string | null;
       created_at: string;
       updated_at: string;
@@ -258,12 +265,13 @@ function normalizeDetail(data: unknown): WorkOrderDetail {
 
   return {
     id: d.id,
+    code: d.code,
     customer_id: d.customer_id,
     bicycle_id: d.bicycle_id,
     fecha_estimada_entrega: d.fecha_estimada_entrega,
     observaciones: d.observaciones,
-    estado: d.estado as WorkOrderStatus,
     total: Number(d.total),
+    senia: Number(d.senia),
     created_at: d.created_at,
     updated_at: d.updated_at,
     created_by: d.created_by,
@@ -280,7 +288,6 @@ function normalizeDetail(data: unknown): WorkOrderDetail {
       id: d.bicycle.id,
       customer_id: d.bicycle.customer_id,
       marca: d.bicycle.marca,
-      modelo: d.bicycle.modelo,
       color: d.bicycle.color,
       created_at: d.bicycle.created_at,
       updated_at: d.bicycle.updated_at,
@@ -319,7 +326,7 @@ function normalizeDetail(data: unknown): WorkOrderDetail {
 async function resolvePhotoUrl(path: string): Promise<string> {
   if (/^https?:\/\//.test(path)) return path;
   const { data, error } = await db()
-    .storage.from('work-order-photos')
+    .storage.from(ORDER_FOTOS_BUCKET)
     .createSignedUrl(path, 3600);
   if (error || !data?.signedUrl) return path;
   return data.signedUrl;

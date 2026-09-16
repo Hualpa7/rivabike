@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import type { SiteSettings } from '@/types';
+import type { PdfCondiciones, PdfCondicionesTipo, SiteSettings } from '@/types';
 import { useAuthStore } from '@/features/auth/store';
 import * as mock from './settings.mock';
 import * as real from './settings.supabase';
@@ -34,6 +34,28 @@ export function useUpdateSiteSettings() {
     mutationFn: (input) => updateSiteSettingsFn(input),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['settings'] });
+    },
+  });
+}
+
+const getPdfCondicionesFn = useMocks ? mock.getPdfCondiciones : real.getPdfCondiciones;
+const updatePdfCondicionesFn = useMocks ? mock.updatePdfCondiciones : real.updatePdfCondiciones;
+
+export function usePdfCondiciones() {
+  const status = useAuthStore((s) => s.status);
+  return useQuery<PdfCondiciones[]>({
+    queryKey: ['pdf-condiciones'],
+    queryFn: () => getPdfCondicionesFn(),
+    enabled: status === 'authenticated',
+  });
+}
+
+export function useUpdatePdfCondiciones() {
+  const qc = useQueryClient();
+  return useMutation<PdfCondiciones, Error, { tipo: PdfCondicionesTipo; items: string[] }>({
+    mutationFn: (input) => updatePdfCondicionesFn(input),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ['pdf-condiciones'] });
     },
   });
 }

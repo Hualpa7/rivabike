@@ -12,6 +12,7 @@ import {
   Trabajos,
   Contact,
   Footer,
+  WhatsAppFab,
 } from '@/features/landing/components';
 
 export function LandingPage() {
@@ -33,6 +34,7 @@ export function LandingPage() {
         <Contact />
       </main>
       <Footer />
+      <WhatsAppFab />
       <ServiceModal service={openService(openId)} onClose={() => setOpenId(null)} />
     </>
   );

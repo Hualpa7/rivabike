@@ -1,12 +1,5 @@
 // Tipos de dominio compartidos (config).
 
-export type WorkOrderStatus =
-  | 'pendiente'
-  | 'aceptado'
-  | 'en_ejecucion'
-  | 'terminado'
-  | 'rechazado';
-
 export type StockMovementType =
   | 'entrada'
   | 'salida'
@@ -16,14 +9,7 @@ export type StockMovementType =
 
 export type WorkOrderPhotoType = 'antes' | 'durante' | 'despues';
 
-// Transiciones validas de estado (AGENT.md secciones 30 y 37).
-export const WORK_ORDER_TRANSITIONS: Record<WorkOrderStatus, WorkOrderStatus[]> = {
-  pendiente: ['aceptado', 'rechazado'],
-  aceptado: ['en_ejecucion'],
-  en_ejecucion: ['terminado'],
-  terminado: [],
-  rechazado: [],
-};
+export type CustomerReviewStatus = 'pendiente' | 'aprobada' | 'rechazada';
 
 // Umbral de stock minimo para marcar "stock bajo" en el inventario.
 export const LOW_STOCK_THRESHOLD = 5;
@@ -103,7 +89,6 @@ export interface Bicycle {
   id: string;
   customer_id: string;
   marca: string;
-  modelo: string;
   color: string | null;
   created_at: string;
   updated_at: string;
@@ -111,17 +96,18 @@ export interface Bicycle {
 
 export interface WorkOrder {
   id: string;
+  code: string;
   customer_id: string;
   bicycle_id: string;
   fecha_estimada_entrega: string | null;
   observaciones: string | null;
-  estado: WorkOrderStatus;
   total: number;
+  senia: number;
   created_at: string;
   updated_at: string;
   created_by: string;
   customer?: Pick<Customer, 'id' | 'nombre' | 'apellido' | 'telefono'> | null;
-  bicycle?: Pick<Bicycle, 'id' | 'marca' | 'modelo' | 'color'> | null;
+  bicycle?: Pick<Bicycle, 'id' | 'marca' | 'color'> | null;
 }
 
 export interface WorkOrderService {
@@ -163,6 +149,55 @@ export interface WorkOrderDetail extends WorkOrder {
   photos: WorkOrderPhoto[];
 }
 
+// ---------------------------------------------------------------------------
+// Presupuestos (nomenclatura P-XXXX; no consumen stock)
+// ---------------------------------------------------------------------------
+
+export type PresupuestoStatus = 'pendiente' | 'aceptado' | 'rechazado';
+
+export interface Presupuesto {
+  id: string;
+  code: string;
+  customer_id: string;
+  bicycle_id: string;
+  observaciones: string | null;
+  estado: PresupuestoStatus;
+  total: number;
+  created_at: string;
+  updated_at: string;
+  created_by: string;
+  customer?: Pick<Customer, 'id' | 'nombre' | 'apellido' | 'telefono'> | null;
+  bicycle?: Pick<Bicycle, 'id' | 'marca' | 'color'> | null;
+}
+
+export interface PresupuestoService {
+  id: string;
+  presupuesto_id: string;
+  service_id: string | null;
+  title_snapshot: string;
+  description_snapshot: string | null;
+  unit_price: number;
+  quantity: number;
+  subtotal: number;
+}
+
+export interface PresupuestoInventoryItem {
+  id: string;
+  presupuesto_id: string;
+  inventory_item_id: string | null;
+  name_snapshot: string;
+  unit_price: number;
+  quantity: number;
+  subtotal: number;
+}
+
+export interface PresupuestoDetail extends Presupuesto {
+  customer: Customer;
+  bicycle: Bicycle;
+  services: PresupuestoService[];
+  inventoryItems: PresupuestoInventoryItem[];
+}
+
 export interface GalleryItem {
   id: string;
   titulo: string;
@@ -198,7 +233,6 @@ export interface SiteSettings {
   email: string | null;
   horarios: string | null;
   instagram: string | null;
-  facebook: string | null;
   google_place_id: string | null;
   google_maps_url: string | null;
   descripcion: string | null;
@@ -228,20 +262,33 @@ export interface SiteSettings {
   services_subtitulo: string | null;
 }
 
-export interface GoogleReview {
-  author_name: string;
-  author_url: string | null;
-  profile_photo_url: string | null;
+// ---------------------------------------------------------------------------
+// Reseñas de clientes (OAuth)
+// ---------------------------------------------------------------------------
+
+export interface CustomerReview {
+  id: string;
+  user_id: string;
+  nombre_visible: string;
   rating: number;
-  text: string;
-  relative_time_description: string;
+  texto: string;
+  estado: CustomerReviewStatus;
+  motivo_rechazo: string | null;
+  reviewed_by: string | null;
+  reviewed_at: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
-export interface GoogleReviewsSummary {
-  rating: number;
-  total_reviews: number;
-  reviews: GoogleReview[];
+export interface CustomerReviewPhoto {
+  id: string;
+  review_id: string;
+  storage_path: string;
+  orden: number;
+  created_at: string;
 }
+
+export type CustomerReviewWithPhotos = CustomerReview & { photos: CustomerReviewPhoto[] };
 
 // ---------------------------------------------------------------------------
 // Inputs de mutaciones (formas tipadas para RHF + Zod y para los mocks)
@@ -297,6 +344,35 @@ export interface RegisterStockMovementInput {
   work_order_id?: string | null;
 }
 
+export interface CreatePresupuestoInput {
+  customer: {
+    id?: string;
+    nombre: string;
+    apellido: string;
+    telefono: string;
+    direccion?: string | null;
+  };
+  bicycle: {
+    id?: string;
+    marca: string;
+    color?: string | null;
+  };
+  observaciones?: string | null;
+  services: Array<{
+    service_id?: string | null;
+    title_snapshot: string;
+    description_snapshot?: string | null;
+    unit_price: number;
+    quantity: number;
+  }>;
+  inventory_items: Array<{
+    inventory_item_id?: string | null;
+    name_snapshot: string;
+    unit_price: number;
+    quantity: number;
+  }>;
+}
+
 export interface CreateWorkOrderInput {
   customer: {
     id?: string;
@@ -308,11 +384,11 @@ export interface CreateWorkOrderInput {
   bicycle: {
     id?: string;
     marca: string;
-    modelo: string;
     color?: string | null;
   };
   fecha_estimada_entrega?: string | null;
   observaciones?: string | null;
+  senia?: number | null;
   services: Array<{
     service_id?: string | null;
     title_snapshot: string;
@@ -358,4 +434,37 @@ export interface GalleryChecks {
   check_2: string | null;
   check_3: string | null;
   check_4: string | null;
+}
+
+export interface NewCustomerReviewInput {
+  nombre_visible: string;
+  rating: number;
+  texto: string;
+}
+
+export interface UpdateCustomerReviewInput {
+  review_id: string;
+  nombre_visible: string;
+  rating: number;
+  texto: string;
+}
+
+export interface ModerateCustomerReviewInput {
+  reviewId: string;
+  newEstado: 'aprobada' | 'rechazada';
+  motivoRechazo?: string;
+}
+
+export interface DeleteCustomerReviewInput {
+  reviewId: string;
+}
+
+/** Condiciones que se imprimen en los PDFs (órdenes de trabajo y presupuestos). */
+export type PdfCondicionesTipo = 'orden' | 'presupuesto';
+
+export interface PdfCondiciones {
+  id: string;
+  tipo: PdfCondicionesTipo;
+  items: string[];
+  updated_at: string;
 }
