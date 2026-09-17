@@ -29,7 +29,7 @@ const PHOTO_TIPO = 'antes';
 /** Detalle de una orden de trabajo: datos, items, observaciones y PDF. */
 export function OrdenDetallePage() {
   const { id = '' } = useParams();
-  const { data: order, isLoading } = useWorkOrder(id);
+  const { data: order, isLoading, refetch } = useWorkOrder(id);
   const { data: settings } = useSiteSettings();
   const { data: condicionesList } = usePdfCondiciones();
   const updateObservaciones = useUpdateWorkOrderObservaciones();
@@ -57,8 +57,12 @@ export function OrdenDetallePage() {
     if (!settings) return;
     setGeneratingPdf(true);
     try {
+      // Refresca el detalle para obtener signed URLs vigentes antes de
+      // incrustar las fotos en el PDF (la caché puede tener URLs expiradas).
+      const { data: fresh } = await refetch();
+      const target = fresh ?? detail;
       const { downloadWorkOrderPdf } = await import('@/features/work-orders/pdf/generateWorkOrderPdf');
-      await downloadWorkOrderPdf(detail, settings, resolvePdfCondiciones('orden', condicionesList));
+      await downloadWorkOrderPdf(target, settings, resolvePdfCondiciones('orden', condicionesList));
     } catch {
       toast.error('No se pudo generar el PDF. Intentalo de nuevo.');
     } finally {

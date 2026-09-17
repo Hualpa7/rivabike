@@ -28,13 +28,71 @@ export function buildPdfFileName(order: WorkOrderDetail): string {
   return `RivaBike-Orden-${numero}-${cliente}.pdf`;
 }
 
+/**
+ * Descarga una imagen y la devuelve como dataURL (jpeg reducido). Devuelve
+ * null si falla (expirada, CORS, red): en ese caso se conserva la URL
+ * original y @react-pdf intentará cargarla como antes.
+ */
+async function urlToDataUrl(url: string, maxDimension = 900): Promise<string | null> {
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const blob = await res.blob();
+    if (!blob.type.startsWith('image/')) return null;
+    const bitmap = await createImageBitmap(blob);
+    const scale = Math.min(1, maxDimension / Math.max(bitmap.width, bitmap.height));
+    const width = Math.max(1, Math.round(bitmap.width * scale));
+    const height = Math.max(1, Math.round(bitmap.height * scale));
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+      bitmap.close();
+      return null;
+    }
+    ctx.drawImage(bitmap, 0, 0, width, height);
+    bitmap.close();
+    const out = await new Promise<Blob | null>((resolve) =>
+      canvas.toBlob(resolve, 'image/jpeg', 0.82),
+    );
+    if (!out) return null;
+    return await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = () => reject(reader.error);
+      reader.readAsDataURL(out);
+    });
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Clona la orden reemplazando las fotos por dataURLs incrustadas. Evita que
+ * @react-pdf omita las imágenes en silencio cuando la signed URL expiró
+ * (cache de React-Query) o falla por CORS: el PDF ya no depende de la red.
+ */
+export async function withEmbeddedPhotos(order: WorkOrderDetail): Promise<WorkOrderDetail> {
+  if (order.photos.length === 0) return order;
+  const photos = await Promise.all(
+    order.photos.map(async (photo) => {
+      if (!/^https?:\/\//.test(photo.storage_path)) return photo;
+      const dataUrl = await urlToDataUrl(photo.storage_path);
+      return dataUrl ? { ...photo, storage_path: dataUrl } : photo;
+    }),
+  );
+  return { ...order, photos };
+}
+
 /** Genera el Blob PDF de la orden. */
 export async function generateWorkOrderPdfBlob(
   order: WorkOrderDetail,
   settings: SiteSettings,
   condiciones?: string[],
 ): Promise<Blob> {
-  return pdf(<WorkOrderPdf order={order} settings={settings} condiciones={condiciones} />).toBlob();
+  const withPhotos = await withEmbeddedPhotos(order);
+  return pdf(<WorkOrderPdf order={withPhotos} settings={settings} condiciones={condiciones} />).toBlob();
 }
 
 /**

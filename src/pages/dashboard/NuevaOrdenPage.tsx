@@ -54,7 +54,7 @@ export function NuevaOrdenPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { data: services = [] } = useServicesAdmin();
-  const { data: inventory = [] } = useInventoryItems({ onlyActive: true });
+  const { data: inventory = [], isLoading: inventoryLoading } = useInventoryItems({ onlyActive: true });
   const create = useCreateWorkOrder();
   const uploadPhoto = useUploadWorkOrderPhoto();
   const [step, setStep] = useState(0);
@@ -112,7 +112,8 @@ export function NuevaOrdenPage() {
     const item = inventory.find((i) => i.id === id);
     return a + (price ?? item?.precio_unitario ?? 0) * qty;
   }, 0);
-  const total = Math.max(subtotalServices + subtotalRepuestos - (draft.senia ?? 0), 0);
+  // `total` es el subtotal bruto (sin seña); la única resta vive en ResumenStep.
+  const total = subtotalServices + subtotalRepuestos;
 
   // Validacion por paso
   const canNext = useMemo(() => {
@@ -225,6 +226,7 @@ export function NuevaOrdenPage() {
           {step === 3 && (
             <RepuestosStep
               inventory={inventory}
+              isLoading={inventoryLoading}
               repuestos={draft.repuestos}
               onChange={(r) => set('repuestos', r)}
               repuestoPrices={draft.repuestoPrices}

@@ -24,7 +24,7 @@ export function LandingPage() {
   return (
     <>
       <LandingNav />
-      <main>
+      <main className="overflow-x-clip">
         <Hero />
         <About />
         <HowWeWork />

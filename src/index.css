@@ -50,6 +50,11 @@
     background-color: var(--paper);
     color: var(--ink);
     transition: background-color 0.2s ease, color 0.2s ease;
+    /* Las animaciones de revelado horizontal (Reveal from left/right) y el
+       marquee de opiniones exceden el viewport antes de entrar en vista.
+       overflow-x: clip evita la banda lateral con scroll en mobile sin
+       romper position: sticky (a diferencia de hidden). */
+    overflow-x: clip;
   }
 
   ::selection {

@@ -38,7 +38,7 @@ export function NuevaPresupuestoPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { data: services = [] } = useServicesAdmin();
-  const { data: inventory = [] } = useInventoryItems({ onlyActive: true });
+  const { data: inventory = [], isLoading: inventoryLoading } = useInventoryItems({ onlyActive: true });
   const create = useCreatePresupuesto();
   const [step, setStep] = useState(0);
   const [draft, setDraft] = useState<Draft>(initialDraft);
@@ -182,6 +182,7 @@ export function NuevaPresupuestoPage() {
           {step === 3 && (
             <RepuestosStep
               inventory={inventory}
+              isLoading={inventoryLoading}
               repuestos={draft.repuestos}
               onChange={(r) => set('repuestos', r)}
               repuestoPrices={draft.repuestoPrices}

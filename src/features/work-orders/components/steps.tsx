@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { formatCurrency } from '@/lib/utils/fmt';
 import { cn } from '@/lib/utils/cn';
 import { Button } from '@/components/ui/Button';
@@ -18,6 +19,17 @@ export interface WizardDraft {
 }
 
 export type WizardSet<D extends WizardDraft> = <K extends keyof D>(k: K, v: D[K]) => void;
+
+/**
+ * Sanea el input numérico de la seña: vacíos o inválidos → 0, con clamp
+ * 0..max (el subtotal bruto). Evita NaN en estados intermedios de tipeo.
+ */
+function parseSeniaInput(value: string, max: number): number {
+  if (value.trim() === '') return 0;
+  const n = Number(value);
+  if (!Number.isFinite(n)) return 0;
+  return Math.min(Math.max(0, Math.floor(n)), Math.max(0, max));
+}
 
 // ---- Steps ----
 
@@ -164,6 +176,7 @@ export function RepuestosStep({
   repuestoPrices,
   onPriceChange,
   maxQty,
+  isLoading,
 }: {
   inventory: { id: string; nombre: string; stock_actual: number; precio_unitario: number }[];
   repuestos: Record<string, number>;
@@ -171,6 +184,7 @@ export function RepuestosStep({
   repuestoPrices: Record<string, number>;
   onPriceChange: (id: string, price: number) => void;
   maxQty?: (item: { id: string; stock_actual: number }) => number;
+  isLoading?: boolean;
 }) {
   const setQty = (id: string, qty: number) => {
     onChange({ ...repuestos, [id]: qty });
@@ -192,6 +206,21 @@ export function RepuestosStep({
   };
   return (
     <div className="space-y-2">
+      {isLoading ? <p className="text-sm text-muted">Cargando repuestos…</p> : null}
+      {!isLoading && inventory.length === 0 ? (
+        <div className="rounded-card border border-dashed border-line bg-paper p-5 text-center">
+          <p className="text-sm font-semibold text-ink">No hay repuestos cargados</p>
+          <p className="mt-1 text-sm text-muted">
+            Cargá items en Inventario para poder agregarlos a la orden.
+          </p>
+          <Link
+            to="/dashboard/inventario"
+            className="mt-3 inline-flex rounded-pill bg-pink-deep px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-pink"
+          >
+            Ir a Inventario
+          </Link>
+        </div>
+      ) : null}
       {inventory.map((it) => {
         const cap = maxQty ? maxQty(it) : it.stock_actual;
         const qty = repuestos[it.id] ?? 0;
@@ -302,6 +331,7 @@ export function ResumenStep({
   confirmText?: string;
 }) {
   const repuestoRows = Object.entries(repuestos).filter(([, q]) => q > 0);
+  // `total` llega como subtotal bruto (sin seña); la única resta vive acá.
   const finalTotal = Math.max(total - (senia ?? 0), 0);
   return (
     <div className="space-y-6">
@@ -327,35 +357,38 @@ export function ResumenStep({
         </div>
       </div>
 
-      <div className="rounded-card bg-ink p-5 text-paper">
+      {/* Tarjeta de totales: colores fijos (no invierten con el tema) para que
+          el contraste sea legible tanto en claro como en oscuro. */}
+      <div className="rounded-card bg-ink-fixed p-5 text-on-ink-fixed">
         <div className="flex justify-between py-1">
-          <span className="text-paper/70">Subtotal servicios</span>
+          <span className="text-on-ink-fixed/70">Subtotal servicios</span>
           <span className="num">{formatCurrency(subtotalServices)}</span>
         </div>
         <div className="flex justify-between py-1">
-          <span className="text-paper/70">Repuestos</span>
+          <span className="text-on-ink-fixed/70">Repuestos</span>
           <span className="num">{formatCurrency(subtotalRepuestos)}</span>
         </div>
         {onSeniaChange ? (
           <div className="flex items-center justify-between gap-4 py-1">
-            <span className="text-paper/70">Seña</span>
+            <span className="text-on-ink-fixed/70">Seña</span>
             <div className="flex items-center gap-1.5">
-              <span className="text-xs text-paper/60">$</span>
+              <span className="text-xs text-on-ink-fixed/60">$</span>
               <input
                 type="number"
                 inputMode="numeric"
                 min={0}
+                max={total}
                 value={senia ?? 0}
-                onChange={(e) => onSeniaChange(Math.max(0, Number(e.target.value)))}
+                onChange={(e) => onSeniaChange(parseSeniaInput(e.target.value, total))}
                 aria-label="Seña"
-                className="num w-28 rounded-card border border-paper/30 bg-paper/10 px-2.5 py-1.5 text-right text-sm font-semibold text-paper focus:border-pink-deep focus:outline-none"
+                className="num w-28 rounded-card border border-white/30 bg-white/10 px-2.5 py-1.5 text-right text-sm font-semibold text-white focus:border-pink-deep focus:outline-none"
               />
             </div>
           </div>
         ) : null}
-        <div className="mt-2 flex items-center justify-between border-t border-paper/25 pt-3">
-          <span className="font-display text-lg font-bold">Total</span>
-          <span className="num font-display text-2xl font-bold text-pink">{formatCurrency(finalTotal)}</span>
+        <div className="mt-2 flex items-center justify-between border-t border-white/25 pt-3">
+          <span className="font-display text-lg font-bold">Total a pagar</span>
+          <span className="num font-display text-2xl font-bold text-gold">{formatCurrency(finalTotal)}</span>
         </div>
       </div>
 
