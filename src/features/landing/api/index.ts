@@ -14,5 +14,6 @@ export function useApprovedCustomerReviews() {
   return useQuery<CustomerReviewWithPhotos[]>({
     queryKey: ['reviews', 'approved'],
     queryFn: () => getApprovedCustomerReviewsFn(),
+    staleTime: 60_000,
   });
 }

@@ -10,7 +10,7 @@ function db(): NonNullable<typeof supabase> {
 export async function getApprovedCustomerReviews(): Promise<CustomerReviewWithPhotos[]> {
   const { data: reviews, error } = await db()
     .from('customer_reviews')
-    .select('*')
+    .select('id,user_id,nombre_visible,rating,texto,motivo_rechazo,reviewed_by,reviewed_at,created_at,updated_at')
     .eq('estado', 'aprobada')
     .order('created_at', { ascending: false });
   if (error) throw error;
@@ -19,7 +19,7 @@ export async function getApprovedCustomerReviews(): Promise<CustomerReviewWithPh
   const ids = reviews.map((r) => r.id);
   const { data: photos, error: photoError } = await db()
     .from('customer_review_photos')
-    .select('*')
+    .select('id,review_id,storage_path,orden,created_at')
     .in('review_id', ids)
     .order('orden', { ascending: true });
   if (photoError) throw photoError;

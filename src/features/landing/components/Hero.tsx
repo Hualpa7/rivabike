@@ -36,7 +36,7 @@ export function Hero() {
       />
       <div className="absolute inset-[-14px] rounded-full border-2 border-dashed border-pink/45 animate-spin-slow" aria-hidden="true" />
       <div className="h-full w-full overflow-hidden rounded-full">
-        <img src={heroImg} alt="Bicicleta del taller" className="h-full w-full -scale-x-110 scale-y-110 object-cover" />
+        <img src={heroImg} alt="Bicicleta del taller" fetchPriority="high" className="h-full w-full -scale-x-110 scale-y-110 object-cover" />
       </div>
       <span className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 rounded-pill bg-pink px-4 py-1.5 font-mono text-xs font-semibold uppercase tracking-[0.18em] text-white">
         Riva · Bike

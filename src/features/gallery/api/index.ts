@@ -24,6 +24,7 @@ export function useGalleryItems(params?: { onlyPublished?: boolean }) {
   return useQuery({
     queryKey: ['gallery', 'public', params?.onlyPublished ?? false],
     queryFn: () => listGalleryItemsFn(params),
+    staleTime: 5 * 60_000,
   });
 }
 

@@ -8,6 +8,7 @@
 import sharp from 'sharp';
 import path from 'node:path';
 import { mkdir, stat } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -36,13 +37,19 @@ async function toWebp(source, outPath, width, quality) {
   console.log(`generado ${path.relative(root, outPath)} (${kb} KB)`);
 }
 
-// Asset del circulo del hero: webp.local (fuente de fallback para el resto).
-await toWebp(path.join(root, 'src', 'assets', 'hero.jpg'), feed, 1200, 82);
+// Asset del circulo del hero: webp local (fuente de fallback para el resto).
+// Solo se genera si existe el jpg original (ya convertido y eliminado).
+const heroJpg = path.join(root, 'src', 'assets', 'hero.jpg');
+if (!existsSync(feed) && existsSync(heroJpg)) {
+  await toWebp(heroJpg, feed, 1200, 82);
+} else {
+  console.log('uso existente', path.relative(root, feed));
+}
 
-// Hero de fondo (hero-cover.webp)
+// Hero de fondo (hero-cover.webp): 1400px q75, suficiente para full-bleed.
 try {
   const raw = await download(HERO_URL);
-  await toWebp(raw, heroOut, 1600, 80);
+  await toWebp(raw, heroOut, 1400, 75);
 } catch (e) {
   console.warn(`No se pudo descargar el hero remoto, uso src/assets/hero.webp como fallback: ${e.message}`);
   await toWebp(feed, heroOut, 1600, 80);

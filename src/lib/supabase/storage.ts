@@ -9,7 +9,7 @@ import { supabase } from './client';
 // re-encoda a .webp con canvas en el cliente antes de subirse, y cuando el
 // uso lo requiere (grillas/miniaturas) se guarda además una variante "-sm".
 
-const PUBLIC_BUCKETS = new Set(['public-gallery']);
+const PUBLIC_BUCKETS = new Set(['public-gallery', 'customer-review-photos']);
 
 function db(): NonNullable<typeof supabase> {
   if (!supabase) throw new Error('Supabase no configurado');

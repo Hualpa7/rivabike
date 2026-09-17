@@ -23,6 +23,7 @@ export function useServices(params?: { onlyActive?: boolean }) {
   return useQuery({
     queryKey: ['services', 'public', params?.onlyActive ?? false],
     queryFn: () => listServicesFn(params),
+    staleTime: 5 * 60_000,
   });
 }
 

@@ -10,11 +10,12 @@ const getSiteSettingsFn = useMocks ? mock.getSiteSettings : real.getSiteSettings
 const getSiteSettingsAdminFn = useMocks ? mock.getSiteSettingsAdmin : real.getSiteSettingsAdmin;
 const updateSiteSettingsFn = useMocks ? mock.updateSiteSettings : real.updateSiteSettings;
 
-/** Publico: configuracion del negocio (landing). */
+/** Publico: configuracion del negocio (landing). Contenido casi estatico. */
 export function useSiteSettings() {
   return useQuery({
     queryKey: ['settings', 'public'],
     queryFn: () => getSiteSettingsFn(),
+    staleTime: 5 * 60_000,
   });
 }
 
