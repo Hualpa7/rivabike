@@ -17,6 +17,7 @@ import {
 import { PageLoader } from '@/components/ui/PageLoader';
 import { StarRating } from '@/features/landing/components/ui/StarRating';
 import { StarIcon, TrashIcon } from '@/components/ui/icons';
+import { toThumbUrl } from '@/lib/supabase/storage';
 import { formatDate } from '@/lib/utils/fmt';
 import { PageHeader } from './PageHeader';
 
@@ -108,7 +109,16 @@ export function ResenasPage() {
                           onClick={() => setPhotoView(p.storage_path)}
                           className="h-16 w-16 overflow-hidden rounded-card border border-line"
                         >
-                          <img src={p.storage_path} alt="" className="h-full w-full object-cover" />
+                          <img
+                            src={toThumbUrl(p.storage_path)}
+                            alt=""
+                            loading="lazy"
+                            decoding="async"
+                            onError={(e) => {
+                              if (e.currentTarget.src !== p.storage_path) e.currentTarget.src = p.storage_path;
+                            }}
+                            className="h-full w-full object-cover"
+                          />
                         </button>
                       ))}
                     </div>
@@ -173,7 +183,7 @@ export function ResenasPage() {
 
       <Modal open={Boolean(photoView)} onClose={() => setPhotoView(null)} title="Foto de la reseña">
         {photoView ? (
-          <img src={photoView} alt="Foto de la reseña" className="mx-auto max-h-[70vh] w-auto rounded-card" />
+          <img src={photoView} alt="Foto de la reseña" loading="lazy" decoding="async" className="mx-auto max-h-[70vh] w-auto rounded-card" />
         ) : null}
       </Modal>
     </div>

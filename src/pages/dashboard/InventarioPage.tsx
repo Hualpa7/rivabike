@@ -397,11 +397,17 @@ function LastMovement({ itemId }: { itemId: string }) {
 }
 
 function MovementsModal({ item, onClose }: { item: InventoryItem; onClose: () => void }) {
-  const { data: movements = [], isLoading } = useStockMovements({ inventoryItemId: item.id });
+  // Difiere query + tabla un frame para no competir con la animación de apertura.
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    const raf = requestAnimationFrame(() => setReady(true));
+    return () => cancelAnimationFrame(raf);
+  }, []);
+  const { data: movements = [], isLoading } = useStockMovements({ inventoryItemId: item.id, enabled: ready });
   return (
     <Modal open onClose={onClose} title={`Movimientos · ${item.nombre}`} className="sm:max-w-2xl">
       <div className="max-h-[60vh] overflow-auto rounded-card border-2 border-line">
-        {isLoading ? (
+        {!ready || isLoading ? (
           <p className="py-10 text-center text-sm text-muted">Cargando…</p>
         ) : movements.length === 0 ? (
           <p className="py-10 text-center text-sm text-muted">Sin movimientos registrados.</p>

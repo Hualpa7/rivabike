@@ -28,15 +28,18 @@ export function ImageUpload({
   const id = useId();
   const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleFile = async (file?: File) => {
     if (!file) return;
     setBusy(true);
+    setError(null);
     try {
       const url = await onFile(file);
       onChange(url);
     } catch (e) {
       console.error('ImageUpload error', e);
+      setError(e instanceof Error ? e.message : 'No se pudo subir la imagen.');
     } finally {
       setBusy(false);
       if (inputRef.current) inputRef.current.value = '';
@@ -72,6 +75,7 @@ export function ImageUpload({
         </div>
       </div>
       {hint ? <p className="text-xs text-muted">{hint}</p> : null}
+      {error ? <p className="text-xs text-pink-deep">{error}</p> : null}
       <input
         id={id}
         ref={inputRef}

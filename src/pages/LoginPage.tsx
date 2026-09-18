@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -22,6 +22,8 @@ export function LoginPage() {
   const [showPwd, setShowPwd] = useState(false);
   const [formMsg, setFormMsg] = useState<{ kind: 'error' | 'ok'; text: string } | null>(null);
   const status = useAuthStore((s) => s.status);
+  const isStaff = useAuthStore((s) => s.isStaff);
+  const isStaffResolved = useAuthStore((s) => s.isStaffResolved);
 
   const {
     register,
@@ -33,6 +35,14 @@ export function LoginPage() {
   });
 
   const from = (location.state as { from?: { pathname: string } } | null)?.from?.pathname ?? '/dashboard';
+
+  // Redirige cuando la sesión Y el rol están resueltos (sin timeouts ciegos:
+  // en prod la resolución del rol puede tardar más que el login).
+  useEffect(() => {
+    if (status === 'authenticated' && isStaffResolved && isStaff) {
+      navigate(from, { replace: true });
+    }
+  }, [status, isStaffResolved, isStaff, from, navigate]);
 
   const onSubmit = async (values: LoginValues) => {
     setFormMsg(null);
@@ -47,7 +57,6 @@ export function LoginPage() {
       return;
     }
     setFormMsg({ kind: 'ok', text: 'Sesión iniciada. Redirigiendo al panel…' });
-    setTimeout(() => navigate(from, { replace: true }), 700);
   };
 
   return (

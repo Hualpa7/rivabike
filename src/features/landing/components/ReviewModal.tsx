@@ -61,7 +61,7 @@ export function ReviewModal({ review, onClose }: ReviewModalProps) {
       {/* Overlay de foto expandida */}
       {expandedPhoto ? (
         <div
-          className="fixed inset-0 z-[60] flex items-center justify-center bg-[var(--scrim)] backdrop-blur-sm p-4"
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-[var(--scrim)] p-4"
           onClick={() => setExpandedPhoto(null)}
           role="button"
           tabIndex={0}
@@ -70,6 +70,8 @@ export function ReviewModal({ review, onClose }: ReviewModalProps) {
           <img
             src={expandedPhoto}
             alt=""
+            loading="lazy"
+            decoding="async"
             className="max-h-[85vh] max-w-[90vw] rounded-card object-contain shadow-soft"
           />
         </div>

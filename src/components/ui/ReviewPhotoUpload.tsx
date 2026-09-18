@@ -1,5 +1,6 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { cn } from '@/lib/utils/cn';
+import { MAX_UPLOAD_BYTES } from '@/lib/supabase/storage';
 import { ImageIcon, CloseIcon } from './icons';
 
 interface ReviewPhotoUploadProps {
@@ -30,6 +31,7 @@ export function ReviewPhotoUpload({
   className,
 }: ReviewPhotoUploadProps) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const [rejected, setRejected] = useState<string[]>([]);
   const total = photos.length + existingCount;
   const remaining = Math.max(max - total, 0);
   const atLimit = total >= max;
@@ -37,7 +39,14 @@ export function ReviewPhotoUpload({
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
     if (!files.length) return;
-    onAdd(files.slice(0, remaining));
+    const ok: File[] = [];
+    const bad: string[] = [];
+    for (const f of files) {
+      if (f.size > MAX_UPLOAD_BYTES) bad.push(f.name);
+      else ok.push(f);
+    }
+    setRejected(bad);
+    if (ok.length) onAdd(ok.slice(0, remaining));
     if (inputRef.current) inputRef.current.value = '';
   };
 
@@ -78,8 +87,13 @@ export function ReviewPhotoUpload({
       </div>
 
       <p className="text-xs text-muted">
-        {total}/{max} fotos
+        {total}/{max} fotos · se convierten a webp al subir
       </p>
+      {rejected.length > 0 ? (
+        <p className="text-xs text-pink-deep">
+          Muy pesadas (+10 MB, no se agregaron): {rejected.join(', ')}
+        </p>
+      ) : null}
 
       <input
         ref={inputRef}

@@ -13,6 +13,7 @@ import { Textarea } from '@/components/ui/Textarea';
 import { Button } from '@/components/ui/Button';
 import { PageLoader } from '@/components/ui/PageLoader';
 import { Switch } from '@/components/ui/Switch';
+import { assertUploadSize } from '@/lib/supabase/storage';
 import { PlusIcon, ImageIcon } from '@/components/ui/icons';
 import { PageHeader } from './PageHeader';
 
@@ -112,6 +113,19 @@ function CreateWorkModal({
   const [check_4, setCheck4] = useState('');
   const [antes, setAntes] = useState<File | null>(null);
   const [despues, setDespues] = useState<File | null>(null);
+  const [pickError, setPickError] = useState<string | null>(null);
+
+  const pickSized = (file: File | undefined | null, apply: (f: File) => void) => {
+    if (!file) return;
+    try {
+      assertUploadSize(file);
+    } catch (e) {
+      setPickError(e instanceof Error ? e.message : 'Imagen muy pesada.');
+      return;
+    }
+    setPickError(null);
+    apply(file);
+  };
 
   const submit = async () => {
     const item = await create.mutateAsync({
@@ -175,7 +189,7 @@ function CreateWorkModal({
               type="file"
               accept="image/jpeg,image/png,image/webp"
               className="hidden"
-              onChange={(e) => setAntes(e.target.files?.[0] ?? null)}
+              onChange={(e) => pickSized(e.target.files?.[0], setAntes)}
             />
             <span className="flex h-28 items-center justify-center rounded-card border border-dashed border-line bg-[var(--surface-2)] text-center text-xs font-medium text-muted">
               {antes ? antes.name : 'Subir foto antes'}
@@ -189,13 +203,14 @@ function CreateWorkModal({
               type="file"
               accept="image/jpeg,image/png,image/webp"
               className="hidden"
-              onChange={(e) => setDespues(e.target.files?.[0] ?? null)}
+              onChange={(e) => pickSized(e.target.files?.[0], setDespues)}
             />
             <span className="flex h-28 items-center justify-center rounded-card border border-dashed border-line bg-[var(--surface-2)] text-center text-xs font-medium text-muted">
               {despues ? despues.name : 'Subir foto después'}
             </span>
           </label>
         </div>
+        {pickError ? <p className="text-xs text-pink-deep">{pickError}</p> : null}
 
         <div>
           <label className="mb-1.5 block text-[13.5px] font-medium text-muted">Qué se hizo</label>
@@ -258,6 +273,7 @@ function EditWorkModal({
   const [despues, setDespues] = useState<{ id: string; storage_path: string } | null>(
     () => item.images.find((i) => i.tipo === 'despues') ?? (item.images[1] && item.images.find((i) => i.tipo !== 'antes') ? item.images[1] : null),
   );
+  const [slotError, setSlotError] = useState<string | null>(null);
 
   const save = () => {
     update
@@ -280,6 +296,13 @@ function EditWorkModal({
 
   const replaceSlot = async (tipo: 'antes' | 'despues', file?: File) => {
     if (!file) return;
+    try {
+      assertUploadSize(file);
+    } catch (e) {
+      setSlotError(e instanceof Error ? e.message : 'Imagen muy pesada.');
+      return;
+    }
+    setSlotError(null);
     const current = tipo === 'antes' ? antes : despues;
     const [created] = await upload.mutateAsync({
       galleryItemId: item.id,
@@ -376,6 +399,8 @@ function EditWorkModal({
             </label>
           </div>
         </div>
+
+        {slotError ? <p className="text-xs text-pink-deep">{slotError}</p> : null}
 
         <div>
           <span className="mb-1.5 block text-[13.5px] font-medium text-muted">Qué se hizo</span>

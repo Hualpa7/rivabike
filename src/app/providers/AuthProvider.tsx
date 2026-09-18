@@ -15,6 +15,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const syncIsStaff = (auth: boolean) => {
+      // Invalida el flag al empezar: mientras se resuelve el rol,
+      // ProtectedRoute muestra el loader en vez de rebotar a /login con un
+      // valor obsoleto (race que en prod dejaba al usuario clavado en login).
+      setIsStaff(false);
+      setIsStaffResolved(false);
       if (auth) {
         void resolveIsStaff()
           .then((value) => {
@@ -26,7 +31,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             setIsStaffResolved(true);
           });
       } else {
-        setIsStaff(false);
         setIsStaffResolved(true);
       }
     };

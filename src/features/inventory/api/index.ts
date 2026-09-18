@@ -71,11 +71,12 @@ export function useStockMovements(params?: {
   inventoryItemId?: string;
   workOrderId?: string;
   tipo?: StockMovement['tipo'];
+  enabled?: boolean;
 }) {
   const status = useAuthStore((s) => s.status);
   return useQuery({
     queryKey: ['inventory', 'movements', params?.inventoryItemId ?? '', params?.workOrderId ?? '', params?.tipo ?? ''],
     queryFn: () => listStockMovementsFn(params),
-    enabled: status === 'authenticated',
+    enabled: status === 'authenticated' && (params?.enabled ?? true),
   });
 }

@@ -27,9 +27,21 @@ export interface ImageProcessOptions {
   quality?: number;
 }
 
-/** Re-encoda una imagen a .webp y opcionalmente la reduce. Nunca lanza: si el
+/** Máximo permitido por archivo antes de convertir (10 MB): evita que el
+ *  canvas tarde demasiado con fotos gigantes de celular. */
+export const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
+
+/** Lanza un Error legible si el archivo supera el máximo permitido. */
+export function assertUploadSize(file: File): void {
+  if (file.size > MAX_UPLOAD_BYTES) {
+    throw new Error(`"${file.name}" supera los 10 MB. Elegí una imagen más liviana.`);
+  }
+}
+
+/** Re-encoda una imagen como .webp y opcionalmente la reduce. Nunca lanza: si el
  *  navegador no soporta codificar webp, devuelve el archivo original. */
 export async function toWebp(file: File, options: ImageProcessOptions = {}): Promise<File> {
+  assertUploadSize(file);
   const maxDimension = options.maxDimension ?? 1600;
   const quality = options.quality ?? 0.82;
   try {

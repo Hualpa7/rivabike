@@ -19,6 +19,8 @@ export function ServiceModal({ service, onClose }: ServiceModalProps) {
         <img
           src={service.imagen_url}
           alt={service.titulo}
+          loading="lazy"
+          decoding="async"
           className="aspect-[16/9] w-full rounded-card border border-line object-cover"
         />
       ) : null}
