@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils/cn';
 import { MAX_UPLOAD_BYTES } from '@/lib/supabase/storage';
 import { ImageIcon, CloseIcon } from './icons';
@@ -58,11 +58,7 @@ export function ReviewPhotoUpload({
             key={`${file.name}-${i}`}
             className="relative h-20 w-20 overflow-hidden rounded-card border border-line"
           >
-            <img
-              src={URL.createObjectURL(file)}
-              alt={`Foto ${i + 1}`}
-              className="h-full w-full object-cover"
-            />
+            <PreviewImg file={file} alt={`Foto ${i + 1}`} />
             <button
               type="button"
               aria-label={`Quitar foto ${i + 1}`}
@@ -105,4 +101,16 @@ export function ReviewPhotoUpload({
       />
     </div>
   );
+}
+
+/** Preview de un File con object URL revocada al desmontar/cambiar archivo. */
+function PreviewImg({ file, alt }: { file: File; alt: string }) {
+  const [url, setUrl] = useState<string | null>(null);
+  useEffect(() => {
+    const objectUrl = URL.createObjectURL(file);
+    setUrl(objectUrl);
+    return () => URL.revokeObjectURL(objectUrl);
+  }, [file]);
+  if (!url) return null;
+  return <img src={url} alt={alt} className="h-full w-full object-cover" />;
 }

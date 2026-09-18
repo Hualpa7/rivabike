@@ -89,7 +89,7 @@ function ReviewCardView({
   return (
     <figure
       onClick={() => onSelect(card)}
-      className="flex h-full w-[min(340px,78vw)] flex-col rounded-card border border-line bg-paper p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-soft cursor-pointer"
+      className="flex h-full w-[min(340px,78vw)] flex-col rounded-card border border-line bg-paper p-6 transition duration-300 hover:-translate-y-1 hover:shadow-soft cursor-pointer"
     >
       <StarRating rating={card.rating} starClassName="h-4 w-4 text-gold" />
       <blockquote className="mt-4 flex-1 leading-relaxed text-ink">"{card.texto}"</blockquote>

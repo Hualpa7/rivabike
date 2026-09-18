@@ -1,0 +1,8 @@
+# Endurecimiento de la supply chain (ver react-doctor require-pnpm-hardening):
+# - minimumReleaseAge: no instala versiones publicadas hace menos de 7 días
+#   (ventana típica en la que se detecta y despublica malware).
+# - trustPolicy: rechaza paquetes cuya procedencia/firma empeore entre
+#   resoluciones.
+# - blockExoticSubdeps: por defecto true en pnpm reciente (no tocar).
+minimumReleaseAge: 10080
+trustPolicy: no-downgrade

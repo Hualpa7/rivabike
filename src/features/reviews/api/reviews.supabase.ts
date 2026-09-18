@@ -79,11 +79,12 @@ async function attachPhotos(rows: ReviewRow[]): Promise<CustomerReviewWithPhotos
 
   const grouped = new Map<string, CustomerReviewPhoto[]>();
   const sorted = (data ?? []).sort((a, b) => a.orden - b.orden);
-  for (const p of sorted) {
-    const resolved = await toPhoto(p);
-    const list = grouped.get(p.review_id) ?? [];
-    list.push(resolved);
-    grouped.set(p.review_id, list);
+  // Resoluciones independientes en paralelo (se conserva el orden).
+  const resolved = await Promise.all(sorted.map((p) => toPhoto(p)));
+  for (const photo of resolved) {
+    const list = grouped.get(photo.review_id) ?? [];
+    list.push(photo);
+    grouped.set(photo.review_id, list);
   }
 
   return reviews.map((r) => ({ ...r, photos: grouped.get(r.id) ?? [] }));

@@ -7,10 +7,10 @@ export function delay(): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-/** Devuelve una copia profunda simple (JSON) del dato, para que los mocks
- *  no muten el seed original entre llamadas. */
+/** Devuelve una copia profunda del dato, para que los mocks no muten el
+ *  seed original entre llamadas (structuredClone preserva Dates/undefined). */
 export function clone<T>(value: T): T {
-  return JSON.parse(JSON.stringify(value)) as T;
+  return structuredClone(value);
 }
 
 /** Genera un id único legible (uuid-like) para entidades mock. */

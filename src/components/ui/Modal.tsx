@@ -1,6 +1,7 @@
 import { useEffect, useRef, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
+import { AnimatePresence, useReducedMotion } from 'motion/react';
+import * as m from 'motion/react-m';
 import { cn } from '@/lib/utils/cn';
 import { CloseIcon } from '@/components/ui/icons';
 
@@ -85,7 +86,7 @@ export function Modal({
   return createPortal(
     <AnimatePresence>
       {open ? (
-        <motion.div
+        <m.div
           key="modal"
           className="fixed inset-0 z-50 flex items-end justify-center bg-[var(--scrim)] p-0 backdrop-blur-none sm:items-center sm:p-6 sm:backdrop-blur-sm"
           initial={{ opacity: 0 }}
@@ -96,7 +97,7 @@ export function Modal({
             if (e.target === e.currentTarget) onClose();
           }}
         >
-          <motion.div
+          <m.div
             ref={panelRef}
             role="dialog"
             aria-modal="true"
@@ -115,13 +116,13 @@ export function Modal({
               type="button"
               onClick={onClose}
               aria-label="Cerrar"
-              className="absolute right-7 top-7 inline-flex h-10 w-10 items-center justify-center rounded-full bg-pink text-white transition-all duration-200 hover:brightness-110 hover:shadow-[0_0_18px_rgba(238,125,151,0.6)] active:scale-95"
+              className="absolute right-7 top-7 inline-flex h-10 w-10 items-center justify-center rounded-full bg-pink text-white transition duration-200 hover:brightness-110 hover:shadow-[0_0_18px_rgba(238,125,151,0.6)] active:scale-95"
             >
               <CloseIcon size={20} />
             </button>
             {children}
-          </motion.div>
-        </motion.div>
+          </m.div>
+        </m.div>
       ) : null}
     </AnimatePresence>,
     document.body,

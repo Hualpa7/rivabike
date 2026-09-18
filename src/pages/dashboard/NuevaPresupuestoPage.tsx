@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useServicesAdmin } from '@/features/services/api';
 import { useInventoryItems } from '@/features/inventory/api';
@@ -42,13 +42,14 @@ export function NuevaPresupuestoPage() {
   const create = useCreatePresupuesto();
   const [step, setStep] = useState(0);
   const [draft, setDraft] = useState<Draft>(initialDraft);
-  const [prefilled, setPrefilled] = useState(false);
+  // Flag solo de control (no se muestra): useRef evita re-renders inútiles.
+  const prefilledRef = useRef(false);
 
   const presupuestoId = searchParams.get('presupuesto') ?? undefined;
   const { data: presupuesto } = usePresupuesto(presupuestoId ?? '');
 
   useEffect(() => {
-    if (!presupuesto || prefilled) return;
+    if (!presupuesto || prefilledRef.current) return;
     const serviceIds: string[] = [];
     const servicePrices: Record<string, number> = {};
     for (const s of presupuesto.services) {
@@ -77,13 +78,14 @@ export function NuevaPresupuestoPage() {
       repuestoPrices,
       observaciones: presupuesto.observaciones ?? '',
     }));
-    setPrefilled(true);
-  }, [presupuesto, prefilled]);
+    prefilledRef.current = true;
+  }, [presupuesto]);
 
   const set: WizardSet<Draft> = (key, value) =>
     setDraft((d) => ({ ...d, [key]: value }));
 
-  const selectedServices = services.filter((s) => draft.serviceIds.includes(s.id));
+  const selectedIds = new Set(draft.serviceIds);
+  const selectedServices = services.filter((s) => selectedIds.has(s.id));
   const selectedRepuestos = Object.entries(draft.repuestos).filter(([, qty]) => qty > 0);
 
   const subtotalServices = selectedServices.reduce(

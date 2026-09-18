@@ -99,8 +99,9 @@ export function ServiciosStep({
   servicePrices: Record<string, number>;
   onPriceChange: (id: string, price: number) => void;
 }) {
+  const selectedSet = new Set(selected);
   const toggle = (s: { id: string; precio_base: number }) => {
-    if (selected.includes(s.id)) {
+    if (selectedSet.has(s.id)) {
       onChange(selected.filter((x) => x !== s.id));
     } else {
       onChange([...selected, s.id]);
@@ -111,7 +112,7 @@ export function ServiciosStep({
     <div className="space-y-2">
       {services.length === 0 ? <p className="text-sm text-muted">Sin servicios cargados.</p> : null}
       {services.map((s) => {
-        const on = selected.includes(s.id);
+        const on = selectedSet.has(s.id);
         const price = servicePrices[s.id] ?? s.precio_base;
         return (
           <div

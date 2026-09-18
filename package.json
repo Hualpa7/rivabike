@@ -12,7 +12,8 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "optimize:images": "node scripts/optimize-landing-assets.mjs",
-    "typecheck": "tsc -b --noEmit"
+    "typecheck": "tsc -b --noEmit",
+    "doctor": "npx react-doctor@latest"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
@@ -40,6 +41,7 @@
     "eslint-plugin-react-hooks": "^4.6.2",
     "eslint-plugin-react-refresh": "^0.4.9",
     "postcss": "^8.4.41",
+    "react-doctor": "^0.9.14",
     "rollup-plugin-visualizer": "^7.1.1",
     "sharp": "^0.35.4",
     "tailwindcss": "^3.4.9",

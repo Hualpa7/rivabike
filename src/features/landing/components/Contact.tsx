@@ -92,6 +92,10 @@ export function Contact() {
                 className="h-full w-full"
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
+                // Embed de Google Maps (URL fija y confiable): sandbox sin
+                // top-navigation ni popups/forms. Se permiten scripts y
+                // same-origin porque el mapa los necesita para funcionar.
+                sandbox="allow-scripts allow-same-origin"
               />
             </div>
           </Reveal>

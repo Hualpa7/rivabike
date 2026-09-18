@@ -15,7 +15,7 @@ export function OrdenesPage() {
   const { data: orders = [], isLoading } = useWorkOrders();
 
   const [mode, setMode] = useState<'hoy' | 'mes' | 'rango'>('mes');
-  const [month, setMonth] = useState(currentMonth());
+  const [month, setMonth] = useState(() => currentMonth());
   const [desde, setDesde] = useState('');
   const [hasta, setHasta] = useState('');
   const period: PeriodFilter =

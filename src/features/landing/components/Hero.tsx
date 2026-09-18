@@ -1,4 +1,4 @@
-import { motion } from 'motion/react';
+import * as m from 'motion/react-m';
 import { useSiteSettings } from '@/features/settings/api';
 import { useApprovedCustomerReviews } from '@/features/landing/api';
 import { StarRating } from './ui/StarRating';
@@ -23,7 +23,7 @@ export function Hero() {
     : null;
 
   const circle = (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, scale: 0.8 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 1.1, ease: [0.34, 1.3, 0.64, 1] }}
@@ -41,7 +41,7 @@ export function Hero() {
       <span className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 rounded-pill bg-pink px-4 py-1.5 font-mono text-xs font-semibold uppercase tracking-[0.18em] text-white">
         Riva · Bike
       </span>
-    </motion.div>
+    </m.div>
   );
 
   return (
@@ -76,7 +76,7 @@ export function Hero() {
 
       <div className="relative mx-auto flex w-full max-w-[1120px] flex-col gap-12 px-6 pb-16 pt-40 text-center md:block md:pb-20 md:pl-3 md:pr-6 md:pt-28 md:text-left">
         {/* Logo + slogan (solo desktop), agrandados y con mas aire al titulo */}
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7 }}
@@ -87,29 +87,29 @@ export function Hero() {
           <span className="ml-2 border-l border-white/20 pl-4 text-[14px] font-bold uppercase tracking-[0.18em] text-white/80" aria-hidden="true">
             Tu libertad <span className="text-pink">sobre ruedas</span>
           </span>
-        </motion.div>
-        <motion.p
+        </m.div>
+        <m.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.7 }}
           className="font-mono text-xl font-extrabold uppercase tracking-[0.16em] text-pink"
         >
           {eyebrow}
-        </motion.p>
-        <motion.h1
+        </m.p>
+        <m.h1
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
           className="mx-auto max-w-[15ch] font-display text-5xl font-bold leading-[0.98] tracking-[-0.03em] text-white md:mx-0 md:mt-4 md:text-[88px]"
         >
           {titulo}
-        </motion.h1>
+        </m.h1>
 
         {/* Circulo de bici (solo mobil): entre el titulo y los botones */}
         <div className="mx-auto w-[min(72vw,340px)] md:mx-0 md:mt-12 md:hidden">{circle}</div>
 
         {avgRating ? (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.25 }}
@@ -121,10 +121,10 @@ export function Hero() {
             <span className="text-sm text-white/80">
               {reviews?.length} reseña{reviews?.length === 1 ? '' : 's'}
             </span>
-          </motion.div>
+          </m.div>
         ) : null}
 
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.35 }}
@@ -142,7 +142,7 @@ export function Hero() {
           >
             Ver nuestros trabajos
           </a>
-        </motion.div>
+        </m.div>
       </div>
 
       <div className="absolute bottom-6 right-8 hidden rotate-90 origin-center font-mono text-[11px] uppercase tracking-[0.2em] text-white/60 md:block" aria-hidden="true">

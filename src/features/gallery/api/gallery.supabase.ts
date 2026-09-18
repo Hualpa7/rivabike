@@ -157,13 +157,18 @@ export async function updateGalleryItem(input: UpdateGalleryItemInput): Promise<
 }
 
 export async function reorderGalleryItems(input: { orderedIds: string[] }): Promise<void> {
-  for (let i = 0; i < input.orderedIds.length; i++) {
-    const { error } = await db()
-      .from('gallery_items')
-      .update({ orden: i + 1 })
-      .eq('id', input.orderedIds[i]);
-    if (error) throw error;
-  }
+  // Updates independientes (una fila por id, sin lectura posterior):
+  // en paralelo en vez de secuencial.
+  const results = await Promise.all(
+    input.orderedIds.map((id, i) =>
+      db()
+        .from('gallery_items')
+        .update({ orden: i + 1 })
+        .eq('id', id),
+    ),
+  );
+  const failed = results.find((r) => r.error);
+  if (failed?.error) throw failed.error;
 }
 
 /** Sube imágenes a la galería y crea sus registros en gallery_images. */
@@ -187,32 +192,33 @@ export async function uploadGalleryImages(input: {
     .order('orden', { ascending: false })
     .limit(1);
   if (existingError) throw existingError;
-  let orden = (existing?.[0]?.orden ?? 0) + 1;
+  const baseOrden = (existing?.[0]?.orden ?? 0) + 1;
 
-  const created: GalleryImage[] = [];
-  for (let i = 0; i < input.files.length; i++) {
-    const file = input.files[i];
-    const webp = await toWebp(file, { maxDimension: 1600, quality: 0.82 });
-    const storagePath = pathFor(webp);
-    const { error: uploadError } = await db()
-      .storage.from('public-gallery')
-      .upload(storagePath, webp, { cacheControl: '3600', upsert: false });
-    if (uploadError) throw uploadError;
-    const thumb = await toWebp(file, { maxDimension: 640, quality: 0.8 });
-    const { error: thumbError } = await db()
-      .storage.from('public-gallery')
-      .upload(variantPath(storagePath, '-sm'), thumb, { cacheControl: '3600', upsert: false });
-    if (thumbError) throw thumbError;
-    const tipo = input.tipos?.[i] ?? null;
-    const { data, error } = await db()
-      .from('gallery_images')
-      .insert({ gallery_item_id: input.galleryItemId, storage_path: storagePath, orden, tipo })
-      .select('*')
-      .single();
-    if (error) throw error;
-    created.push(toGalleryImage(data));
-    orden += 1;
-  }
+  // Subidas independientes en paralelo (el orden se preasigna por índice
+  // para conservar la semántica del loop secuencial original).
+  const created = await Promise.all(
+    input.files.map(async (file, i) => {
+      const webp = await toWebp(file, { maxDimension: 1600, quality: 0.82 });
+      const storagePath = pathFor(webp);
+      const { error: uploadError } = await db()
+        .storage.from('public-gallery')
+        .upload(storagePath, webp, { cacheControl: '3600', upsert: false });
+      if (uploadError) throw uploadError;
+      const thumb = await toWebp(file, { maxDimension: 640, quality: 0.8 });
+      const { error: thumbError } = await db()
+        .storage.from('public-gallery')
+        .upload(variantPath(storagePath, '-sm'), thumb, { cacheControl: '3600', upsert: false });
+      if (thumbError) throw thumbError;
+      const tipo = input.tipos?.[i] ?? null;
+      const { data, error } = await db()
+        .from('gallery_images')
+        .insert({ gallery_item_id: input.galleryItemId, storage_path: storagePath, orden: baseOrden + i, tipo })
+        .select('*')
+        .single();
+      if (error) throw error;
+      return toGalleryImage(data);
+    }),
+  );
   return created;
 }
 

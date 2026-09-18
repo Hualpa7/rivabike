@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
-import { motion, useReducedMotion } from 'motion/react';
+import { useReducedMotion } from 'motion/react';
+import * as m from 'motion/react-m';
 import { cn } from '@/lib/utils/cn';
 
 type Direction = 'left' | 'right' | 'up' | 'none';
@@ -25,7 +26,7 @@ export function Reveal({ children, className, from = 'up', delay = 0 }: RevealPr
     none: {},
   };
   return (
-    <motion.div
+    <m.div
       className={cn(className)}
       initial={reduce ? {} : { opacity: 0, ...offset[from] }}
       whileInView={reduce ? {} : { opacity: 1, x: 0, y: 0 }}
@@ -33,6 +34,6 @@ export function Reveal({ children, className, from = 'up', delay = 0 }: RevealPr
       transition={{ duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] }}
     >
       {children}
-    </motion.div>
+    </m.div>
   );
 }

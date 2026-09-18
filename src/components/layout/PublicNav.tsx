@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence } from 'motion/react';
+import * as m from 'motion/react-m';
 import { useAuthStore } from '@/features/auth/store';
 import { BrandMark, BrandWordmark } from '@/components/ui/icons/BrandMark';
 import { CloseIcon } from '@/components/ui/icons';
@@ -71,7 +72,7 @@ export function PublicNav() {
 
       <AnimatePresence>
         {open && (
-          <motion.div
+          <m.div
             initial={{ y: '-100%' }}
             animate={{ y: 0 }}
             exit={{ y: '-100%' }}
@@ -98,7 +99,7 @@ export function PublicNav() {
                 ) : null}
               </div>
             </div>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </>
