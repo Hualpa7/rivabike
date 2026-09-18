@@ -47,14 +47,6 @@ export const workOrderPdfStyles = StyleSheet.create({
     alignItems: 'center',
   },
 
-  // Ícono de la bicicleta (BrandMark real renderizado a PNG) al
-  // costado del wordmark — nunca una aproximación en texto.
-  bikeIcon: {
-    width: 60,
-    height: 36,
-    objectFit: 'contain',
-  },
-
   brandBlock: {
     flexDirection: 'row',
     alignItems: 'center',

@@ -2,7 +2,7 @@
 import { Document, Page, Text, View, Image } from '@react-pdf/renderer';
 import type { SiteSettings, WorkOrderDetail } from '@/types';
 
-import brandMark from '@/assets/pdf-brand-mark.png';
+import { BrandMarkPdf } from './BrandMarkPdf';
 
 import {
   formatWorkOrderCurrency,
@@ -203,12 +203,11 @@ export function WorkOrderPdf({
 
         <View style={s.header}>
           {/*
-            Marca real: ícono de la bicicleta (BrandMark renderizado a
-            PNG) al costado del wordmark "riva bike", con el slogan
-            debajo. Nunca se usa una aproximación en texto puro.
+            Marca vectorial (BrandMark SVG de la web dibujado con
+            primitivas de @react-pdf). Nunca una aproximación en texto.
           */}
           <View style={s.brandBlock}>
-            <Image src={brandMark} style={s.bikeIcon} />
+            <BrandMarkPdf />
             <View style={s.brandWordmarkText}>
               <Text style={s.brandWordmark}>
                 riva<Text style={s.brandBike}>bike</Text>

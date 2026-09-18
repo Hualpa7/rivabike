@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { CustomerReviewWithPhotos } from '@/types';
 import { toThumbUrl } from '@/lib/supabase/storage';
 import { Modal } from '@/components/ui/Modal';
+import { CloseIcon, ChevronLeftIcon, ChevronRightIcon } from '@/components/ui/icons';
 import { StarRating } from './ui/StarRating';
 
 interface ReviewModalProps {
@@ -11,9 +12,18 @@ interface ReviewModalProps {
 
 /** Modal de detalle de reseña: texto completo, fotos en carrusel expandible. */
 export function ReviewModal({ review, onClose }: ReviewModalProps) {
-  const [expandedPhoto, setExpandedPhoto] = useState<string | null>(null);
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+
+  useEffect(() => {
+    setExpandedIndex(null);
+  }, [review?.id]);
 
   if (!review) return null;
+
+  const total = review.photos.length;
+  const expandedPhoto = expandedIndex !== null ? review.photos[expandedIndex] ?? null : null;
+  const goPrev = () => setExpandedIndex((i) => (i === null ? i : (i - 1 + total) % total));
+  const goNext = () => setExpandedIndex((i) => (i === null ? i : (i + 1) % total));
 
   return (
     <>
@@ -34,11 +44,11 @@ export function ReviewModal({ review, onClose }: ReviewModalProps) {
               Fotos
             </p>
             <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2">
-              {review.photos.map((p) => (
+              {review.photos.map((p, i) => (
                 <button
                   key={p.id}
                   type="button"
-                  onClick={() => setExpandedPhoto(p.storage_path)}
+                  onClick={() => setExpandedIndex(i)}
                   className="shrink-0 snap-start"
                 >
                   <img
@@ -58,22 +68,68 @@ export function ReviewModal({ review, onClose }: ReviewModalProps) {
         ) : null}
       </Modal>
 
-      {/* Overlay de foto expandida */}
+      {/* Overlay de foto expandida con navegación entre fotos */}
       {expandedPhoto ? (
         <div
           className="fixed inset-0 z-[60] flex items-center justify-center bg-[var(--scrim)] p-4"
-          onClick={() => setExpandedPhoto(null)}
+          onClick={() => setExpandedIndex(null)}
           role="button"
           tabIndex={0}
-          onKeyDown={(e) => { if (e.key === 'Escape') setExpandedPhoto(null); }}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') setExpandedIndex(null);
+            if (e.key === 'ArrowLeft') goPrev();
+            if (e.key === 'ArrowRight') goNext();
+          }}
         >
+          <button
+            type="button"
+            aria-label="Cerrar foto"
+            onClick={(e) => {
+              e.stopPropagation();
+              setExpandedIndex(null);
+            }}
+            className="absolute right-4 top-4 inline-flex h-10 w-10 items-center justify-center rounded-full bg-ink-fixed/80 text-on-ink-fixed transition-colors hover:bg-pink-deep"
+          >
+            <CloseIcon size={20} />
+          </button>
+          {total > 1 ? (
+            <>
+              <button
+                type="button"
+                aria-label="Foto anterior"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  goPrev();
+                }}
+                className="absolute left-2 top-1/2 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-ink-fixed/80 text-on-ink-fixed transition-colors hover:bg-pink-deep sm:left-4"
+              >
+                <ChevronLeftIcon size={20} />
+              </button>
+              <button
+                type="button"
+                aria-label="Foto siguiente"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  goNext();
+                }}
+                className="absolute right-2 top-1/2 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-ink-fixed/80 text-on-ink-fixed transition-colors hover:bg-pink-deep sm:right-4"
+              >
+                <ChevronRightIcon size={20} />
+              </button>
+            </>
+          ) : null}
           <img
-            src={expandedPhoto}
+            src={expandedPhoto.storage_path}
             alt=""
             loading="lazy"
             decoding="async"
             className="max-h-[85vh] max-w-[90vw] rounded-card object-contain shadow-soft"
           />
+          {total > 1 && expandedIndex !== null ? (
+            <span className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded-pill bg-ink-fixed/80 px-3 py-1 font-mono text-xs font-semibold text-on-ink-fixed">
+              {expandedIndex + 1}/{total}
+            </span>
+          ) : null}
         </div>
       ) : null}
     </>
